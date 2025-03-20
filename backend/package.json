@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "scripts": {
-    "server": "nodemon src/server.js"
+    "server": "nodemon server.js"
   },
   "keywords": [],
   "author": "",

@@ -2,9 +2,10 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { dbConnect } = require('./config/db'); 
+const dbConnect = require('./config/db'); 
 const http = require('http');
 require('dotenv').config();
+
 
 // Create the Express app
 const app = express();
@@ -23,6 +24,7 @@ app.get('/', (req, res) => res.send('My Backend'));
 
 // Database connection
 const port = process.env.PORT || 5000;
+
 dbConnect()
   .then(() => {
     const server = http.createServer(app);
@@ -34,3 +36,4 @@ dbConnect()
     console.error('Database connection failed:', err);
     process.exit(1);
   });
+
