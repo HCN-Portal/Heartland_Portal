@@ -1,0 +1,31 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    height: 80px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    background-color: #9A1F24; /* Add this line for your desired color */
+}
+
+.logo {
+    margin-left: 10px;
+    height: 70px;
+    margin-bottom: 2px;
+}
+
+.logo img {
+    height: 100%;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9em;
+}
