@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const dbConnect = require('./config/db'); 
 const http = require('http');
 require('dotenv').config();
-
+const applicationRoutes = require('./routes/applicationRoutes');
 
 // Create the Express app
 const app = express();
@@ -21,6 +21,7 @@ app.use(cookieParser());
 
 // Routes
 app.get('/', (req, res) => res.send('My Backend'));
+app.use('/applications', applicationRoutes);
 
 // Database connection
 const port = process.env.PORT || 5000;
@@ -36,4 +37,3 @@ dbConnect()
     console.error('Database connection failed:', err);
     process.exit(1);
   });
-
