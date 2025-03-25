@@ -3,7 +3,7 @@ const router = express.Router();
 const applicationController = require('../controllers/applicationController');
 
 // POST /applications - Create a new application
-router.post('/', applicationController.createApplication);
+router.post('/submit-application', applicationController.createApplication);
 
 // GET /applications - Get all applications
 router.get('/', applicationController.getAllApplications);
