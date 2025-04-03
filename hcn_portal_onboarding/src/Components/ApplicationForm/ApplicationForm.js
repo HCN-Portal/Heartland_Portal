@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { Link } from 'react-router-dom';
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import { useForm } from "react-hook-form";
@@ -53,7 +53,7 @@ const ApplicationForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { successMessage, errorMessage } = useSelector((state) => state.application);
-
+  const [showModal, setShowModal] = useState(false);
   const {
     register,
     handleSubmit,
@@ -61,24 +61,24 @@ const ApplicationForm = () => {
   } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = (data) => {
-    console.log(data)
+    alert("You are submitting your details!");
     dispatch(submit_application(data));
   };
 
   useEffect(() => {
     if (successMessage === "Application saved") {
+      setShowModal(true);
       setTimeout(() => {
-        navigate("/"); 
-      }, 2000); 
-      dispatch(messageClear())
-    }
-    else if (errorMessage) {
+        setShowModal(false);
+        navigate("/");
+      }, 3000);
+      dispatch(messageClear());
+    } else if (errorMessage) {
       setTimeout(() => {
-        dispatch(messageClear())
+        dispatch(messageClear());
       }, 2000);
     }
-  }, [successMessage, navigate]);
-
+  }, [successMessage, errorMessage, navigate, dispatch]);
 
   return (
     <div>
@@ -397,7 +397,15 @@ const ApplicationForm = () => {
               Submit Form
             </button>
           </form>
+          {showModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <p>Your application has been successfully submitted! Please check your inbox for further updates. Kindly note that the review process may take a few days. Thank you for your patience and for applying with us!</p>
+              </div>
+            </div>
+          )}
         </div>
+        
       </div>
     </div>
   );
