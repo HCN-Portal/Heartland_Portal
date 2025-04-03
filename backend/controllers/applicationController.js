@@ -1,23 +1,27 @@
-const Application = require('../models/Application');
+const applications = require('../models/applications');
+const Application = require('../models/applications');
+const {responseReturn}  = require("../utils/response")
 
 // Create a new application
 exports.createApplication = async (req, res) => {
+  const formdata = req.body
+  console.log('Received form data:', formdata);
   try {
     // Check if an application with the same email already exists
-    const existingApplication = await Application.findOne({ personalEmail: req.body.personalEmail });
+    const existingApplication = await applications.findOne({ email: formdata.email });
     if (existingApplication) {
-      return res.status(409).json({ error: 'An application with this email already exists' });
+      return responseReturn(res, 409, {error: 'An application with this email already exists'})
     }
-
     // Create new application
-    const application = new Application(req.body);
+    const application = new Application(formdata);
     const savedApplication = await application.save();
-    res.status(201).json(savedApplication);
+    return responseReturn(res, 201, {message: 'Application saved', savedApplication})
   } catch (error) {
+    console.log('Error saving application:', error);
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ error: error.message });
+      return responseReturn(res, 400, {error: error.message})
     }
-    res.status(500).json({ error: 'Server error occurred while creating application' });
+     return responseReturn(res, 500, {error: 'Server error occurred while creating application'})
   }
 };
 
