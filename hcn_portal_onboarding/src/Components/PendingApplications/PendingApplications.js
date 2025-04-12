@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './PendingApplications.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
+// import html2pdf from 'html2pdf.js';
 
 const dummyApplicants = [
   {
@@ -26,7 +27,7 @@ const dummyApplicants = [
     relevantSkills: "React, Node, SQL",
     previousEmployer: "ABC Corp",
     previousPosition: "Frontend Developer",
-    whyJoin: "To contribute to local businesses",
+    whyJoin: "To contribute to local businesses and also to increase the team work and effort to build new applications for the organization",
     roleInterest: "Developer"
   },
   {
@@ -86,6 +87,27 @@ const dummyApplicants = [
 const PendingApplications = () => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
 
+  const formatLabel = (label) => {
+    return label
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase());
+  };
+
+// Function Download PDF to download the applicant profile as a PDF
+
+  // const downloadPDF = (applicant) => {
+  //   const element = document.getElementById('profile-to-print');
+  //   const options = {
+  //     margin: 0.5,
+  //     filename: `${applicant.firstName}_${applicant.lastName}_Profile.pdf`,
+  //     image: { type: 'jpeg', quality: 0.98 },
+  //     html2canvas: { scale: 2 },
+  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  //   };
+  
+  //   html2pdf().set(options).from(element).save();
+  // };
+
   return (
     <div>
       <NavigationBar />
@@ -96,7 +118,7 @@ const PendingApplications = () => {
           <h2 className="sidebar-title">Heartland Community Network</h2>
           <nav className="sidebar-nav">
             <ul>
-              <li><a href="/AdminHome" >Home / Dashboard</a></li>
+              <li><a href="/Admin/Home" >Home / Dashboard</a></li>
               <li><a href="/Admin/Pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
               <li><a href="#employees">Active Employees</a></li>
               <li><a href="#projects">Projects</a></li>
@@ -147,15 +169,20 @@ const PendingApplications = () => {
         <div className="modal-backdrop" onClick={() => setSelectedApplicant(null)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Applicant Profile</h3>
-            <div className="profile-fields">
-                {Object.entries(selectedApplicant).map(([key, value]) => (
-                <div key={key} className="profile-row">
-                    <strong>{key.replace(/([A-Z])/g, ' $1')}:</strong> {value}
+
+            <div id="profile-to-print" className="profile-structured">
+              {Object.entries(selectedApplicant).map(([key, value]) => (
+                <div className="profile-line" key={key}>
+                  <span className="profile-label">{formatLabel(key)}</span>
+                  <span className="profile-value">{value}</span>
                 </div>
-                ))}
+              ))}
             </div>
 
             <div className="action-buttons">
+                {/* <button className="approve-btn" onClick={() => downloadPDF(selectedApplicant)}>
+                  Download PDF
+                </button> */}
                 <button className="approve-btn" onClick={async () => {
                 try {
                     const res = ""
