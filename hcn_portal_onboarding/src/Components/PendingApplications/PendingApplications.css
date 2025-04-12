@@ -122,6 +122,8 @@
     border-radius: 12px;
     width: 90%;
     max-width: 800px;
+    max-height: 80vh;              
+    overflow-y: auto; 
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   }
   
@@ -138,16 +140,36 @@
     max-height: 60vh;
     overflow-y: auto;
   }
-  
-  .profile-row {
-    margin-bottom: 10px;
-    color: #000;
-  }
-  
-  .profile-row strong {
-    color: #9A1F24;
-  }
-  
+
+   /* Structured Profile Layout */
+.profile-structured {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.profile-line {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  font-size: 15px;
+}
+
+.profile-label {
+  width: 220px;
+  font-weight: 600;
+  color: #9A1F24;
+  text-align: left;
+}
+
+.profile-value {
+  flex: 1;
+  color: #333;
+  font-weight: 400;
+  text-align: left;
+}
+
   /* Modal buttons container */
   .action-buttons {
     display: flex;
@@ -198,3 +220,17 @@
     background-color: #5a6268;
   }
   
+
+  .pdf-btn {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: auto;
+  }
+  
+  .pdf-btn:hover {
+    background-color: #00429a;
+  }
