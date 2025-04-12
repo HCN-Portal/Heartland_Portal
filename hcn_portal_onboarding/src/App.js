@@ -13,8 +13,8 @@ function App() {
       <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/apply" element={<ApplicationForm />} />
-      <Route path='/Admin/Home' element={<AdminDashboard />} />
-      <Route path='/Admin/Pending' element={<PendingApplications />} />
+      <Route path='/admin/home' element={<AdminDashboard />} />
+      <Route path='/admin/pending' element={<PendingApplications />} />
       </Routes>
     </Router>
     // <div className="App">
