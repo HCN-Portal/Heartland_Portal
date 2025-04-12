@@ -118,8 +118,8 @@ const PendingApplications = () => {
           <h2 className="sidebar-title">Heartland Community Network</h2>
           <nav className="sidebar-nav">
             <ul>
-              <li><a href="/Admin/Home" >Home / Dashboard</a></li>
-              <li><a href="/Admin/Pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
+              <li><a href="/admin/home" >Home / Dashboard</a></li>
+              <li><a href="/admin/pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
               <li><a href="#employees">Active Employees</a></li>
               <li><a href="#projects">Projects</a></li>
             </ul>

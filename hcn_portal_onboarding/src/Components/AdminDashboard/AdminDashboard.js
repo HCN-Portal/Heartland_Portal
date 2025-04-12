@@ -14,8 +14,8 @@ const AdminDashboard = () => {
         <h2 className="sidebar-title">Heartland Community Network</h2>
         <nav className="sidebar-nav">
           <ul>
-            <li><a href="/Admin/Home" style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
-            <li><a href="/Admin/Pending">Pending Applications</a></li>
+            <li><a href="/admin/home" style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
+            <li><a href="/admin/pending">Pending Applications</a></li>
             <li><a href="#employees">Active Employees</a></li>
             <li><a href="#projects">Projects</a></li>
           </ul>

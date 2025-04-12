@@ -42,6 +42,9 @@ const LandingPage = () => {
           <Link to="/apply">
           <button className="join-button">Join Us Today</button>
           </Link>
+          <Link to="/admin/home">
+          <button className="join-button">Admin Dashboard</button>
+          </Link>
           
         </div>
         <div className="hero-image">
