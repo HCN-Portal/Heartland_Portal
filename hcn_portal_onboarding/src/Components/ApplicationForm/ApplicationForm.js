@@ -54,17 +54,46 @@ const ApplicationForm = () => {
   const navigate = useNavigate();
   const { successMessage, errorMessage } = useSelector((state) => state.application);
   const [showModal, setShowModal] = useState(false);
+  const emailRef = React.useRef(null);
+
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   formState: { errors },
+  // } = useForm({ resolver: yupResolver(schema) });
+
+  // const onSubmit = (data) => {
+  //   alert("You are submitting your details!");
+  //   dispatch(submit_application(data));
+  // };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
+    clearErrors,
+    setValue,
   } = useForm({ resolver: yupResolver(schema) });
-
-  const onSubmit = (data) => {
-    alert("You are submitting your details!");
-    dispatch(submit_application(data));
+  
+  
+  
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(submit_application(data)).unwrap();
+    } catch (err) {
+      if (err?.error?.includes("email")) {
+        setValue("email", "");
+        clearErrors("email");
+        setError("email", { type: "manual", message: err.error });
+        emailRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        emailRef.current?.focus();
+      }
+    }
   };
-
+  
+  
+  
   useEffect(() => {
     if (successMessage === "Application saved") {
       setShowModal(true);
@@ -112,9 +141,7 @@ const ApplicationForm = () => {
                 <p className="error-text">{errors.lastName?.message}</p>
               </div>
             </div>
-            {/* <div>
 
-        </div> */}
             <div className="input-field-single">
               <label>Preferred Name *</label>
               <input
@@ -128,13 +155,19 @@ const ApplicationForm = () => {
             <div className="input-field-email">
               <label>Personal Email *</label>
               <input
-                {...register("email")}
                 type="email"
-                className="input-field"
                 placeholder="Type here"
+                className="input-field"
+                {...register("email")}
+                ref={(e) => {
+                  emailRef.current = e; 
+                  if (e) register("email").ref(e);
+                }}
+                onChange={() => {
+                  if (errors.email) clearErrors("email");
+                }}
               />
               <p className="error-text">{errors.email?.message}</p>
-              <p className="error-text">{errorMessage}</p>
             </div>
 
             <div className="input-field-single">

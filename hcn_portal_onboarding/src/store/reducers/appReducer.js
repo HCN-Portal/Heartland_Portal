@@ -8,7 +8,9 @@ export const submit_application = createAsyncThunk(
             const { data } = await api.post('/applications/submit-application', formData);
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response?.data || "An error occurred");
+            const errorMessage = error.response?.data?.error || "An error occurred";
+            console.log(errorMessage);
+            return rejectWithValue({ error: errorMessage });
         }
     }
 );
@@ -29,8 +31,8 @@ export const appReducer = createSlice({
     },
     extraReducers: (builder) => {
         builder
-        .addCase(submit_application.rejected, (state,{payload}) => {
-            state.errorMessage = payload.error
+        .addCase(submit_application.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || "Submission failed";
         })
         .addCase(submit_application.fulfilled, (state,{payload}) => {
             state.successMessage = payload.message
