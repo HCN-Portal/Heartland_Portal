@@ -32,6 +32,7 @@ app.use(cookieParser());
 // Routes
 app.get('/', (req, res) => res.send('My Backend'));
 app.use('/api/applications', applicationRoutes);
+app.use('/api/auth', authRoutes); 
 
 // Database connection
 const port = process.env.PORT || 5000;

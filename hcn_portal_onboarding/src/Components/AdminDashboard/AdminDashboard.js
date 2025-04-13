@@ -1,6 +1,7 @@
 import React from 'react';
 import './AdminDashboard.css';
-import NavigationBar from '../UI/NavigationBar/NavigationBar';
+import NavigationBar from '../UI/NavigationBar/NavigationBar'
+
 
 const AdminDashboard = () => {
   return (
