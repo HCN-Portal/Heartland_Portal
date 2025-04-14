@@ -10,12 +10,16 @@ exports.login = async (req, res) => {
     // 1. Find user by email
     const user = await User.findOne({ email });
     if (!user) {
+      console.log("User not found for email:", email);
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-
+    console.log("User found:", user.email, "with role:", user.role);
+    console.log("Stored password hash:", user.password);
     // 2. Compare passwords using bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", isMatch);
     if (!isMatch) {
+      console.log("Password mismatch for user:", user.email);
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 

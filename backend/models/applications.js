@@ -50,7 +50,7 @@ const applicationSchema = new mongoose.Schema({
 
   // Meta Information
   dateOfSubmission: { type: Date, default: Date.now },  
-  status: { type: String, default: 'Pending' },
+  status: { type: String, default: 'pending' },
   // digitalSignature: { type: String, required: true },  
 });
 
