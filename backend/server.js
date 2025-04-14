@@ -7,17 +7,21 @@ const http = require('http');
 require('dotenv').config();
 const applicationRoutes = require('./routes/applicationRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
+
 const userRoutes = require('./routes/userRoutes'); // Import user routes
+
 const bodyParser = require('body-parser');
 
 // Create the Express app
 const app = express();
 
 // Middleware to parse JSON requests
+
 //app.use(bodyParser.json());
 
 // Use auth routes for authentication
 //app.use('/auth', authRoutes);
+
 
 // Middleware setup
 app.use(cors({
