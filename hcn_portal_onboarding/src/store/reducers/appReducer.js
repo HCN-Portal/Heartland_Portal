@@ -8,18 +8,52 @@ export const submit_application = createAsyncThunk(
             const { data } = await api.post('/applications/submit-application', formData);
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response?.data || "An error occurred");
+            const errorMessage = error.response?.data?.error || "An error occurred";
+            console.log(errorMessage);
+            return rejectWithValue({ error: errorMessage });
         }
     }
 );
 //End Method
 
+export const get_all_applications = createAsyncThunk(
+    'app/get_all_applications',
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+      try {
+        const { data } = await api.get('/applications'); 
+        return fulfillWithValue(data);
+      } catch (error) {
+        const errorMessage = error.response?.data?.error || "Failed to load applications";
+        console.log(errorMessage);
+        return rejectWithValue({ error: errorMessage });
+      }
+    }
+);
+//End Method
+  
+export const update_application_status = createAsyncThunk(
+    'app/update_application_status',
+    async ({ id, status }, { rejectWithValue, fulfillWithValue }) => {
+      try {
+        const { data } = await api.put(`/applications/${id}/status`, { status });
+        console.log(data);
+        return fulfillWithValue(data);
+      } catch (error) {
+        const errorMessage = error.response?.data?.error || 'Status update failed';
+        return rejectWithValue({ error: errorMessage });
+      }
+    }
+  );
+//End Method
 
 export const appReducer = createSlice({
     name: "app",
     initialState: {
         errorMessage: '',
         successMessage: '',
+        applications: [],
+        loading: false,
+
     },
     reducers: {
         messageClear : (state,_) => {
@@ -29,12 +63,30 @@ export const appReducer = createSlice({
     },
     extraReducers: (builder) => {
         builder
-        .addCase(submit_application.rejected, (state,{payload}) => {
-            state.errorMessage = payload.error
+        .addCase(submit_application.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || "Submission failed";
         })
         .addCase(submit_application.fulfilled, (state,{payload}) => {
             state.successMessage = payload.message
         })
+        .addCase(get_all_applications.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(get_all_applications.fulfilled, (state, { payload }) => {
+            state.applications = payload;
+            state.loading = false;
+        })
+        .addCase(get_all_applications.rejected, (state, { payload }) => {
+            state.loading = false;
+            state.errorMessage = payload?.error || "Failed to fetch applications";
+        })
+        .addCase(update_application_status.fulfilled, (state, { payload }) => {
+            state.successMessage = payload.message;
+        })
+        .addCase(update_application_status.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || "Failed to update status";
+        });
+          
     }
 
 })

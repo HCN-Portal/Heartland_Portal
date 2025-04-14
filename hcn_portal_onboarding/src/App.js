@@ -3,6 +3,8 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LandingPage from './Components/LandingPage/LandingPage';
 import ApplicationForm from './Components/ApplicationForm/ApplicationForm';
+import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
+import PendingApplications from './Components/PendingApplications/PendingApplications';
 
 
 function App() {
@@ -11,6 +13,8 @@ function App() {
       <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/apply" element={<ApplicationForm />} />
+      <Route path='/admin/home' element={<AdminDashboard />} />
+      <Route path='/admin/pending' element={<PendingApplications />} />
       </Routes>
     </Router>
     // <div className="App">
