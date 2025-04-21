@@ -7,16 +7,21 @@ const http = require('http');
 require('dotenv').config();
 const applicationRoutes = require('./routes/applicationRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
+
+const userRoutes = require('./routes/userRoutes'); // Import user routes
+
 const bodyParser = require('body-parser');
 
 // Create the Express app
 const app = express();
 
 // Middleware to parse JSON requests
-app.use(bodyParser.json());
+
+//app.use(bodyParser.json());
 
 // Use auth routes for authentication
-app.use('/auth', authRoutes);
+//app.use('/auth', authRoutes);
+
 
 // Middleware setup
 app.use(cors({
@@ -32,6 +37,8 @@ app.use(cookieParser());
 // Routes
 app.get('/', (req, res) => res.send('My Backend'));
 app.use('/api/applications', applicationRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes); // Use user routes
 
 // Database connection
 const port = process.env.PORT || 5000;
