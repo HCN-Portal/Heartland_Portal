@@ -6,7 +6,7 @@ import NavigationBar from '../UI/NavigationBar/NavigationBar'
 const AdminDashboard = () => {
   return (
     <div>
-        <NavigationBar />
+        <NavigationBar isLoggedIn= 'ture' />
     
     <div className="admin-dashboard">
         
@@ -17,7 +17,7 @@ const AdminDashboard = () => {
           <ul>
             <li><a href="/admin/home" style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
             <li><a href="/admin/pending">Pending Applications</a></li>
-            <li><a href="#employees">Active Employees</a></li>
+            <li><a href="/admin/employees">Active Employees</a></li>
             <li><a href="#projects">Projects</a></li>
           </ul>
         </nav>
@@ -28,7 +28,7 @@ const AdminDashboard = () => {
         {/* Secondary Header */}
         <div className="admin-header">
           <h1>Admin Dashboard</h1>
-          <button className="signout-btn">Sign Out</button>
+          {/* <button className="signout-btn">Sign Out</button> */}
         </div>
 
         {/* Summary Cards */}
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
         </div>
 
        {/* Section Descriptions */}
-        <div className="section-links">
+        {/* <div className="section-links">
         <div className="section-item">
             <h3>Pending Applications</h3>
             <p>
@@ -69,7 +69,7 @@ const AdminDashboard = () => {
             All the projects which are currently ongoing and their team details.
             </p>
         </div>
-        </div>
+        </div> */}
 
 
       </main>

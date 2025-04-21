@@ -45,15 +45,26 @@ const PendingApplications = () => {
 
   return (
     <div>
+<<<<<<< Updated upstream
       <NavigationBar />
+=======
+      <NavigationBar isLoggedIn= 'ture'/>
+
+>>>>>>> Stashed changes
       <div className="admin-dashboard">
         <aside className="sidebar">
           <h2 className="sidebar-title">Heartland Community Network</h2>
           <nav className="sidebar-nav">
             <ul>
+<<<<<<< Updated upstream
               <li><a href="/admin/home">Home / Dashboard</a></li>
               <li><a href="/admin/pending" style={{ fontWeight: '900' }}>Pending Applications</a></li>
               <li><a href="#employees">Active Employees</a></li>
+=======
+              <li><a href="/admin/home" >Home / Dashboard</a></li>
+              <li><a href="/admin/pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
+              <li><a href="/admin/employees">Active Employees</a></li>
+>>>>>>> Stashed changes
               <li><a href="#projects">Projects</a></li>
             </ul>
           </nav>
