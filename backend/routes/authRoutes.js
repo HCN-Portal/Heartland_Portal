@@ -1,9 +1,13 @@
-const authControllers = require('../controllers/authController')
-const { authMiddleware } = require('../middlewares/authMiddleware')
+const express = require('express');
+const router = express.Router();
+const authControllers = require('../controllers/authController');
+const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 
-const router = require('express').Router()
+router.post('/login', authControllers.login);
 
-// POST /login - Login route
-router.post('/login', authControllers.login); // Login endpoint
 
-module.exports = router
+router.get('/admin-only', authMiddleware, isAdmin, (req, res) => {
+  res.json({ message: 'You are an admin!' });
+});
+
+module.exports = router;

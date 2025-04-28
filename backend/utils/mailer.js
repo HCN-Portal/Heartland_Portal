@@ -14,12 +14,24 @@ const createTransporter = async () => {
     refresh_token: process.env.REFRESH_TOKEN
   });
 
+  // const accessToken = await new Promise((resolve, reject) => {
+  //   oauth2Client.getAccessToken((err, token) => {
+  //     if (err) reject("Failed to create access token");
+  //     resolve(token);
+  //   });
+  // });
+
   const accessToken = await new Promise((resolve, reject) => {
     oauth2Client.getAccessToken((err, token) => {
-      if (err) reject("Failed to create access token");
-      resolve(token);
+      if (err) {
+        console.error("Detailed error from Google:", err);
+        reject("Failed to create access token");
+      } else {
+        resolve(token);
+      }
     });
   });
+  
 
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",

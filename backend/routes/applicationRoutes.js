@@ -6,6 +6,9 @@ const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 // POST /applications - Create a new application
 router.post('/submit-application', applicationController.createApplication);
 
+// GET /applications/dashboard - Get dashboard statistics
+router.get('/dashboard-stats', applicationController.getDashboardStats);
+
 // GET /applications - Get all applications
 router.get('/', authMiddleware, isAdmin, applicationController.getAllApplications);
 

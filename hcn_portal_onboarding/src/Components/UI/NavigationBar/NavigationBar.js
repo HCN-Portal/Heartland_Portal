@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../store/reducers/authReducer'; // update path if needed
 import hcn_logo from '../../../Images/hcn_logo.png';
 import './NavigationBar.css';
 
 const NavigationBar = ({ isLoggedIn }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userRole');
+    dispatch(logout());
     navigate('/');
   };
 

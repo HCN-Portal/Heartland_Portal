@@ -4,7 +4,7 @@ const User = require('../models/user');
 const {responseReturn}  = require("../utils/response")
 const { sendEmail } = require('../utils/mailer');
 const bcrypt = require('bcryptjs');
-
+const generateEmployeeId = require('../utils/employeeId');
 
 exports.createApplication = async (req, res) => {
   const formdata = req.body;
@@ -40,6 +40,23 @@ Heartland Community`
     return responseReturn(res, 500, { error: 'Server error occurred while creating application' });
   }
 };
+
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const totalPending = await Application.countDocuments({ status: 'pending' });
+    const totalApproved = await Application.countDocuments({ status: 'Approved' });
+    const ongoingProjects = 0; // Placeholder for ongoing projects count
+    return res.status(200).json({
+      pendingApplications: totalPending,
+      activeEmployees: totalApproved,
+      ongoingProjects,
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return res.status(500).json({ error: 'Server error while fetching dashboard statistics' });
+  }
+};
+
 
 
 // Get all applications
@@ -77,14 +94,16 @@ exports.updateApplicationStatus = async (req, res) => {
     if (status === 'Approved') {
       // Generate temp password and hash it
       tempPassword = generateTempPassword();
-      const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
       // Check if user already exists
       let user = await User.findOne({ email: application.email });
+      let employeeId = '';
       if (!user) {
+        employeeId = await generateEmployeeId();
         user = new User({
+          employeeId,
           email: application.email,
-          password: hashedPassword,
+          password: tempPassword,
           role: 'employee',
         });
         await user.save();
@@ -99,6 +118,7 @@ Congratulations! We’re excited to inform you that your application has been ap
 To get started, please use the following temporary login credentials to access your account:
 
 Temporary Login Details:
+• Employee ID: ${employeeId}
 • Username: ${application.email}
 • Password: ${tempPassword}
 
@@ -146,6 +166,8 @@ Heartland Community Team
     return res.status(500).json({ error: 'Server error while updating status' });
   }
 };
+
+
 
 // Get application by ID
 exports.getApplicationById = async (req, res) => {
