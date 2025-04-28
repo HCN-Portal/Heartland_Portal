@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, isRejectedWithValue } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/api";
 
 export const submit_application = createAsyncThunk(
@@ -9,12 +9,25 @@ export const submit_application = createAsyncThunk(
             return fulfillWithValue(data);
         } catch (error) {
             const errorMessage = error.response?.data?.error || "An error occurred";
-            console.log(errorMessage);
             return rejectWithValue({ error: errorMessage });
         }
     }
 );
 //End Method
+
+export const get_dashboard_stats = createAsyncThunk(
+    'app/get_dashboard_stats',
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+      try {
+        const { data } = await api.get('/applications/dashboard-stats');
+        return fulfillWithValue(data);
+      } catch (error) {
+        const errorMessage = error.response?.data?.error || 'Failed to fetch dashboard stats';
+        return rejectWithValue({ error: errorMessage });
+      }
+    }
+  );
+  
 
 export const get_all_applications = createAsyncThunk(
     'app/get_all_applications',
@@ -52,6 +65,9 @@ export const appReducer = createSlice({
         errorMessage: '',
         successMessage: '',
         applications: [],
+        pendingApplications: 0,
+        activeEmployees:0,
+        ongoingProjects:0,
         loading: false,
 
     },
@@ -69,6 +85,14 @@ export const appReducer = createSlice({
         .addCase(submit_application.fulfilled, (state,{payload}) => {
             state.successMessage = payload.message
         })
+        .addCase(get_dashboard_stats.fulfilled, (state, { payload }) => {
+            state.pendingApplications = payload.pendingApplications;
+            state.activeEmployees = payload.activeEmployees;
+            state.ongoingProjects = payload.ongoingProjects;
+        })
+        .addCase(get_dashboard_stats.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || "Failed to fetch dashboard stats";
+        })          
         .addCase(get_all_applications.pending, (state) => {
             state.loading = true;
         })

@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './AdminDashboard.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar'
+import { get_dashboard_stats } from '../../store/reducers/appReducer';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 
 const AdminDashboard = () => {
+  const dispatch = useDispatch();
+  const { pendingApplications, activeEmployees, ongoingProjects } = useSelector((state) => state.application);
+
+  useEffect(() => {
+    dispatch(get_dashboard_stats());
+  }, [dispatch]);
+
   return (
     <div>
-        <NavigationBar />
+        <NavigationBar isLoggedIn= 'ture' />
     
     <div className="admin-dashboard">
         
@@ -17,7 +27,7 @@ const AdminDashboard = () => {
           <ul>
             <li><a href="/admin/home" style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
             <li><a href="/admin/pending">Pending Applications</a></li>
-            <li><a href="#employees">Active Employees</a></li>
+            <li><a href="/admin/employees">Active Employees</a></li>
             <li><a href="#projects">Projects</a></li>
           </ul>
         </nav>
@@ -28,27 +38,27 @@ const AdminDashboard = () => {
         {/* Secondary Header */}
         <div className="admin-header">
           <h1>Admin Dashboard</h1>
-          <button className="signout-btn">Sign Out</button>
+          {/* <button className="signout-btn">Sign Out</button> */}
         </div>
 
         {/* Summary Cards */}
         <div className="summary-cards">
           <div className="card">
             <h3>Pending Applications</h3>
-            <p className="card-number">32</p>
+            <p className="card-number">{pendingApplications}</p>
           </div>
           <div className="card">
             <h3>Active Employees</h3>
-            <p className="card-number">430</p>
+            <p className="card-number">{activeEmployees}</p>
           </div>
           <div className="card">
             <h3>Ongoing Projects</h3>
-            <p className="card-number">12</p>
+            <p className="card-number">{ongoingProjects}</p>
           </div>
         </div>
 
        {/* Section Descriptions */}
-        <div className="section-links">
+        {/* <div className="section-links">
         <div className="section-item">
             <h3>Pending Applications</h3>
             <p>
@@ -69,7 +79,7 @@ const AdminDashboard = () => {
             All the projects which are currently ongoing and their team details.
             </p>
         </div>
-        </div>
+        </div> */}
 
 
       </main>

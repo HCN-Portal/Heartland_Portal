@@ -5,6 +5,8 @@ import LandingPage from './Components/LandingPage/LandingPage';
 import ApplicationForm from './Components/ApplicationForm/ApplicationForm';
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import PendingApplications from './Components/PendingApplications/PendingApplications';
+import CurrentEmployees from './Components/CurrentEmployees/CurrentEmployees';
+import LoginPage from './Components/Authentication/Login/LoginPage';
 
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
       <Route path="/apply" element={<ApplicationForm />} />
       <Route path='/admin/home' element={<AdminDashboard />} />
       <Route path='/admin/pending' element={<PendingApplications />} />
+      <Route path='/admin/employees' element={<CurrentEmployees />} />
+      <Route path='/Login' element={<LoginPage />} />
       </Routes>
     </Router>
     // <div className="App">

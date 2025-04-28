@@ -29,3 +29,32 @@
     text-decoration: none;
     font-size: 0.9em;
 }
+.nav-button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+  }
+  
+
+.login-btn {
+    background-color: #9A1F24;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-btn:hover {
+    background-color: #80171d;
+  }
+  

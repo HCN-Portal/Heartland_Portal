@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user'); // Import the new User model
 
 exports.login = async (req, res) => {
+bcrypt.hash('admin123', 10).then(console.log);
+
   const { email, password } = req.body; // Get email and password from request body
 
   try {
