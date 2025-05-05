@@ -105,6 +105,12 @@ exports.updateApplicationStatus = async (req, res) => {
           email: application.email,
           password: tempPassword,
           role: 'employee',
+          firstName: application.firstName,
+          lastName: application.lastName,
+          preferredName: application.preferredName,
+          phoneNumber: application.phoneNumber,
+          address1: application.address1,
+          address2: application.address2
         });
         await user.save();
       }

@@ -24,3 +24,14 @@ module.exports.isAdmin = (req, res, next) => {
   }
   return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
 };
+
+module.exports.isAuthUser = (req, res, next) => {
+    // Allow access if user is requesting their own info or is an admin
+    if (req.userId === req.params.id || req.role === 'admin') {
+        console.log("Access granted:", req.role === 'admin' ? "Admin access" : "Own account access");
+        return next();
+    }
+    
+    console.log("Access denied: Not own account and not admin");
+    return res.status(403).json({ error: 'Access denied. You can only access your own information.' });
+};
