@@ -149,7 +149,8 @@ exports.updateUserProfile = async (req, res) => {
                 phoneNumber: updatedUser.phoneNumber,
                 address1: updatedUser.address1,
                 address2: updatedUser.address2,
-                employeeId: updatedUser.employeeId
+                employeeId: updatedUser.employeeId,
+                projectsAssigned: updatedUser.projectsAssigned
             }
         });
     } catch (error) {
