@@ -16,7 +16,23 @@ const userSchema = new mongoose.Schema({
   projectsAssigned: { 
     type: [String], // Array of strings to store multiple project IDs or names
     default: ['N/A'] // Default to 'N/A' when no projects are assigned
-  }
+  },
+  
+  // Immigration/Work Authorization 
+  eadStartDate: { type: Date, required: false },
+  citizenshipStatus: { type: String, required: true },  
+  workAuthorizationType: { type: String, required: true },  
+  // Educational Background
+  highestDegreeEarned: { type: String, required: true },  
+  fieldOfStudy: { type: String, required: true },  
+  universityName: { type: String, required: true },  
+  graduationYear: { type: String, required: true },  
+  // Professional Experience
+  totalYearsExperience: { type: String, required: true }, 
+  relevantSkills: { type: [String], required: true },  
+  previousEmployer: { type: String, required: true },  
+  previousPosition: { type: String, required: true }  
+
 });
 
 // Before saving a user, hash their password

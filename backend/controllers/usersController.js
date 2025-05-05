@@ -119,7 +119,18 @@ exports.updateUserProfile = async (req, res) => {
             'phoneNumber',
             'address1',
             'address2',
-            'projectsAssigned'
+            'projectsAssigned',
+            'eadStartDate',
+            'citizenshipStatus',
+            'workAuthorizationType',
+            'highestDegreeEarned',
+            'fieldOfStudy',
+            'universityName',
+            'graduationYear',
+            'totalYearsExperience',
+            'relevantSkills',
+            'previousEmployer',
+            'previousPosition'
         ];
         
         // Create an object with only the allowed fields
