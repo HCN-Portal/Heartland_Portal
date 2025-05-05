@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: false },   
   address1: { type: String, required: true },  
   address2: { type: String, default: '' },
+  projectsAssigned: { 
+    type: [String], // Array of strings to store multiple project IDs or names
+    default: ['N/A'] // Default to 'N/A' when no projects are assigned
+  }
 });
 
 // Before saving a user, hash their password
