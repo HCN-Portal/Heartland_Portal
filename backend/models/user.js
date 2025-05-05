@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: ['admin', 'employee', 'manager'], default: 'employee' }, // Assuming roles for users
+  firstName: { type: String, required: true },  
+  lastName: { type: String, required: true },  
+  preferredName: { type: String, default: '' },   
+  phoneNumber: { type: String, required: false },   
+  address1: { type: String, required: true },  
+  address2: { type: String, default: '' },
 });
 
 // Before saving a user, hash their password

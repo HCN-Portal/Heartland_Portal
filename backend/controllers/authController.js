@@ -35,7 +35,7 @@ bcrypt.hash('admin123', 10).then(console.log);
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // 4. Send the token in response (can be in a cookie or as JSON)
-    return res.json({ message: 'Login successful', token });
+    return res.json({ message: 'Login successful', token, userId: user._id, role: user.role });
 
   } catch (error) {
     console.error(error);
