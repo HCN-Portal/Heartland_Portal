@@ -98,7 +98,7 @@ const PendingApplications = () => {
             <table className="applicant-table">
               <thead>
                 <tr>
-                  <th>Student Name</th>
+                  <th>Employee Name</th>
                   <th>Position Applied For</th>
                   <th>Date Applied</th>
                   <th>Action</th>

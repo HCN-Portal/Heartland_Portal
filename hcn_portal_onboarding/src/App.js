@@ -7,6 +7,8 @@ import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import PendingApplications from './Components/PendingApplications/PendingApplications';
 import CurrentEmployees from './Components/CurrentEmployees/CurrentEmployees';
 import LoginPage from './Components/Authentication/Login/LoginPage';
+import EmployeeDashboard from './Components/EmployeeDashboard/EmployeeDashboard';
+import EmployeeProfile from './Components/EmployeeProfile/EmployeeProfile';
 
 
 function App() {
@@ -18,7 +20,10 @@ function App() {
       <Route path='/admin/home' element={<AdminDashboard />} />
       <Route path='/admin/pending' element={<PendingApplications />} />
       <Route path='/admin/employees' element={<CurrentEmployees />} />
+      <Route path='/employee/home' element = {<EmployeeDashboard />} />
+      <Route path='/employee/profile' element = {<EmployeeProfile />} />
       <Route path='/Login' element={<LoginPage />} />
+
       </Routes>
     </Router>
     // <div className="App">
