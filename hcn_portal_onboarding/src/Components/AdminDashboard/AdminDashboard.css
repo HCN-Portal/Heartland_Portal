@@ -7,12 +7,55 @@
   /* Sidebar */
   .sidebar {
     background-color: #9A1F24;
-    color: white;
-    width: 240px;
-    margin-top: 20px;
+    width: 250px;
+    min-height: 100vh;
     padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-sidebar-btn-inside {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  /* Collapsed Sidebar */
+  .collapsed-sidebar {
+    width: 60px;
+    height: 100vh;
+    background-color: #9A1F24;
     display: flex;
     flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  /* Top area inside collapsed sidebar */
+  .collapsed-top {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    align-items: flex-start; /* align button at the top */
+  }
+  
+  /* Hamburger button inside collapsed sidebar */
+  .toggle-sidebar-btn-collapsed {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
   }
   
   .sidebar-title {

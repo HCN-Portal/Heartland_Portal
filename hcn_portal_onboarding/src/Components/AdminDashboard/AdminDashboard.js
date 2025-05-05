@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 
 
+
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { pendingApplications, activeEmployees, ongoingProjects } = useSelector((state) => state.application);
@@ -13,25 +14,43 @@ const AdminDashboard = () => {
   useEffect(() => {
     dispatch(get_dashboard_stats());
   }, [dispatch]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
     <div>
         <NavigationBar isLoggedIn= 'ture' />
     
     <div className="admin-dashboard">
-        
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <h2 className="sidebar-title">Heartland Community Network</h2>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><a href="/admin/home" style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
-            <li><a href="/admin/pending">Pending Applications</a></li>
-            <li><a href="/admin/employees">Active Employees</a></li>
-            <li><a href="#projects">Projects</a></li>
-          </ul>
-        </nav>
-      </aside>
+        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        </button>
+
+        {sidebarOpen ? (
+          <aside className="sidebar">
+            <div className="sidebar-header">
+              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
+                &#9776;
+              </button>
+              <h2 className="sidebar-title">Heartland Community Network</h2>
+            </div>
+
+            <nav className="sidebar-nav">
+              <ul>
+                <li><a href="/admin/home"style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
+                <li><a href="/admin/pending" >Pending Applications</a></li>
+                <li><a href="/admin/employees">Active Employees</a></li>
+                <li><a href="#projects">Projects</a></li>
+              </ul>
+            </nav>
+          </aside>
+        ) : (
+          <div className="collapsed-sidebar">
+            <div className="collapsed-top">
+              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
+                &#9776;
+              </button>
+            </div>
+          </div>
+        )}
 
       {/* Main Content */}
       <main className="dashboard-main">
