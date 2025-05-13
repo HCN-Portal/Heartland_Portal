@@ -1,0 +1,57 @@
+/* components/EmployeeClockify/ClockifyPage.css */
+
+.dashboard-main {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-main h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.clockify-widget {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(92,152,184,100);
+  margin-bottom: 2rem;
+  max-width: 500px;
+  transition: transform 0.2s ease;
+}
+
+.clockify-widget:hover {
+  transform: translateY(-3px);
+}
+
+.clockify-widget h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 1rem;
+}
+
+.clockify-widget button {
+  padding: 0.6rem 1.2rem;
+  background-color: #5C98B8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clockify-widget button:hover {
+  background-color: #5C98B8;
+}
+
+.clockify-note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 1rem;
+}

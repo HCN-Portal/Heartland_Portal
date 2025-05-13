@@ -1,0 +1,219 @@
+.application-container {
+    background-color: white;
+    padding: 3rem;
+    max-width: 55rem;
+    margin: 2rem auto;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .application-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black; /* Tailwind's red-600 */
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .application-subtitle {
+    color: black;
+    text-decoration: underline;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .application-form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  
+  .two-column-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  
+  .three-column-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  
+  /* .input-field {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    width: 100%;
+    border-radius: 0.5rem;
+  } */
+  .one-column-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Single column layout */
+    gap: 1rem;
+    height: 65px;
+  }
+  .input-field-single {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 2px;
+    width: 280px;
+    height: 65px; 
+    /* left: s329px; */
+    /* top: 386px; */
+  }
+
+  .input-field-email {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 2px;
+    width: 380px;
+    height: 65px; 
+    /* left: s329px; */
+    /* top: 386px; */
+  }
+  
+  .input-field {
+    width: 100%; /* Make input take full width inside the container */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    height: 40px;
+  }
+  
+  .error-text {
+    color: black; /* Tailwind's red-500 */
+    font-size: 0.875rem;
+  }
+  
+  .submit-button {
+    background-color: #5C98B8; /* red-500 */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    width: 100pt;
+    margin-top: 1rem;
+    margin-left: auto;  
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block; 
+  }
+  
+  .submit-button:hover {
+    background-color: #5C98B8; /* red-600 */
+  }
+
+  label {
+    display: block; /* Ensures labels take up full width and appear on their own line */
+    color: black; /* Dark color for the text */
+    font-size: 11pt; /* Adjust size if necessary */
+    margin-bottom: 0.2em; /* Space below label */
+  }  
+
+
+  /* Heading for the section */
+.section-heading {
+    background-color: #5C98B8; /* Red background */
+    color: white; /* White text color */
+    padding: 10px; /* Padding around the heading */
+    margin-bottom: 10px; /* Space below the heading */
+    margin-top: 25px;
+    border-radius: 10px; /* Rounded corners */
+    text-align: center; /* Center the text */
+    /* position: absolute; */
+    width: 250px;
+    /* height: 42px; */
+    /* left: 320px; */
+    /* top: 236px; */
+  }
+  
+  .section-heading h2 {
+    margin: 0; /* Remove any default margin */
+    font-size: 1em; /* Adjust the font size */
+    
+  }
+
+
+/* Modal Overlay with Background Blur */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's above other elements */
+  backdrop-filter: blur(2px); /* Apply blur effect */
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Modal Content */
+.modal-content {
+  background: #9A1F24;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out; /* Optional: For smooth animation */
+}
+
+/* Modal Text */
+.modal-content p {
+  font-size: 1rem;
+  color: white;
+  margin-bottom: 20px;
+}
+
+/* Modal Button */
+.modal-content button {
+  background: #9A1F24;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 200px;
+  transition: background 0.3s ease-in-out;
+}
+
+.modal-content button:hover {
+  background: #7A171B; /* Darker shade on hover */
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Friendly */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    max-width: 350px;
+    padding: 20px;
+  }
+}
+
+
+
+
