@@ -119,7 +119,18 @@ exports.updateUserProfile = async (req, res) => {
             'phoneNumber',
             'address1',
             'address2',
-            'projectsAssigned'
+            'projectsAssigned',
+            'eadStartDate',
+            'citizenshipStatus',
+            'workAuthorizationType',
+            'highestDegreeEarned',
+            'fieldOfStudy',
+            'universityName',
+            'graduationYear',
+            'totalYearsExperience',
+            'relevantSkills',
+            'previousEmployer',
+            'previousPosition'
         ];
         
         // Create an object with only the allowed fields
@@ -150,7 +161,18 @@ exports.updateUserProfile = async (req, res) => {
                 address1: updatedUser.address1,
                 address2: updatedUser.address2,
                 employeeId: updatedUser.employeeId,
-                projectsAssigned: updatedUser.projectsAssigned
+                projectsAssigned: updatedUser.projectsAssigned,
+                eadStartDate: updatedUser.eadStartDate,
+                citizenshipStatus: updatedUser.citizenshipStatus,
+                workAuthorizationType: updatedUser.workAuthorizationType,
+                highestDegreeEarned: updatedUser.highestDegreeEarned,
+                fieldOfStudy: updatedUser.fieldOfStudy,
+                universityName: updatedUser.universityName,
+                graduationYear: updatedUser.graduationYear,
+                totalYearsExperience: updatedUser.totalYearsExperience,
+                relevantSkills: updatedUser.relevantSkills,
+                previousEmployer: updatedUser.previousEmployer,
+                previousPosition: updatedUser.previousPosition
             }
         });
     } catch (error) {
