@@ -35,3 +35,11 @@ module.exports.isAuthUser = (req, res, next) => {
     console.log("Access denied: Not own account and not admin");
     return res.status(403).json({ error: 'Access denied. You can only access your own information.' });
 };
+
+module.exports.isAdminOrManager = (req, res, next) => {
+  // Check if the user is a manager
+  if (req.role === 'admin' || req.role === 'manager') {
+      return next();
+  }
+  return res.status(403).json({ error: 'Access denied. Manager privileges required.' });
+};
