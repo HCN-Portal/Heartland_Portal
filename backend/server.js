@@ -6,10 +6,9 @@ const dbConnect = require('./config/db');
 const http = require('http');
 require('dotenv').config();
 const applicationRoutes = require('./routes/applicationRoutes');
-const authRoutes = require('./routes/authRoutes'); // Import auth routes
-
-const userRoutes = require('./routes/userRoutes'); // Import user routes
-
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 const bodyParser = require('body-parser');
 
 // Create the Express app
@@ -39,7 +38,7 @@ app.get('/', (req, res) => res.send('My Backend'));
 app.use('/api/applications', applicationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // Use user routes
-
+app.use('/api/projects', projectRoutes);
 // Database connection
 const port = process.env.PORT || 5000;
 
