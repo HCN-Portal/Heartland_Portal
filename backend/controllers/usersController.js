@@ -29,16 +29,8 @@ exports.createUser = async (req, res) => {
         
         // Create a new user - the model's pre-save hook will handle password hashing
         const newUser = new User({
-            employeeId,
-            email,
-            password, // Pass the plain password - it will be hashed by the model
-            role,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            preferredName: req.body.preferredName,
-            phoneNumber: req.body.phoneNumber,
-            address1: req.body.address1,
-            address2: req.body.address2,
+            ...req.body,
+            employeeId
         });
 
         // Save the user to the database
@@ -225,3 +217,49 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Error changing password', error: error.message });
     }
 };
+
+exports.getAllManagers = async (req, res) => {
+    try {
+        // Find all users with role 'manager'
+        const managers = await User.find({ role: 'manager' }, 'firstName lastName _id');
+        
+        // Format the response
+        const formattedManagers = managers.map(manager => ({
+            id: manager._id,
+            firstName: manager.firstName,
+            lastName: manager.lastName,
+            fullName: `${manager.firstName} ${manager.lastName}`
+        }));
+        
+        res.status(200).json({
+            count: formattedManagers.length,
+            managers: formattedManagers
+        });
+    } catch (error) {
+        console.error('Error fetching managers:', error);
+        res.status(500).json({ message: 'Error fetching managers', error: error.message });
+    }
+};
+
+exports.getAllEmployees = async (req, res) => {
+    try {
+        // Find all users with role 'employee'
+        const employees = await User.find({ role: 'employee' }, 'firstName lastName _id');
+        
+        // Format the response
+        const formattedEmployees = employees.map(employee => ({
+            id: employee._id,
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            fullName: `${employee.firstName} ${employee.lastName}`
+        }));
+        
+        res.status(200).json({
+            count: formattedEmployees.length,
+            employees: formattedEmployees
+        });
+    } catch (error) {
+        console.error('Error fetching employees:', error);
+        res.status(500).json({ message: 'Error fetching employees', error: error.message });
+    }
+}
