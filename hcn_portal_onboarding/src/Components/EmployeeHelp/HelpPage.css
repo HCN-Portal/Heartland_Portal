@@ -1,0 +1,86 @@
+/* components/EmployeeHelp/HelpPage.css */
+
+.dashboard-main {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.help-section,
+.relieving-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(92,152,184,100);
+}
+
+h2 {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.contact-info ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.contact-info li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.relieving-section ol {
+  margin-left: 1.5rem;
+}
+
+.relieving-section button {
+  background-color: #5C98B8;
+  margin-top: 10px;
+  color: white;
+  border: none;
+  width: 160px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.relieving-section button:hover {
+  background-color: #5C98B8;
+}
+
+.relieving-section button:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .contact-info li {
+    font-size: 1rem;
+  }
+
+  .relieving-section button {
+    width: 100%;
+    font-size: 1.2rem;
+  }
+}

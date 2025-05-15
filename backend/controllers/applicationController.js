@@ -105,12 +105,15 @@ exports.updateApplicationStatus = async (req, res) => {
           email: application.email,
           password: tempPassword,
           role: 'employee',
+<<<<<<< HEAD
           firstName: application.firstName,
           lastName: application.lastName,
           preferredName: application.preferredName,
           phoneNumber: application.phoneNumber,
           address1: application.address1,
           address2: application.address2
+=======
+>>>>>>> origin/karunakar/frontend
         });
         await user.save();
       }

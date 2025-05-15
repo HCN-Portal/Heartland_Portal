@@ -1,9 +1,10 @@
-import appReducer from "./reducers/appReducer"
-import authReducer from "./reducers/authReducer"
+import { combineReducers } from '@reduxjs/toolkit';
+import appReducer from './reducers/appReducer';
+import authReducer from './reducers/authReducer';
 
-const rootReducers = {
-    application: appReducer,
-    auth: authReducer
-}
+const rootReducer = combineReducers({
+  application: appReducer,
+  auth: authReducer
+});
 
-export default rootReducers
+export default rootReducer;

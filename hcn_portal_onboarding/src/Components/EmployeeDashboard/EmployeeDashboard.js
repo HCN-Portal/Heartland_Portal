@@ -1,0 +1,35 @@
+import React, { useState } from 'react';
+import './EmployeeDashboard.css';
+import NavigationBar from '../UI/NavigationBar/NavigationBar';
+import Sidebar from '../Sidebar/Sidebar';
+
+const EmployeeDashboard = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  return (
+    <div>
+      <NavigationBar isLoggedIn={true} />
+      <div className="employee-dashboard">
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <main className="dashboard-main">
+          <div className="employee-header">
+            <h1>Employee Dashboard - "Employee Name"</h1>
+          </div>
+
+          <div className="summary-cards-employee">
+            <div className="card">
+              <h3>Projects count</h3>
+              <p className="card-number">2</p>
+            </div>
+            <div className="card">
+              <h3>No. of Hours Worked this week</h3>
+              <p className="card-number">32</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeDashboard;

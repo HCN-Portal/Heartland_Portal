@@ -1,0 +1,127 @@
+/* components/EmployeeProjects/Projects.css */
+
+.dashboard-main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.project-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-tabs button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #e4e7ec;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  transition: background-color 0.3s ease;
+}
+
+.project-tabs button.active,
+.project-tabs button:hover {
+  background-color: #5C98B8;
+  color: white;
+}
+
+.project-search {
+  margin-bottom: 1.5rem;
+}
+
+.project-search input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.project-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 700px;
+  box-shadow: 0 2px 6px rgba(92,152,184,100);
+  transition: box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  box-shadow: 0 4px 12px rgba(92,152,184,100);
+}
+
+.project-card h3 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  color: #5C98B8;
+}
+
+.project-card p {
+  margin: 0.4rem 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.view-details-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #5C98B8;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.view-details-btn:hover {
+  background-color: #5C98B8;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.pagination button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background-color: #e4e7ec;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pagination button.active,
+.pagination button:hover {
+  background-color: #5C98B8;
+  color: white;
+}

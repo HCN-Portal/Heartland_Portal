@@ -43,22 +43,48 @@ const PendingApplications = () => {
       });
   };
 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   return (
     <div>
-      <NavigationBar isLoggedIn= 'true'/>
+      <NavigationBar isLoggedIn= 'ture'/>
 
       <div className="admin-dashboard">
+        
+        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+
+      </button>
+
+      {sidebarOpen ? (
         <aside className="sidebar">
-          <h2 className="sidebar-title">Heartland Community Network</h2>
+          <div className="sidebar-header">
+            <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
+              &#9776;
+            </button>
+            <h2 className="sidebar-title">Heartland Community Network</h2>
+          </div>
+
           <nav className="sidebar-nav">
             <ul>
-              <li><a href="/admin/home" >Home / Dashboard</a></li>
+              <li><a href="/admin/home">Home / Dashboard</a></li>
               <li><a href="/admin/pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
               <li><a href="/admin/employees">Active Employees</a></li>
               <li><a href="#projects">Projects</a></li>
             </ul>
           </nav>
         </aside>
+      ) : (
+        <div className="collapsed-sidebar">
+          <div className="collapsed-top">
+            <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
+              &#9776;
+            </button>
+          </div>
+        </div>
+      )}
+
+
+
 
         <main className="pending-main">
           <h2 className="pending-title">Admin Dashboard - Pending Applications</h2>
@@ -72,7 +98,7 @@ const PendingApplications = () => {
             <table className="applicant-table">
               <thead>
                 <tr>
-                  <th>Student Name</th>
+                  <th>Employee Name</th>
                   <th>Position Applied For</th>
                   <th>Date Applied</th>
                   <th>Action</th>
@@ -103,6 +129,8 @@ const PendingApplications = () => {
         <div className="modal-backdrop" onClick={() => setSelectedApplicant(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Applicant Profile</h3>
+            <table className="profile-table">
+              <tbody>
 
             <div id="profile-to-print" className="profile-structured">
               {Object.entries(selectedApplicant).map(([key, value]) => {
@@ -122,6 +150,9 @@ const PendingApplications = () => {
                 );
               })}
             </div>
+            
+            </tbody>
+            </table>
 
             <div className="action-buttons">
               <button className="approve-btn" onClick={() => handleStatusUpdate('Approved')}>

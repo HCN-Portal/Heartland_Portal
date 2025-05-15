@@ -1,6 +1,6 @@
 /* Full-page wrapper */
 .login-wrapper {
-    background-color: #9A1F24;
+    background-color: white;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -13,7 +13,7 @@
     background: #fff;
     padding: 40px 30px;
     border-radius: 12px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 24px rgba(92,152,184,100);
     max-width: 400px;
     width: 100%;
     text-align: center;
@@ -58,7 +58,7 @@
   }
   
   .login-options a {
-    color: #9A1F24;
+    color: black;
     text-decoration: none;
   }
   
@@ -66,7 +66,7 @@
     width: 100%;
     padding: 12px;
     font-size: 16px;
-    background-color: #9A1F24;
+    background-color: #5C98B8;
     color: white;
     border: none;
     border-radius: 6px;
@@ -75,7 +75,7 @@
   }
   
   .login-btn:hover {
-    background-color: #84191f;
+    background-color: #5C98B8;
   }
   
   .signup-prompt {
@@ -84,14 +84,18 @@
   }
   
   .signup-link {
-    color: #9A1F24;
+    color: black;
     font-weight: 600;
     cursor: pointer;
   }
   
   .error-text {
-    color: red;
+    color: black;
     font-size: 13px;
     margin-bottom: 12px;
   }
-  
+  .success-text {
+  color: green;
+  font-size: 13px;
+  margin-bottom: 12px;
+}

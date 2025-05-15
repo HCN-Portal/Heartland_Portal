@@ -2,17 +2,61 @@
     display: flex;
     height: 100vh;
     font-family: 'Segoe UI', sans-serif;
+    margin-top: 7px;
   }
   
   /* Sidebar */
   .sidebar {
-    background-color: #9A1F24;
-    color: white;
-    width: 240px;
-    margin-top: 20px;
+    background-color: #5C98B8;
+    width: 250px;
+    min-height: 100vh;
     padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-sidebar-btn-inside {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  /* Collapsed Sidebar */
+  .collapsed-sidebar {
+    width: 60px;
+    height: 100vh;
+    background-color: #5C98B8;
     display: flex;
     flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  /* Top area inside collapsed sidebar */
+  .collapsed-top {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    align-items: flex-start; /* align button at the top */
+  }
+  
+  /* Hamburger button inside collapsed sidebar */
+  .toggle-sidebar-btn-collapsed {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
   }
   
   .sidebar-title {
@@ -58,7 +102,7 @@
   
   .admin-header h1 {
     font-size: 24px;
-    color: #9A1F24;
+    color: black;
   }
   
   .signout-btn {
@@ -93,7 +137,7 @@
   .card h3 {
     margin-bottom: 10px;
     font-weight: 600;
-    color: #9A1F24;
+    color: black;
   }
   
   .card-number {
@@ -126,7 +170,7 @@
     margin-bottom: 10px;
     text-align: center;
     width: 300px;
-    background-color: #9A1F24;
+    background-color: black;
   color: white;
   border: none;
   padding: 10px 20px;

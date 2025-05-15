@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 const mongoose = require('mongoose'); // For ObjectId validation
 const User = require('../models/user'); // Assuming you have a User model
 const bcrypt = require('bcryptjs'); // For password hashing
 const jwt = require('jsonwebtoken'); // For JWT token generation
 const generateEmployeeId = require('../utils/employeeId'); // Assuming you have a utility to generate employee IDs
 const hashPassword = require('../utils/hashPassword'); // Assuming you have a utility to hash passwords
+=======
+const User = require('../models/user'); // Assuming you have a User model
+const bcrypt = require('bcryptjs'); // For password hashing
+const jwt = require('jsonwebtoken'); // For JWT token generation
+
+>>>>>>> origin/karunakar/frontend
 // Controller function to fetch all users
 exports.getAllUsers = async (req, res) => {
     try {
@@ -14,7 +21,10 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 // Controller function to create a new user for testing purposes
+=======
+>>>>>>> origin/karunakar/frontend
 exports.createUser = async (req, res) => {
     const { email, password, role } = req.body;
 
@@ -24,6 +34,7 @@ exports.createUser = async (req, res) => {
         if (existingUser) {
             return res.status(409).json({ message: 'User already exists' });
         }
+<<<<<<< HEAD
         let employeeId = '';
         employeeId = await generateEmployeeId(); // Generate a new employee ID
         
@@ -31,6 +42,14 @@ exports.createUser = async (req, res) => {
         const newUser = new User({
             ...req.body,
             employeeId
+=======
+        
+        // Create a new user - the model's pre-save hook will handle password hashing
+        const newUser = new User({
+            email,
+            password, // Pass the plain password - it will be hashed by the model
+            role,
+>>>>>>> origin/karunakar/frontend
         });
 
         // Save the user to the database
@@ -47,6 +66,7 @@ exports.createUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error creating user', error: error.message });
     }
+<<<<<<< HEAD
 }
 
 exports.getUserById = async (req, res) => {
@@ -262,4 +282,6 @@ exports.getAllEmployees = async (req, res) => {
         console.error('Error fetching employees:', error);
         res.status(500).json({ message: 'Error fetching employees', error: error.message });
     }
+=======
+>>>>>>> origin/karunakar/frontend
 }

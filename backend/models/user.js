@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: ['admin', 'employee', 'manager'], default: 'employee' }, // Assuming roles for users
+<<<<<<< HEAD
   firstName: { type: String, required: true },  
   lastName: { type: String, required: true },  
   preferredName: { type: String, default: '' },   
@@ -33,6 +34,9 @@ const userSchema = new mongoose.Schema({
   previousEmployer: { type: String, required: true },  
   previousPosition: { type: String, required: true }  
 
+=======
+  
+>>>>>>> origin/karunakar/frontend
 });
 
 // Before saving a user, hash their password

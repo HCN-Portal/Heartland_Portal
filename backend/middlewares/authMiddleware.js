@@ -24,6 +24,7 @@ module.exports.isAdmin = (req, res, next) => {
   }
   return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
 };
+<<<<<<< HEAD
 
 module.exports.isAuthUser = (req, res, next) => {
     // Allow access if user is requesting their own info or is an admin
@@ -43,3 +44,5 @@ module.exports.isAdminOrManager = (req, res, next) => {
   }
   return res.status(403).json({ error: 'Access denied. Manager privileges required.' });
 };
+=======
+>>>>>>> origin/karunakar/frontend

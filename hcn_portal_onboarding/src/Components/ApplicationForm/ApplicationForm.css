@@ -10,13 +10,13 @@
   .application-title {
     font-size: 2rem;
     font-weight: bold;
-    color: #9A1F24; /* Tailwind's red-600 */
+    color: black; /* Tailwind's red-600 */
     margin-bottom: 1.5rem;
     text-align: center;
   }
   
   .application-subtitle {
-    color: #9A1F24;
+    color: black;
     text-decoration: underline;
     font-size: 1.125rem;
     font-weight: 600;
@@ -88,12 +88,12 @@
   }
   
   .error-text {
-    color: #9A1F24; /* Tailwind's red-500 */
+    color: black; /* Tailwind's red-500 */
     font-size: 0.875rem;
   }
   
   .submit-button {
-    background-color: #9A1F24; /* red-500 */
+    background-color: #5C98B8; /* red-500 */
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 0.75rem;
@@ -106,7 +106,7 @@
   }
   
   .submit-button:hover {
-    background-color: #dc2626; /* red-600 */
+    background-color: #5C98B8; /* red-600 */
   }
 
   label {
@@ -119,7 +119,7 @@
 
   /* Heading for the section */
 .section-heading {
-    background-color: #9A1F24; /* Red background */
+    background-color: #5C98B8; /* Red background */
     color: white; /* White text color */
     padding: 10px; /* Padding around the heading */
     margin-bottom: 10px; /* Space below the heading */
