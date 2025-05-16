@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, messageClear } from '../../../store/reducers/authReducer'; // Correct import
+import { loginUser, messageClear } from '../../../store/reducers/authReducer';
 import NavigationBar from '../../UI/NavigationBar/NavigationBar';
 import hcn_logo from '../../../Images/heartland_CN_logo.png';
 import './LoginPage.css';
@@ -58,12 +58,17 @@ const LoginPage = () => {
   }, [successMessage, errorMessage, dispatch]);
 
   // Handle navigation based on role after successful login
+  console.log(userInfo)
   useEffect(() => {
     if (token && userInfo?.role) {
-      if (userInfo.role === 'admin') {
-        navigate('/admin/home');
-      } else if (userInfo.role === 'employee') {
-        navigate('/employee/home');
+      if (userInfo?.firstTimeLogin) {
+        navigate('/reset-password/first-time'); 
+      } else {
+        if (userInfo.role === 'admin') {
+          navigate('/admin/home');
+        } else if (userInfo.role === 'employee') {
+          navigate('/employee/home');
+        }
       }
     }
   }, [token, userInfo, navigate]);

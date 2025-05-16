@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: ['admin', 'employee', 'manager'], default: 'employee' }, // Assuming roles for users
-<<<<<<< HEAD
   firstName: { type: String, required: true },  
   lastName: { type: String, required: true },  
   preferredName: { type: String, default: '' },   
@@ -32,11 +31,23 @@ const userSchema = new mongoose.Schema({
   totalYearsExperience: { type: String, required: true }, 
   relevantSkills: { type: [String], required: true },  
   previousEmployer: { type: String, required: true },  
-  previousPosition: { type: String, required: true }  
+  previousPosition: { type: String, required: true },  
+  // Checking First Time Login
+  // This field is used to determine the user needs to reset their password on first login
+  firstTimeLogin: {
+  type: Boolean,
+  default: true, // All new users must reset on first login
+  },
+  // Password Reset
+  resetPasswordToken: {
+    type: String,
+    default: undefined
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: undefined
+  }
 
-=======
-  
->>>>>>> origin/karunakar/frontend
 });
 
 // Before saving a user, hash their password

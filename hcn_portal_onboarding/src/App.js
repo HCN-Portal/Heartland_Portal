@@ -1,5 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import PrivateRoute from '../src/Components/PrivateRoute'; 
 
 // Public Pages
 import LandingPage from './Components/LandingPage/LandingPage';
@@ -31,21 +32,24 @@ function App() {
         <Route path="/apply" element={<ApplicationForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/first-time" element={<ResetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin/home" element={<AdminDashboard />} />
-        <Route path="/admin/pending" element={<PendingApplications />} />
-        <Route path="/admin/employees" element={<CurrentEmployees />} />
+        {/* Admin Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+          <Route path="/admin/home" element={<AdminDashboard />} />
+          <Route path="/admin/pending" element={<PendingApplications />} />
+          <Route path="/admin/employees" element={<CurrentEmployees />} />
+        </Route>
 
-        {/* Employee Routes */}
-        <Route path="/employee/home" element={<EmployeeDashboard />} />
-        <Route path="/employee/profile" element={<EmployeeProfile />} />
-        <Route path="/employee/projects" element={<EmployeeProjects />} />
-        <Route path="/employee/clockify" element={<EmployeeClockify />} />
-        <Route path="/employee/help" element={<EmployeeHelp />} />
-
-
+        {/* Employee Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['employee']} />}>
+          <Route path="/employee/home" element={<EmployeeDashboard />} />
+          <Route path="/employee/profile" element={<EmployeeProfile />} />
+          <Route path="/employee/projects" element={<EmployeeProjects />} />
+          <Route path="/employee/clockify" element={<EmployeeClockify />} />
+          <Route path="/employee/help" element={<EmployeeHelp />} />
+        </Route>
       </Routes>
     </Router>
   );
