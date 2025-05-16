@@ -14,13 +14,6 @@ const createTransporter = async () => {
     refresh_token: process.env.REFRESH_TOKEN
   });
 
-  // const accessToken = await new Promise((resolve, reject) => {
-  //   oauth2Client.getAccessToken((err, token) => {
-  //     if (err) reject("Failed to create access token");
-  //     resolve(token);
-  //   });
-  // });
-
   const accessToken = await new Promise((resolve, reject) => {
     oauth2Client.getAccessToken((err, token) => {
       if (err) {
@@ -59,8 +52,9 @@ const sendEmail = async (to, subject, text) => {
     from: process.env.EMAIL,
     to,
     subject,
-    text
+    html: text
   });
 };
 
 module.exports = { sendEmail };
+

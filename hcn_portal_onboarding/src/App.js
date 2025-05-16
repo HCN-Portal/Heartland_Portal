@@ -1,42 +1,57 @@
-// import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import PrivateRoute from '../src/Components/PrivateRoute'; 
+
+// Public Pages
 import LandingPage from './Components/LandingPage/LandingPage';
 import ApplicationForm from './Components/ApplicationForm/ApplicationForm';
+import LoginPage from './Components/Authentication/Login/LoginPage';
+import ForgotPasswordPage from './Components/Authentication/ForgotPasswordPage';
+import ResetPasswordPage from './Components/Authentication/ResetPasswordPage';
+
+// Admin Pages
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import PendingApplications from './Components/PendingApplications/PendingApplications';
 import CurrentEmployees from './Components/CurrentEmployees/CurrentEmployees';
-import LoginPage from './Components/Authentication/Login/LoginPage';
+
+// Employee Pages
+import EmployeeDashboard from './Components/EmployeeDashboard/EmployeeDashboard';
+import EmployeeProfile from './Components/EmployeeProfile/EmployeeProfile';
+import EmployeeProjects from './Components/EmployeeProjects/Projects';
+import EmployeeClockify from './Components/EmployeeClockify/ClockifyPage';
+import EmployeeHelp from './Components/EmployeeHelp/HelpPage';
+
 
 
 function App() {
   return (
     <Router>
       <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/apply" element={<ApplicationForm />} />
-      <Route path='/admin/home' element={<AdminDashboard />} />
-      <Route path='/admin/pending' element={<PendingApplications />} />
-      <Route path='/admin/employees' element={<CurrentEmployees />} />
-      <Route path='/Login' element={<LoginPage />} />
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/apply" element={<ApplicationForm />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/first-time" element={<ResetPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+        {/* Admin Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+          <Route path="/admin/home" element={<AdminDashboard />} />
+          <Route path="/admin/pending" element={<PendingApplications />} />
+          <Route path="/admin/employees" element={<CurrentEmployees />} />
+        </Route>
+
+        {/* Employee Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['employee']} />}>
+          <Route path="/employee/home" element={<EmployeeDashboard />} />
+          <Route path="/employee/profile" element={<EmployeeProfile />} />
+          <Route path="/employee/projects" element={<EmployeeProjects />} />
+          <Route path="/employee/clockify" element={<EmployeeClockify />} />
+          <Route path="/employee/help" element={<EmployeeHelp />} />
+        </Route>
       </Routes>
     </Router>
-    // <div className="App">
-    //   <header className="App-header">
-    //     <img src={logo} className="App-logo" alt="logo" />
-    //     <p>
-    //       Edit <code>src/App.js</code> and save to reload.
-    //     </p>
-    //     <a
-    //       className="App-link"
-    //       href="https://reactjs.org"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       Learn React
-    //     </a>
-    //   </header>
-    // </div>
   );
 }
 

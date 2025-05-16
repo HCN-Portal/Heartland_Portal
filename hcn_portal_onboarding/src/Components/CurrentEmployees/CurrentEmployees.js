@@ -1,93 +1,17 @@
-// import React, { useState } from 'react';
+// import React, { useState, useEffect } from 'react';
 // import './CurrentEmployees.css';
 // import NavigationBar from '../UI/NavigationBar/NavigationBar';
-
-// const dummyEmployees = [
-//   {
-//     id: 1,
-//     firstName: "Likhitha",
-//     lastName: "A",
-//     email: "likhitha@example.com",
-//     dob: "1998-06-10",
-//     address1: "123 Main St",
-//     address2: "Apt 2B",
-//     city: "Los Angeles",
-//     state: "CA",
-//     country: "USA",
-//     citizenshipStatus: "Citizen",
-//     workAuthorizationStatus: "Authorized",
-//     workAuthorizationType: "H1B",
-//     eadStartDate: "2025-01-01",
-//     highestDegreeEarned: "Master's",
-//     fieldOfStudy: "Computer Science",
-//     universityName: "CSU Northridge",
-//     graduationYear: "2024",
-//     totalYearsExperience: "2",
-//     relevantSkills: "React, Node, SQL",
-//     previousEmployer: "ABC Corp",
-//     previousPosition: "Frontend Developer",
-//     whyJoin: "To contribute to local businesses and also to increase the team work and effort to build new applications for the organization",
-//     roleInterest: "Developer",
-//     projectName: "HCN Portal"
-//   },
-//   {
-//     id: 2,
-//     firstName: "Arjun",
-//     lastName: "Patel",
-//     email: "arjun@example.com",
-//     dob: "1995-03-22",
-//     address1: "456 Pine Ave",
-//     address2: "",
-//     city: "San Diego",
-//     state: "CA",
-//     country: "USA",
-//     citizenshipStatus: "Green Card",
-//     workAuthorizationStatus: "Authorized",
-//     workAuthorizationType: "GC",
-//     eadStartDate: "2024-11-01",
-//     highestDegreeEarned: "Bachelor's",
-//     fieldOfStudy: "Information Systems",
-//     universityName: "UC San Diego",
-//     graduationYear: "2021",
-//     totalYearsExperience: "3",
-//     relevantSkills: "Python, AWS, SQL",
-//     previousEmployer: "TechSoft",
-//     previousPosition: "Data Engineer",
-//     whyJoin: "I believe in your mission",
-//     roleInterest: "Data Analyst",
-//     projectName: "Analytics Portal"
-//   },
-//   {
-//     id: 3,
-//     firstName: "Meena",
-//     lastName: "Kumar",
-//     email: "meena@example.com",
-//     dob: "1997-08-15",
-//     address1: "789 Sunset Blvd",
-//     address2: "Suite 201",
-//     city: "San Jose",
-//     state: "CA",
-//     country: "USA",
-//     citizenshipStatus: "OPT",
-//     workAuthorizationStatus: "Pending",
-//     workAuthorizationType: "OPT",
-//     eadStartDate: "2025-02-15",
-//     highestDegreeEarned: "PhD",
-//     fieldOfStudy: "AI & ML",
-//     universityName: "Stanford",
-//     graduationYear: "2025",
-//     totalYearsExperience: "1",
-//     relevantSkills: "TensorFlow, PyTorch, Python",
-//     previousEmployer: "Stanford Lab",
-//     previousPosition: "Research Assistant",
-//     whyJoin: "To apply research in real world",
-//     roleInterest: "ML Engineer",
-//     projectName: "ML Pipeline"
-//   }
-// ];
+// import { useDispatch, useSelector } from 'react-redux';
+// import { get_all_applications } from '../../store/reducers/appReducer';
 
 // const CurrentEmployees = () => {
+//   const dispatch = useDispatch();
+//   const { applications, loading } = useSelector((state) => state.application);
 //   const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+//   useEffect(() => {
+//     dispatch(get_all_applications());
+//   }, [dispatch]);
 
 //   const formatLabel = (label) => {
 //     return label
@@ -95,13 +19,27 @@
 //       .replace(/^./, str => str.toUpperCase());
 //   };
 
+//   const approvedEmployees = applications.filter(app => app.status === 'Approved');
+//   const [sidebarOpen, setSidebarOpen] = useState(true);
+
 //   return (
 //     <div>
-//       <NavigationBar isLoggedIn= 'ture'/>
+//       <NavigationBar isLoggedIn='true' />
 
 //       <div className="admin-dashboard">
+
+//       <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+//       </button>
+
+//       {sidebarOpen ? (
 //         <aside className="sidebar">
-//           <h2 className="sidebar-title">Heartland Community Network</h2>
+//           <div className="sidebar-header">
+//             <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
+//               &#9776;
+//             </button>
+//             <h2 className="sidebar-title">Heartland Community Network</h2>
+//           </div>
+
 //           <nav className="sidebar-nav">
 //             <ul>
 //               <li><a href="/admin/home">Home / Dashboard</a></li>
@@ -111,13 +49,22 @@
 //             </ul>
 //           </nav>
 //         </aside>
+//       ) : (
+//         <div className="collapsed-sidebar">
+//           <div className="collapsed-top">
+//             <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
+//               &#9776;
+//             </button>
+//           </div>
+//         </div>
+//       )}
 
 //         <main className="pending-main">
 //           <h2 className="pending-title">Admin Dashboard - Current Employees</h2>
 
 //           <div className="pending-header">
-//             <span><strong>Total Count</strong>: {dummyEmployees.length}</span>
-//             <span>{dummyEmployees.length} Rows</span>
+//             <span><strong>Total Count</strong>: {approvedEmployees.length}</span>
+//             <span>{approvedEmployees.length} Rows</span>
 //           </div>
 
 //           <div className="pending-content">
@@ -131,11 +78,11 @@
 //                 </tr>
 //               </thead>
 //               <tbody>
-//                 {dummyEmployees.map((emp, idx) => (
-//                   <tr key={emp.id}>
+//                 {approvedEmployees.map((emp, idx) => (
+//                   <tr key={emp._id}>
 //                     <td>{idx + 1}. {emp.firstName} {emp.lastName}</td>
 //                     <td>{emp.roleInterest}</td>
-//                     <td>{emp.projectName}</td>
+//                     <td>{emp.projectName || 'N/A'}</td>
 //                     <td>
 //                       <button className="view-btn" onClick={() => setSelectedEmployee(emp)}>
 //                         View Profile
@@ -151,21 +98,25 @@
 
 //       {selectedEmployee && (
 //         <div className="modal-backdrop" onClick={() => setSelectedEmployee(null)}>
-//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-//             <h3>Employee Profile</h3>
-//             <div className="profile-structured">
-//               {Object.entries(selectedEmployee).map(([key, value]) => (
-//                 <div className="profile-line" key={key}>
-//                   <span className="profile-label">{formatLabel(key)}</span>
-//                   <span className="profile-value">{value}</span>
-//                 </div>
-//               ))}
-//             </div>
-//             <div className="action-buttons">
-//               <button className="close-btn" onClick={() => setSelectedEmployee(null)}>Close</button>
-//             </div>
+//         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+//           <h3>Employee Profile</h3>
+//             <table className="profile-table">
+//               <tbody>
+//                 {Object.entries(selectedEmployee).map(([key, value]) => (
+//                   <tr key={key}>
+//                     <td className="profile-label">{formatLabel(key)}</td>
+//                     <td className="profile-value">{Array.isArray(value) ? value.join(', ') : value?.toString()}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>  
+          
+//           <div className="action-buttons">
+//             <button className="close-btn" onClick={() => setSelectedEmployee(null)}>Close</button>
 //           </div>
 //         </div>
+//       </div>
+        
 //       )}
 //     </div>
 //   );
@@ -184,6 +135,7 @@ const CurrentEmployees = () => {
   const dispatch = useDispatch();
   const { applications, loading } = useSelector((state) => state.application);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     dispatch(get_all_applications());
@@ -192,27 +144,64 @@ const CurrentEmployees = () => {
   const formatLabel = (label) => {
     return label
       .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase());
+      .replace(/^./, str => str.toUpperCase())
+      .replace(/Id$/, 'ID')
+      .replace(/Ead/g, 'EAD')
+      .replace(/Dob/g, 'DOB');
   };
 
   const approvedEmployees = applications.filter(app => app.status === 'Approved');
+
+  const formatValue = (key, value) => {
+    const dateFields = ['dob', 'eadStartDate', 'visaEADExpiryDate', 'dateOfSubmission'];
+    if (dateFields.includes(key) && value) {
+      const date = new Date(value);
+      return date.toLocaleDateString('en-US');
+    }
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    if (typeof value === 'object' && value !== null) {
+      return JSON.stringify(value);
+    }
+    return value || 'N/A';
+  };
 
   return (
     <div>
       <NavigationBar isLoggedIn='true' />
 
       <div className="admin-dashboard">
-        <aside className="sidebar">
-          <h2 className="sidebar-title">Heartland Community Network</h2>
-          <nav className="sidebar-nav">
-            <ul>
-              <li><a href="/admin/home">Home / Dashboard</a></li>
-              <li><a href="/admin/pending">Pending Applications</a></li>
-              <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Active Employees</a></li>
-              <li><a href="#projects">Projects</a></li>
-            </ul>
-          </nav>
-        </aside>
+
+        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)} />
+
+        {sidebarOpen ? (
+          <aside className="sidebar">
+            <div className="sidebar-header">
+              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
+                &#9776;
+              </button>
+              <h2 className="sidebar-title">Heartland Community Network</h2>
+            </div>
+
+            <nav className="sidebar-nav">
+              <ul>
+                <li><a href="/admin/home">Home / Dashboard</a></li>
+                <li><a href="/admin/pending">Pending Applications</a></li>
+                <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Active Employees</a></li>
+                <li><a href="#projects">Projects</a></li>
+              </ul>
+            </nav>
+          </aside>
+        ) : (
+          <div className="collapsed-sidebar">
+            <div className="collapsed-top">
+              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
+                &#9776;
+              </button>
+            </div>
+          </div>
+        )}
 
         <main className="pending-main">
           <h2 className="pending-title">Admin Dashboard - Current Employees</h2>
@@ -236,7 +225,7 @@ const CurrentEmployees = () => {
                 {approvedEmployees.map((emp, idx) => (
                   <tr key={emp._id}>
                     <td>{idx + 1}. {emp.firstName} {emp.lastName}</td>
-                    <td>{emp.roleInterest}</td>
+                    <td>{emp.roleInterest || 'N/A'}</td>
                     <td>{emp.projectName || 'N/A'}</td>
                     <td>
                       <button className="view-btn" onClick={() => setSelectedEmployee(emp)}>
@@ -255,16 +244,18 @@ const CurrentEmployees = () => {
         <div className="modal-backdrop" onClick={() => setSelectedEmployee(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Employee Profile</h3>
-            <div className="profile-structured">
-              {Object.entries(selectedEmployee).map(([key, value]) => (
-                <div className="profile-line" key={key}>
-                  <span className="profile-label">{formatLabel(key)}</span>
-                  <span className="profile-value">
-                    {Array.isArray(value) ? value.join(', ') : value?.toString()}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <table className="profile-table">
+              <tbody>
+                {Object.entries(selectedEmployee)
+                  .filter(([key]) => !['_id', '__v', 'acknowledgments'].includes(key))
+                  .map(([key, value]) => (
+                    <tr key={key}>
+                      <td className="profile-label">{formatLabel(key)}</td>
+                      <td className="profile-value">{formatValue(key, value)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
             <div className="action-buttons">
               <button className="close-btn" onClick={() => setSelectedEmployee(null)}>Close</button>
             </div>

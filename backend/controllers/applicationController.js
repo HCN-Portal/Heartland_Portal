@@ -20,17 +20,15 @@ exports.createApplication = async (req, res) => {
     // Send confirmation email
     await sendEmail(
       formdata.email,
-      "Application Submitted - Heartland Community",
-      `Dear Applicant,
-
-Your application has been successfully submitted!
-
-Please check your inbox for further updates. Kindly note that the review process may take a few days.
-
-Thank you for your patience and for applying with us!
-
-From,
-Heartland Community`
+      `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.6;">
+        <p>Dear Applicant,</p>
+        <p>Your application has been <strong>successfully submitted</strong>!</p>
+        <p>Please check your inbox for further updates. Kindly note that the review process may take a few days.</p>
+        <p>Thank you for your patience and for applying with us!</p>
+        <p>From,<br/>
+        <strong>Heartland Community</strong></p>
+      </div>
+      `,
       );
 
     return responseReturn(res, 201, { message: 'Application saved', savedApplication });
@@ -90,72 +88,109 @@ exports.updateApplicationStatus = async (req, res) => {
 
     let emailBody = '';
     let tempPassword = '';
+    let employeeId = '';
 
     if (status === 'Approved') {
-      // Generate temp password and hash it
+      // Generate temporary password
       tempPassword = generateTempPassword();
 
       // Check if user already exists
       let user = await User.findOne({ email: application.email });
-      let employeeId = '';
       if (!user) {
+        // Generate employee ID and create user
         employeeId = await generateEmployeeId();
         user = new User({
-          employeeId,
-          email: application.email,
-          password: tempPassword,
-          role: 'employee',
-          firstName: application.firstName,
-          lastName: application.lastName,
-          preferredName: application.preferredName,
-          phoneNumber: application.phoneNumber,
-          address1: application.address1,
-          address2: application.address2
-        });
+        employeeId,
+        email: application.email,
+        password: tempPassword,
+        role: 'employee',
+
+        // Personal Information
+        firstName: application.firstName,
+        lastName: application.lastName,
+        preferredName: application.preferredName,
+        phoneNumber: application.phoneNumber,
+        address1: application.address1,
+        address2: application.address2,
+
+        // Immigration/Work Authorization
+        eadStartDate: application.eadStartDate,
+        citizenshipStatus: application.citizenshipStatus,
+        workAuthorizationType: application.workAuthorizationType,
+
+        // Educational Background
+        highestDegreeEarned: application.highestDegreeEarned,
+        fieldOfStudy: application.fieldOfStudy,
+        universityName: application.universityName,
+        graduationYear: application.graduationYear,
+
+        // Professional Experience
+        totalYearsExperience: application.totalYearsExperience,
+        relevantSkills: application.relevantSkills,
+        previousEmployer: application.previousEmployer,
+        previousPosition: application.previousPosition,
+
+        // First-time login + reset fields (defaulted)
+        firstTimeLogin: true,
+        resetPasswordToken: undefined,
+        resetPasswordExpires: undefined,
+
+        // Optional - Set default projects if needed
+        projectsAssigned: ['N/A']
+      });
+
         await user.save();
+      } else {
+        employeeId = user.employeeId;
       }
 
-      // Email content for approved application
+      // Approved email HTML
       emailBody = `
-Dear ${application.firstName},
+      <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.6;">
+        <p>Dear <strong>${application.firstName}</strong>,</p>
 
-Congratulations! We’re excited to inform you that your application has been approved.
+        <p>Congratulations! We’re excited to inform you that your application has been <strong>approved</strong>.</p>
 
-To get started, please use the following temporary login credentials to access your account:
+        <p>To get started, please use the following temporary login credentials to access your account:</p>
 
-Temporary Login Details:
-• Employee ID: ${employeeId}
-• Username: ${application.email}
-• Password: ${tempPassword}
+        <p><strong>Temporary Login Details:</strong><br/>
+        • Employee ID: ${employeeId}<br/>
+        • Username: ${application.email}<br/>
+        • Password: ${tempPassword}</p>
 
-Important:
-- You will be prompted to change your password upon first login.
-- For your security, please do not share these credentials with anyone.
-- If you face any issues logging in, feel free to reach out to our support team.
+        <p><strong>Important:</strong></p>
+        <ul>
+          <li>You will be prompted to change your password upon first login.</li>
+          <li>For your security, please do not share these credentials with anyone.</li>
+          <li>If you face any issues logging in, feel free to reach out to our support team.</li>
+        </ul>
 
-Login Portal: https://yourapp.com/login
+        <p><strong>Login Portal:</strong> <a href="https://yourapp.com/login">https://yourapp.com/login</a></p>
 
-Welcome aboard, and we look forward to working with you!
+        <p>Welcome aboard, and we look forward to working with you!</p>
 
-Warm regards,  
-Heartland Community Team
-`;
-    } else {
-      // Email content for rejected application
+        <p>Warm regards,<br/>
+        <strong>Heartland Community Team</strong></p>
+      </div>
+      `;
+    } else if (status === 'Rejected') {
+      // Rejected email HTML
       emailBody = `
-Dear ${application.firstName},
+      <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.6;">
+        <p>Dear <strong>${application.firstName}</strong>,</p>
 
-Thank you for taking the time to apply to Heartland Community.
+        <p>Thank you for taking the time to apply to <strong>Heartland Community</strong>.</p>
 
-After careful consideration, we regret to inform you that your application has not been approved at this time.
+        <p>After careful consideration, we regret to inform you that your application has not been approved at this time.</p>
 
-We truly appreciate your interest in being a part of our community. Please don’t hesitate to apply again in the future—we’d be happy to reconsider your application.
+        <p>We truly appreciate your interest in being a part of our community. Please don’t hesitate to apply again in the future—we’d be happy to reconsider your application.</p>
 
-Wishing you all the best in your future endeavors.
+        <p>Wishing you all the best in your future endeavors.</p>
 
-Sincerely,  
-Heartland Community Team
-`;
+        <p>Sincerely,<br/>
+        <strong>Heartland Community Team</strong></p>
+      </div>
+      `;
     }
 
     // Send the email
@@ -166,13 +201,11 @@ Heartland Community Team
     );
 
     return res.status(200).json({ message: `Application ${status.toLowerCase()} successfully.` });
-
   } catch (error) {
     console.error('Error updating application status:', error);
-    return res.status(500).json({ error: 'Server error while updating status' });
+    return res.status(500).json({ error: 'Server error while updating application status' });
   }
 };
-
 
 
 // Get application by ID
