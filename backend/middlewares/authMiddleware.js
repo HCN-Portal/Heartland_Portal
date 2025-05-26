@@ -43,3 +43,17 @@ module.exports.isAdminOrManager = (req, res, next) => {
   }
   return res.status(403).json({ error: 'Access denied. Manager privileges required.' });
 };
+
+module.exports.isManager = (req, res, next) => {
+  if (req.role === 'manager') {
+    return next();
+  }
+  return res.status(403).json({ error: 'Access denied. Manager privileges required.' });
+};
+
+module.exports.isEmployee = (req, res, next) => {
+  if (req.role === 'employee') {
+    return next();
+  }
+  return res.status(403).json({ error: 'Access denied. Employee privileges required.' });
+};
