@@ -1,5 +1,7 @@
+import AdminLayout from './Components/AdminLayout/AdminLayout';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 
 // Public Pages
 import LandingPage from './Components/LandingPage/LandingPage';
@@ -12,6 +14,7 @@ import ResetPasswordPage from './Components/Authentication/ResetPasswordPage';
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import PendingApplications from './Components/PendingApplications/PendingApplications';
 import CurrentEmployees from './Components/CurrentEmployees/CurrentEmployees';
+import AdminProjects from './Components/AdminProjects/AdminProjects';
 
 // Employee Pages
 import EmployeeDashboard from './Components/EmployeeDashboard/EmployeeDashboard';
@@ -34,9 +37,12 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
         {/* Admin Routes */}
-        <Route path="/admin/home" element={<AdminDashboard />} />
-        <Route path="/admin/pending" element={<PendingApplications />} />
-        <Route path="/admin/employees" element={<CurrentEmployees />} />
+       <Route path="/admin" element={<AdminLayout />}>
+          <Route path="home" element={<AdminDashboard />} />
+          <Route path="pending" element={<PendingApplications />} />
+          <Route path="employees" element={<CurrentEmployees />} />
+          <Route path="projects" element={<AdminProjects />} />
+        </Route>
 
         {/* Employee Routes */}
         <Route path="/employee/home" element={<EmployeeDashboard />} />
