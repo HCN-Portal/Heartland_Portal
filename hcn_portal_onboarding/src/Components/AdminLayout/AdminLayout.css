@@ -1,0 +1,89 @@
+.admin-dashboard {
+  display: flex;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  margin-top: 7px;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #5C98B8;
+  width: 250px;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.toggle-sidebar-btn-inside {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.sidebar-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-nav li {
+  margin: 25px 0;
+}
+
+.sidebar-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.sidebar-nav a.active {
+  font-weight: 900;
+  text-decoration: underline;
+}
+
+/* Collapsed Sidebar */
+.collapsed-sidebar {
+  width: 60px;
+  height: 100vh;
+  background-color: #5C98B8;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.collapsed-top {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.toggle-sidebar-btn-collapsed {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Main content */
+.dashboard-main {
+  flex: 1;
+  padding: 30px;
+  background-color: #fff;
+}

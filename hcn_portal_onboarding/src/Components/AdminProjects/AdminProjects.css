@@ -1,0 +1,267 @@
+.admin-projects {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+.projects-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-filter {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #5C98B8;
+  color: #5C98B8;
+  font-weight: 600;
+  min-width: 180px;
+  cursor: pointer;
+  background-color: #eaf4fb;
+  transition: background-color 0.3s ease;
+}
+
+.status-filter:hover,
+.status-filter:focus {
+  background-color: #d6e8f7;
+  outline: none;
+}
+
+.create-btn {
+  padding: 8px 16px;
+  background-color: #5C98B8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.create-btn:hover,
+.create-btn:focus {
+  background-color: #4a7a99;
+  outline: none;
+}
+
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
+  min-width: 600px;
+}
+
+.project-table th,
+.project-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.project-table th {
+  background-color: #5C98B8;
+  color: white;
+  font-weight: 600;
+  user-select: none;
+}
+
+.actions-col {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.view-btn,
+.delete-btn,
+.small-btn {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  color: white;
+  background-color: #5C98B8;
+  transition: background-color 0.3s ease;
+}
+
+.view-btn:hover,
+.small-btn:hover {
+  background-color: #4a7a99;
+}
+
+.delete-btn {
+  background-color: #b94a4a;
+}
+
+.delete-btn:hover {
+  background-color: #b94a4a;
+}
+
+.expand-row td {
+  background-color: #f0f7fb;
+  padding: 15px 20px;
+}
+
+.expand-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.list-section {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.list-section > div {
+  flex: 1 1 200px;
+}
+
+.list-section ul {
+  margin: 8px 0 0 20px;
+  list-style-type: disc;
+}
+
+.small-btn {
+  margin-left: 10px;
+  padding: 4px 8px;
+  font-size: 0.85em;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  vertical-align: middle;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #5C98B8;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 6px;
+  max-width: 500px;
+  width: 100%;
+  padding: 20px 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+  outline: none;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #5C98B8;
+  font-weight: 700;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-content input[type="text"],
+.modal-content textarea,
+.modal-content select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-size: 14px;
+}
+
+.modal-content textarea {
+  min-height: 60px;
+}
+
+.modal-buttons {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-btn, .close-btn {
+  background-color: #5C98B8 !important;
+  color: white !important;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px 14px;
+  transition: background-color 0.3s ease;
+}
+
+.create-btn:hover,
+.create-btn:focus,
+.close-btn:hover,
+.close-btn:focus {
+  background-color: #4a7a99 !important;
+  outline: none;
+}
+
