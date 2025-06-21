@@ -1,187 +1,120 @@
-/* Layout for main dashboard */
+/* Global styles for body and html */
+body, html {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Employee dashboard */
 .employee-dashboard {
-    display: flex;
-    height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  
-  /* Sidebar styles */
-  .sidebar {
-    background-color: #9A1F24;
-    width: 250px;
-    min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    transition: all 0.3s ease;
-  }
-  
-  .sidebar-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .toggle-sidebar-btn-inside {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: white;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-  
-  .collapsed-sidebar {
-    width: 60px;
-    height: 100vh;
-    background-color: #9A1F24;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  
-  .collapsed-top {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    align-items: flex-start;
-  }
-  
-  .toggle-sidebar-btn-collapsed {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .sidebar-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 40px;
-    color: white;
-  }
-  
-  .sidebar-nav ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .sidebar-nav li {
-    margin: 25px 0;
-  }
-  
-  .sidebar-nav a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
-  }
-  
-  .sidebar-nav a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Main Content */
-  .dashboard-main {
-    flex: 1;
-    padding: 30px;
-    background-color: #fff;
-  }
-  
-  .employee-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
-  }
-  
-  .employee-header h1 {
-    font-size: 24px;
-    color: #9A1F24;
-  }
-  
-  /* Profile Container */
-  .profile-container {
-    display: flex;
-    gap: 30px;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-  
-  /* Left Profile Card */
-  .profile-card {
-    background-color: #f9f9f9;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    max-height: fit-content;
-    padding: 30px 20px;
-    width: 260px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    flex-shrink: 0;
-  }
-  
-  .profile-image {
-    width: 150px;
-    height: 150px;
-    background-color: #d6d6d6;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  
-  .photo-edit-icon {
-    position: absolute;
-    top: 32px;
-    left: 50%;
-    transform: translateX(30px);
-    background-color: #9A1F24;
-    color: white;
-    padding: 4px 6px;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-    z-index: 2;
-  }
-  
-  .profile-card h2 {
-    font-size: 18px;
-    margin: 0;
-    color: #333;
-  }
-  
-  .profile-card p {
-    font-size: 14px;
-    color: #555;
-    margin: 6px 0;
-    text-align: center;
-  }
-  
-  /* Right Detail Card */
-  .profile-details {
-    flex: 1;
-    background: white;
-    padding: 20px 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  }
-  
-  .profile-details h3 {
-    color: #9A1F24;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 6px;
-  }
-  
-  .profile-details p {
+  display: flex;
+  min-height: 100vh;
+  margin-top: 7px;
+  width: 100%;
+}
+
+/* Sidebar styles */
+.sidebar {
+  background-color: #5C98B8;
+  width: 250px;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto; /* Only sidebar scrolls if it overflows */
+  transition: all 0.3s ease;
+}
+
+/* Main Content */
+.dashboard-main {
+  flex: 1;
+  padding: 30px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Profile Container */
+.profile-container {
+  display: flex;
+  gap: 30px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+/* Left Profile Card */
+.profile-card {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  padding: 30px 20px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  background-color: #d6d6d6;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.photo-edit-icon {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(30px);
+  background-color: black;
+  color: white;
+  padding: 4px 6px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.profile-card h2 {
+  font-size: 18px;
+  margin: 0;
+  color: #333;
+}
+
+.profile-card p {
+  font-size: 14px;
+  color: #555;
+  margin: 6px 0;
+  text-align: center;
+}
+
+/* Right Detail Card */
+.profile-details {
+  flex: 1;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.profile-details h3 {
+  color: black;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+.profile-details p {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -190,39 +123,38 @@
   margin: 6px 150px;
   color: #333;
   line-height: 1.5;
-  }
-  
-  .profile-details strong {
-    color: #000;
-  }
-  
-  /* Buttons */
-  .edit-btn {
-    background-color: #9A1F24;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  
-  .edit-btn:hover {
-    background-color: #80171d;
-  }
-  
-  .save-btn {
-    margin-top: 20px;
-    background-color: #2e7d32;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    font-size: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .save-btn:hover {
-    background-color: #1b5e20;
-  }
-  
+}
+
+.profile-details strong {
+  color: #000;
+}
+
+/* Buttons */
+.edit-btn {
+  background-color: #5C98B8;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #5C98B8;
+}
+
+.save-btn {
+  margin-top: 20px;
+  background-color: #5C98B8;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #5C98B8;
+}

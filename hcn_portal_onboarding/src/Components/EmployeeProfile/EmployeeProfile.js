@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './EmployeeProfile.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
+import Sidebar from '../Sidebar/Sidebar';
 import Employee_Icon from '../../Images/Employee_Icon.png';
 
-const mockEmployee = {
+const initialProfile = {
   name: 'Likhitha A.',
   role: 'Frontend Developer',
   project: 'HCN Portal',
@@ -26,44 +27,15 @@ const mockEmployee = {
   roleInterest: 'Developer'
 };
 
-//  or
-
-const employeeInfo = {
-    "Personal Information": {
-      "Phone": "+1 123-456-7890",
-      "Date of Birth": "1998-06-10",
-      "Address": "123 Main St, Apt 2B, Los Angeles, CA"
-    },
-    "Immigration / Work Authorization": {
-      "Citizenship Status": "Citizen",
-      "Work Auth Type": "H1B",
-      "EAD Start Date": "2025-01-01"
-    },
-    "Education": {
-      "Field of Study": "Computer Science",
-      "University": "CSU Northridge",
-      "Graduation Year": "2024"
-    },
-    "Professional Experience": {
-      "Experience": "2 years",
-      "Skills": "React, JavaScript, CSS",
-      "Previous Employer": "ABC Corp",
-      "Previous Position": "Frontend Developer"
-    },
-    "HR Questions": {
-      "Why HCN?": "To build community-driven software.",
-      "Role Interest": "Frontend Developer"
-    }
-  };
-  
 const EmployeeProfile = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [profile, setProfile] = useState(mockEmployee);
+  const [profile, setProfile] = useState(initialProfile);
   const [photo, setPhoto] = useState(Employee_Icon);
 
   const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setProfile({ ...profile, [name]: value });
   };
 
   const handlePhotoChange = (e) => {
@@ -74,45 +46,37 @@ const EmployeeProfile = () => {
     }
   };
 
+  const handleSave = () => {
+    alert('Profile saved successfully!');
+    setEditMode(false);
+  };
+
+  const renderField = (label, name, multiline = false) => (
+    <p>
+      <strong>{label}:</strong>{' '}
+      {editMode ? (
+        multiline ? (
+          <textarea name={name} value={profile[name]} onChange={handleChange} />
+        ) : (
+          <input name={name} value={profile[name]} onChange={handleChange} />
+        )
+      ) : (
+        profile[name]
+      )}
+    </p>
+  );
+
   return (
     <div>
-      <NavigationBar isLoggedIn='true' />
-
+      <NavigationBar isLoggedIn={true} />
       <div className="employee-dashboard">
-        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}></button>
-
-        {sidebarOpen ? (
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
-                &#9776;
-              </button>
-              <h2 className="sidebar-title">Heartland Community Network</h2>
-            </div>
-
-            <nav className="sidebar-nav">
-              <ul>
-                <li><a href="/employee/home" >Employee Home</a></li>
-                <li><a href="/employee/profile" style={{ fontWeight: "900" }}>Profile</a></li>
-                <li><a href="#Project">Project Details</a></li>
-                <li><a href="#Timesheets">Timesheets</a></li>
-              </ul>
-            </nav>
-          </aside>
-        ) : (
-          <div className="collapsed-sidebar">
-            <div className="collapsed-top">
-              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
-                &#9776;
-              </button>
-            </div>
-          </div>
-        )}
-
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="dashboard-main">
           <div className="employee-header">
             <h1>Employee Dashboard - "{profile.name}" Profile</h1>
-            <button className="edit-btn" onClick={() => setEditMode(!editMode)}>{editMode ? 'Cancel' : 'Edit'}</button>
+            <button className="edit-btn" onClick={() => setEditMode(!editMode)}>
+              {editMode ? 'Cancel' : 'Edit'}
+            </button>
           </div>
 
           <div className="profile-container">
@@ -122,7 +86,13 @@ const EmployeeProfile = () => {
                 {editMode && (
                   <label htmlFor="photo-upload" className="photo-edit-icon">✎</label>
                 )}
-                <input id="photo-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handlePhotoChange}
+                />
               </div>
               <h2>{profile.name}</h2>
               <p><strong>Role:</strong> {profile.role}</p>
@@ -132,48 +102,36 @@ const EmployeeProfile = () => {
 
             <div className="profile-details">
               <h3>Personal Information</h3>
-              <p><strong>Phone:</strong> {editMode ? <input name="phone" value={profile.phone} onChange={handleChange} /> : profile.phone}</p>
-              <p><strong>Date of Birth:</strong> {editMode ? <input name="dob" value={profile.dob} onChange={handleChange} /> : profile.dob}</p>
-              <p><strong>Address:</strong> {editMode ? <input name="address" value={profile.address} onChange={handleChange} /> : profile.address}</p>
+              {renderField("Phone", "phone")}
+              {renderField("Date of Birth", "dob")}
+              {renderField("Address", "address")}
 
               <h3>Immigration / Work Authorization</h3>
-              <p><strong>Citizenship Status:</strong> {editMode ? <input name="citizenshipStatus" value={profile.citizenshipStatus} onChange={handleChange} /> : profile.citizenshipStatus}</p>
-              <p><strong>Work Auth Type:</strong> {editMode ? <input name="workAuthType" value={profile.workAuthType} onChange={handleChange} /> : profile.workAuthType}</p>
-              <p><strong>EAD Start Date:</strong> {editMode ? <input name="eadStartDate" value={profile.eadStartDate} onChange={handleChange} /> : profile.eadStartDate}</p>
+              {renderField("Citizenship Status", "citizenshipStatus")}
+              {renderField("Work Auth Type", "workAuthType")}
+              {renderField("EAD Start Date", "eadStartDate")}
 
               <h3>Education</h3>
-              <p><strong>Field of Study:</strong> {editMode ? <input name="fieldOfStudy" value={profile.fieldOfStudy} onChange={handleChange} /> : profile.fieldOfStudy}</p>
-              <p><strong>University:</strong> {editMode ? <input name="university" value={profile.university} onChange={handleChange} /> : profile.university}</p>
-              <p><strong>Graduation Year:</strong> {editMode ? <input name="gradYear" value={profile.gradYear} onChange={handleChange} /> : profile.gradYear}</p>
+              {renderField("Field of Study", "fieldOfStudy")}
+              {renderField("University", "university")}
+              {renderField("Graduation Year", "gradYear")}
 
               <h3>Professional Experience</h3>
-              <p><strong>Experience:</strong> {editMode ? <input name="experience" value={profile.experience} onChange={handleChange} /> : profile.experience}</p>
-              <p><strong>Skills:</strong> {editMode ? <textarea name="skills" value={profile.skills} onChange={handleChange} /> : profile.skills}</p>
-              <p><strong>Previous Employer:</strong> {editMode ? <input name="previousEmployer" value={profile.previousEmployer} onChange={handleChange} /> : profile.previousEmployer}</p>
-              <p><strong>Previous Position:</strong> {editMode ? <input name="previousPosition" value={profile.previousPosition} onChange={handleChange} /> : profile.previousPosition}</p>
+              {renderField("Experience", "experience")}
+              {renderField("Skills", "skills", true)}
+              {renderField("Previous Employer", "previousEmployer")}
+              {renderField("Previous Position", "previousPosition")}
 
               <h3>HR Questions</h3>
-              <p><strong>Why Join:</strong> {editMode ? <textarea name="whyJoin" value={profile.whyJoin} onChange={handleChange} /> : profile.whyJoin}</p>
-              <p><strong>Role Interest:</strong> {editMode ? <input name="roleInterest" value={profile.roleInterest} onChange={handleChange} /> : profile.roleInterest}</p>
+              {renderField("Why Join", "whyJoin", true)}
+              {renderField("Role Interest", "roleInterest")}
 
-              {editMode && <button className="save-btn" onClick={() => setEditMode(false)}>Save</button>}
+              {editMode && (
+                <button className="save-btn" onClick={handleSave}>
+                  Save
+                </button>
+              )}
             </div>
-
-            {/* Or */}
-            
-            {/* <div className="profile-details">
-                {Object.entries(employeeInfo).map(([section, fields]) => (
-                <div key={section}>
-                <h3>{section}</h3>
-                {Object.entries(fields).map(([label, value]) => (
-                <p key={label}>
-                <strong>{label}:</strong> {value}
-                </p>
-                ))}
-                </div>
-             ))}
-            </div> */}
-
           </div>
         </main>
       </div>

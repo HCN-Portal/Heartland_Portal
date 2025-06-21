@@ -13,7 +13,7 @@ body, html {
 }
 
 .sidebar {
-  background-color: #9A1F24;
+  background-color: #5C98B8;
   width: 250px;
   min-height: 100vh;
   padding: 20px;
@@ -41,7 +41,7 @@ body, html {
 .collapsed-sidebar {
   width: 60px;
   height: 100vh;
-  background-color: #9A1F24;
+  background-color: #5C98B8;
   display: flex;
   flex-direction: column;
   padding: 10px;
@@ -99,7 +99,7 @@ body, html {
 }
 
 .pending-title {
-  color: #9A1F24;
+  color: black;
   font-size: 22px;
   margin-bottom: 20px;
 }
@@ -139,7 +139,7 @@ body, html {
 
 /* Buttons inside table */
 .view-btn {
-  background-color: #9A1F24;
+  background-color: #5C98B8;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -148,7 +148,7 @@ body, html {
 }
 
 .view-btn:hover {
-  background-color: #80171d;
+  background-color: #5C98B8;
 }
 
 /* Modal overlay */
@@ -180,7 +180,7 @@ body, html {
 }
 
 .modal-content h3 {
-  color: #9A1F24;
+  color: black;
   font-size: 20px;
   margin-bottom: 15px;
   text-align: center;
@@ -208,7 +208,7 @@ body, html {
 
 .profile-label {
   font-weight: bold;
-  color: #9A1F24;
+  color: black;
   width: 40%;
   text-align: left;
   border-right: 2px solid #bbb; /* vertical separator */
@@ -245,7 +245,7 @@ body, html {
 
 /* Reject button */
 .reject-btn {
-  background-color: #dc3545;
+  background-color: #5C98B8;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -254,7 +254,7 @@ body, html {
 }
 
 .reject-btn:hover {
-  background-color: #c82333;
+  background-color: #5C98B8;
 }
 
 /* Close button */
@@ -289,5 +289,5 @@ body, html {
 /* Modal Heading */
 h3 {
   margin-bottom: 20px;
-  color: #9A1F24;
+  color: black;
 }

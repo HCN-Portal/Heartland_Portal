@@ -7,6 +7,47 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: ['admin', 'employee', 'manager'], default: 'employee' }, // Assuming roles for users
+  firstName: { type: String, required: true },  
+  lastName: { type: String, required: true },  
+  preferredName: { type: String, default: '' },   
+  phoneNumber: { type: String, required: false },   
+  address1: { type: String, required: true },  
+  address2: { type: String, default: '' },
+  projectsAssigned: { 
+    type: [String], // Array of strings to store multiple project IDs or names
+    default: ['N/A'] // Default to 'N/A' when no projects are assigned
+  },
+  
+  // Immigration/Work Authorization 
+  eadStartDate: { type: Date, required: false },
+  citizenshipStatus: { type: String, required: true },  
+  workAuthorizationType: { type: String, required: true },  
+  // Educational Background
+  highestDegreeEarned: { type: String, required: true },  
+  fieldOfStudy: { type: String, required: true },  
+  universityName: { type: String, required: true },  
+  graduationYear: { type: String, required: true },  
+  // Professional Experience
+  totalYearsExperience: { type: String, required: true }, 
+  relevantSkills: { type: [String], required: true },  
+  previousEmployer: { type: String, required: true },  
+  previousPosition: { type: String, required: true },  
+  // Checking First Time Login
+  // This field is used to determine the user needs to reset their password on first login
+  firstTimeLogin: {
+  type: Boolean,
+  default: true, // All new users must reset on first login
+  },
+  // Password Reset
+  resetPasswordToken: {
+    type: String,
+    default: undefined
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: undefined
+  }
+
 });
 
 // Before saving a user, hash their password
