@@ -59,6 +59,7 @@ const LoginPage = () => {
 
   // Handle navigation based on role after successful login
   console.log(userInfo)
+  console.log(email,"!", password)
   useEffect(() => {
     if (token && userInfo?.role) {
       if (userInfo?.firstTimeLogin) {

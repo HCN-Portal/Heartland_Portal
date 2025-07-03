@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import api from '../../api/api';
+import api from '../../api/api.js';
 
 // Login User action (Async thunk)
 export const loginUser = createAsyncThunk(
@@ -13,6 +13,7 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem('userInfo', JSON.stringify(data.userInfo)); 
 
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      console.log(data)
 
       return fulfillWithValue(data);
     } catch (error) {

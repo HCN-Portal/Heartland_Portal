@@ -38,7 +38,7 @@ const AdminDashboard = () => {
                 <li><a href="/admin/home"style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
                 <li><a href="/admin/pending" >Pending Applications</a></li>
                 <li><a href="/admin/employees">Active Employees</a></li>
-                <li><a href="#projects">Projects</a></li>
+                <li><a href="/admin/projects">Projects</a></li>
               </ul>
             </nav>
           </aside>
