@@ -9,9 +9,18 @@ const Projects = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
-  const [isEditingManagerIndex, setIsEditingManagerIndex] = useState(null);
   const [newManager, setNewManager] = useState({ name: '', email: '' });
   const [newEmployee, setNewEmployee] = useState({ name: '', position: '' });
+
+  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: '',
+    description: '',
+    manager: 'Not Assigned',
+    start: '',
+    end: 'N/A',
+    status: 'Active'
+  });
 
   const [projects, setProjects] = useState([
   {
@@ -38,13 +47,40 @@ const Projects = () => {
   }
   ]);
 
-  const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
+  const managerStaticData = {
+   name: 'Dhanush', 
+   email: 'dhanush@admin.hcn.com',
+  role: 'Manager',
+  department: 'Project Management',
+  projectCount: 2,
+  joiningDate: '01/15/2023'
+};
+
+const [selectedEmployee, setSelectedEmployee] = useState(null);
+const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
+
+  // const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
+  const tabs = ['Overview', 'Managers', 'Employees'];
 
   // Handlers
+
+  // const formatDateForInput = (dateString) => {
+  //   const [month, day, year] = dateString.split('/');
+  //   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  // };
   const formatDateForInput = (dateString) => {
-    const [month, day, year] = dateString.split('/');
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    if (!dateString) return '';
+    
+    if (dateString.includes('/')) {
+      const [month, day, year] = dateString.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    } else if (dateString.includes('-')) {
+      return dateString;  // already in correct format
+    }
+    
+    return '';
   };
+
 
   const formatDateToDisplay = (dateString) => {
     const [year, month, day] = dateString.split('-');
@@ -62,15 +98,15 @@ const Projects = () => {
     setNewManager({ name: '', email: '' });
   };
 
-  const handleUpdateManager = (index, field, value) => { /* update manager logic */ 
-    const updatedManagers = [...selectedProject.managers];
-    updatedManagers[index][field] = value;
-    const updatedProject = { ...selectedProject, managers: updatedManagers };
-    setSelectedProject(updatedProject);
-    setProjects(prev =>
-      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
-    );
-  };
+  // const handleUpdateManager = (index, field, value) => { /* update manager logic */ 
+  //   const updatedManagers = [...selectedProject.managers];
+  //   updatedManagers[index][field] = value;
+  //   const updatedProject = { ...selectedProject, managers: updatedManagers };
+  //   setSelectedProject(updatedProject);
+  //   setProjects(prev =>
+  //     prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+  //   );
+  // };
 
   const handleRemoveManager = (index) => { /* remove manager logic */ 
     const updatedManagers = selectedProject.managers.filter((_, i) => i !== index);
@@ -80,6 +116,49 @@ const Projects = () => {
       prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
     );
   };
+
+
+  const ProfileModal = ({ data, onClose, title }) => (
+  <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h3>{title}</h3>
+      <table className="profile-table">
+        <tbody>
+          {Object.entries(data).map(([key, value]) => (
+            <tr key={key}>
+              <td className="profile-label">{key}</td>
+              <td className="profile-value">{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="action-buttons">
+        <button className="close-btn" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  </div>
+  );
+
+  const handleSaveNewProject = () => {
+
+    const projectToAdd = {
+      id: projects.length + 1,
+      name: newProject.name,
+      manager: newProject.manager,
+      start: newProject.start,
+      end: newProject.end,
+      status: newProject.status,
+      description: '',
+      managers: [],
+      employees: [],
+      applications: []
+    };
+  setProjects([...projects, projectToAdd]);
+  setShowCreateProjectModal(false);
+  setNewProject({ name: '', manager: 'Not Assigned', start: '', end: '', status: 'Active' });
+  };
+
+
 
   // const handleApproveApplication = (index) => { /* approve application logic */ 
   //   const application = selectedProject.applications[index];
@@ -135,11 +214,22 @@ const Projects = () => {
     setNewEmployee({ name: '', position: '' });
   };
 
+  const handleRemoveEmployee = (index) => {
+  const updatedEmployees = selectedProject.employees.filter((_, i) => i !== index);
+  const updatedProject = { ...selectedProject, employees: updatedEmployees };
+  setSelectedProject(updatedProject);
+  setProjects(prev =>
+    prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+  );
+  };
+
   // Render Tabs Content
   
+  console.log(projects)
+
   const renderDetail = () => (
   <div className="project-modal">
-    <div className="close-button-container">
+    <div className="dashboard-header">
       <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         Project Details: {selectedProject.id}. {selectedProject.name}
       </h2>
@@ -163,11 +253,11 @@ const Projects = () => {
     <div className="project-content">
       {activeTab === 'Overview' && (
         <div className="project-modal">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
+          <h3 className='show-label-h3'>
             Project Details : {selectedProject.name}
           </h3>
 
-          <div className="project-detail-row">
+          {/* <div className="project-detail-row">
             <div className="project-label"><strong>Project Name:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
@@ -181,7 +271,7 @@ const Projects = () => {
                 selectedProject.name
               )}
             </div>
-          </div>
+          </div> */}
 
           <div className="project-detail-row">
             <div className="project-label"><strong>Description:</strong></div>
@@ -244,6 +334,7 @@ const Projects = () => {
                   }
                 >
                   <option value="Active">Active</option>
+                  <option value="Onhold">On Hold</option>
                   <option value="Inactive">Inactive</option>
                 </select>
               ) : (
@@ -275,7 +366,7 @@ const Projects = () => {
 
       {activeTab === 'Managers' && (
         <div className="project-modal fade-in">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
+          <h3 className='show-label-h3'>
             Manager Details
           </h3>
 
@@ -285,45 +376,39 @@ const Projects = () => {
                 <p className="manager-label">Manager {i + 1}</p>
                 <div className="manager-field">
                   <strong>Name:</strong>{' '}
-                  {isEditingManagerIndex === i ? (
-                    <input
-                      value={m.name}
-                      onChange={(e) => handleUpdateManager(i, 'name', e.target.value)}
-                    />
-                  ) : (
-                    <span>{m.name}</span>
-                  )}
+                  <span>{m.name}</span>
                 </div>
                 <div className="manager-field">
                   <strong>Email Id:</strong>{' '}
-                  {isEditingManagerIndex === i ? (
-                    <input
-                      value={m.email}
-                      onChange={(e) => handleUpdateManager(i, 'email', e.target.value)}
-                    />
-                  ) : (
-                    <span>{m.email}</span>
-                  )}
+                  <span>{m.email}</span>
                 </div>
               </div>
               <div className="manager-actions">
-                {isEditingManagerIndex === i ? (
-                  <button className="edit-btn" onClick={() => setIsEditingManagerIndex(null)}>
-                    Save
-                  </button>
-                ) : (
-                  <>
-                    <button className="edit-btn" onClick={() => setIsEditingManagerIndex(i)}>
-                      Edit Details
-                    </button>
-                    <button className="remove-btn" onClick={() => handleRemoveManager(i)}>
-                      Remove Manager
-                    </button>
-                  </>
-                )}
+                <button
+                className="view-btn"
+                onClick={() =>
+                  setselectedManagerDetails({
+                    ...managerStaticData
+                  })
+                }
+                >
+                View Profile
+                </button>
+                <button className="remove-btn" onClick={() => handleRemoveManager(i)}>
+                  Remove Manager
+                </button>
               </div>
             </div>
           ))}
+
+          {selectedManagerDetails && (
+          <ProfileModal
+          data={selectedManagerDetails}
+          onClose={() => setselectedManagerDetails(null)}
+          title="Profile Details"
+          />
+          )}
+
 
           <div className="manager-card">
             <p className="manager-label">Add Manager:</p>
@@ -338,7 +423,9 @@ const Projects = () => {
                 value={newManager.email}
                 onChange={(e) => setNewManager({ ...newManager, email: e.target.value })}
               />
-              <button className="edit-btn" onClick={handleAddManager}>Add Manager</button>
+              <button className="edit-btn" onClick={handleAddManager}>
+                Add Manager
+              </button>
             </div>
           </div>
         </div>
@@ -346,7 +433,7 @@ const Projects = () => {
 
       {activeTab === 'Employees' && (
         <div className="project-modal fade-in">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
+          <h3 className='show-label-h3'>
             Employees Details
           </h3>
           <table className="applicant-table">
@@ -365,12 +452,34 @@ const Projects = () => {
                   <td>{e.position}</td>
                   <td>{e.date}</td>
                   <td>
-                    <button className="view-btn">View Profile</button>
+                    <button
+                    className="view-btn"
+                    onClick={() => setSelectedEmployee({
+                      name: e.name,
+                      position: e.position,
+                      date: e.date
+                    })}
+>
+                    View Profile
+                    </button>
+                    <button className="remove-btn" onClick={() => handleRemoveEmployee(i)}>
+                    Remove
+                    </button>
                   </td>
                 </tr>
               ))}
+
+              
             </tbody>
           </table>
+          
+          {selectedEmployee && (
+          <ProfileModal
+            data={selectedEmployee}
+            onClose={() => setSelectedEmployee(null)}
+            title="Profile Details"
+          />
+        )}
 
           <div className="add-employee-form">
             <input
@@ -459,7 +568,63 @@ const Projects = () => {
         <main className="pending-main">
           {!selectedProject ? (
             <>
+              {/* <h2 className="pending-title">Admin Dashboard - Projects</h2>
+              <button className="edit-btn" onClick={() => setShowCreateProjectModal(true)}>
+              + Create Project
+            </button> */}
+
+            <div className="dashboard-header">
               <h2 className="pending-title">Admin Dashboard - Projects</h2>
+              <button className="create-project-btn" onClick={() => setShowCreateProjectModal(true)}>
+                + Create Project
+              </button>
+            </div>
+
+            {showCreateProjectModal && (
+              <div className="modal-backdrop" onClick={() => setShowCreateProjectModal(false)}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <h3 className='show-label-h3'>Create a Project</h3>
+                  <div className="add-project-form">
+                    <label >Project Name</label>
+                    <input
+                      value={newProject.name}
+                      onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                    />
+                    {/* <label>Manager Name</label>
+                    <input
+                      value={newProject.manager}
+                      onChange={(e) => setNewProject({ ...newProject, manager: e.target.value })}
+                    /> */}
+                    <label>Start Date</label>
+                    <input
+                      type="date"
+                      value={newProject.start}
+                      onChange={(e) => setNewProject({ ...newProject, start: e.target.value })}
+                    />
+                    <label>End Date</label>
+                    <input
+                      type="date"
+                      value={newProject.end}
+                      onChange={(e) => setNewProject({ ...newProject, end: e.target.value })}
+                    />
+                    <label>Status</label>
+                    <select
+                      value={newProject.status}
+                      onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Onhold">On Hold</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                    <div className="action-buttons">
+                      <button className="view-btn" onClick={handleSaveNewProject}>Submit</button>
+                      <button className="close-btn" onClick={() => setShowCreateProjectModal(false)}>Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          ) }
+
               <table className="applicant-table">
                 <thead>
                   <tr>
