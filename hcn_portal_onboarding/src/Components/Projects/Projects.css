@@ -431,3 +431,10 @@ text-align: center;
   margin-bottom: 1.5rem;
 }
 
+
+.add-employee-form Select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 200px;
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Projects.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
+ import Select from "react-select";
 
 const Projects = () => {
   // State Management
@@ -56,6 +57,40 @@ const Projects = () => {
   joiningDate: '01/15/2023'
 };
 
+  const options = [
+    { Name: "Manmohan", role: "Front-end Developer" },
+    { Name: "Shalini", role: "Front-end Developer" },
+    { Name: "Bindu", role: "Backend Developer" },
+    { Name: "Praveen", role: "Backend Developer" },
+    { Name: "Dhanush", role: "Manager" },
+  ];
+
+  // const response = await fetch('https://api.example.com/data');
+
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [position, setPosition] = useState("");
+  const handleChange = (selected) => {
+    setSelectedOption(selected);
+    setPosition(selected?.role ?? "");
+  };
+
+
+  const Managers=[
+    { Name: "Manmohan", email: "manmohan@gmail.com" },
+    { Name: "Shalini", email: "shalini@gmail.com" },
+    { Name: "Bindu", email: "bindu@gmail.com" },
+    { Name: "Praveen", email: "praveen@gmail.com" },
+    { Name: "Dhanush", email: "dhanush@gmail.com" },
+  ];
+
+  const [selectedMOption, setSelectedMOption] = useState(null);
+  const [email, setEmail] = useState("");
+  const handleManagerChange = (selected) => {
+    setSelectedMOption(selected);
+    setEmail(selected?.email ?? "");
+  };
+
+
 const [selectedEmployee, setSelectedEmployee] = useState(null);
 const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
 
@@ -87,16 +122,29 @@ const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
     return `${month}/${day}/${year}`;
   };
 
-  const handleAddManager = () => { 
-  /* add manager logic */ 
-    const updatedManagers = [...selectedProject.managers, { ...newManager }];
-    const updatedProject = { ...selectedProject, managers: updatedManagers };
-    setSelectedProject(updatedProject);
-    setProjects(prev =>
-      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
-    );
-    setNewManager({ name: '', email: '' });
+const handleAddManager = () => {
+  // Make sure the user picked someone and an email is present
+  if (!selectedMOption || !email.trim()) return;
+
+  // Build the new manager object
+  const newManager = {
+    name:  selectedMOption.Name,  // or .value / .label – whichever holds the name
+    email: email.trim(),
   };
+
+  // Push it into the current project’s manager list
+  const updatedManagers = [...selectedProject.managers, newManager];
+  const updatedProject  = { ...selectedProject, managers: updatedManagers };
+
+  setSelectedProject(updatedProject);
+  setProjects(prev =>
+    prev.map(p => (p.id === updatedProject.id ? updatedProject : p))
+  );
+
+  // Clear the picker and email field for the next entry
+  setSelectedMOption(null);
+  setEmail('');
+};
 
   // const handleUpdateManager = (index, field, value) => { /* update manager logic */ 
   //   const updatedManagers = [...selectedProject.managers];
@@ -194,25 +242,37 @@ const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
   //   );
   // };
 
-  const handleAddEmployee = () => {
-    if (!newEmployee.name || !newEmployee.position) return;
-    const todayISO = new Date().toISOString().split('T')[0];
-    const formattedDate = formatDateToDisplay(todayISO);
-    const newEmp = {
-      name: newEmployee.name,
-      position: newEmployee.position,
-      date: formattedDate,
-    };
-    const updated = {
-      ...selectedProject,
-      employees: [...selectedProject.employees, newEmp],
-    };
-    setSelectedProject(updated);
-    setProjects((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    );
-    setNewEmployee({ name: '', position: '' });
+const handleAddEmployee = () => {
+  // guard clause: make sure both pieces are filled in
+  if (!selectedOption || !position) return;
+
+  // format today’s date as e.g. 2025-07-10 ➜ 10 Jul 2025 (whatever your util does)
+  const todayISO = new Date().toISOString().split('T')[0];
+  const formattedDate = formatDateToDisplay(todayISO);
+
+  // build the new employee record
+  const newEmp = {
+    name:     selectedOption.Name, // or .label – whichever you treat as "name"
+    position: position,
+    date:     formattedDate,
   };
+
+  // clone + update current project
+  const updated = {
+    ...selectedProject,
+    employees: [...selectedProject.employees, newEmp],
+  };
+
+  // push the change into state
+  setSelectedProject(updated);
+  setProjects((prev) =>
+    prev.map((p) => (p.id === updated.id ? updated : p))
+  );
+
+  // clear the form
+  setSelectedOption(null); // empties the <Select>
+  setPosition('');         // clears the text field
+};
 
   const handleRemoveEmployee = (index) => {
   const updatedEmployees = selectedProject.employees.filter((_, i) => i !== index);
@@ -413,16 +473,24 @@ const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
           <div className="manager-card">
             <p className="manager-label">Add Manager:</p>
             <div className="add-manager-row">
-              <input
+ <div style={{ width: 200 }}>
+              <Select
+                options={Managers}
+                onChange={handleManagerChange}
+                type="text"
                 placeholder="Name"
-                value={newManager.name}
-                onChange={(e) => setNewManager({ ...newManager, name: e.target.value })}
+                value={selectedMOption}
+                isSearchable
+                getOptionLabel={(opt) => opt.Name}
+                getOptionValue={(opt) => opt.Name}
               />
-              <input
-                placeholder="Email"
-                value={newManager.email}
-                onChange={(e) => setNewManager({ ...newManager, email: e.target.value })}
-              />
+              </div>
+                <input
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled="true"
+                />
               <button className="edit-btn" onClick={handleAddManager}>
                 Add Manager
               </button>
@@ -482,18 +550,26 @@ const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
         )}
 
           <div className="add-employee-form">
-            <input
-              type="text"
-              placeholder="Name"
-              value={newEmployee.name}
-              onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Position"
-              value={newEmployee.position}
-              onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
-            />
+ <div style={{ width: 200 }}>
+              <Select
+                options={options}
+                onChange={handleChange}
+                type="text"
+                placeholder="Name"
+                value={selectedOption}
+                isSearchable
+                getOptionLabel={(opt) => opt.Name}
+                getOptionValue={(opt) => opt.Name}
+              />
+              </div>
+              <input
+                type="text"
+                placeholder="Position"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                disabled="true"
+                // onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
+              />
             <button className="edit-btn" onClick={handleAddEmployee}>Add Employee</button>
           </div>
         </div>
