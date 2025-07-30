@@ -96,7 +96,24 @@ body, html {
   padding: 30px;
   background-color: #fff;
   color: #000;
+  overflow:hidden;
+
 }
+
+.pending-content {
+  max-height: 100vh;
+  overflow-y: auto; 
+  overflow-x: hidden;      
+  padding: 1rem;          
+  box-sizing: border-box;
+  flex:1;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 
 .pending-title {
   color: black;
@@ -118,7 +135,7 @@ body, html {
   border-collapse: collapse;
   background: white;
   border-radius: 10px;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -290,4 +307,99 @@ body, html {
 h3 {
   margin-bottom: 20px;
   color: black;
+}
+
+
+
+
+@media (max-width: 768px) {
+  .applicant-table thead {
+    display: none;
+  }
+
+  .applicant-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .applicant-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .applicant-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+}
+
+.pagination-controls {
+  margin-top: 1rem;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.page-btn.active {
+  background-color: #5C98B8;
+  color: white;
+  border-color: #5C98B8;
+}
+
+
+.filter-controls {
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-controls label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.filter-controls select {
+  padding: 10px 16px;
+  font-size: 16px;
+  width: 200px;
+  height: 42px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  transition: 0.2s ease;
+  background-color: white;
+}
+
+.filter-controls select.selected {
+  border-color: #3182ce; /* blue */
+  background-color: #ebf8ff; /* light blue */
+  color: #2c5282; /* dark blue text */
+  border-radius: 8px;
+}
+
+.reset-btn {
+  padding: 6px 12px;
+  background: #5C98B8;
+  background-color: #5C98B8;
+  color: white;
+   border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  background-color: #3b677e;
 }

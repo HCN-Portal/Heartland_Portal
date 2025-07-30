@@ -6,23 +6,29 @@ import { get_all_users,get_user_by_id,clearSelectedUser } from '../../store/redu
 
 const CurrentEmployees = () => {
   const dispatch = useDispatch();
-  // const { applications, loading } = useSelector((state) => state.application);
   const { users, loading,selectedUser  } = useSelector((state) => state.user);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+
 
   useEffect(() => {
     dispatch(get_all_users());
   }, [dispatch]);
 
+
+
+  // const approvedEmployees = users
+
 const approvedEmployees = users.filter(user =>
   ['manager', 'employee'].includes(user.role?.toLowerCase())
 );
-
 const [currentPage, setCurrentPage] = useState(1);
 const employeesPerPage = 2;
 const indexOfLastEmployee = currentPage * employeesPerPage;
 const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+// const currentEmployees = approvedEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+// const totalPages = Math.ceil(approvedEmployees.length / employeesPerPage);
 const [filterStatus, setFilterStatus] = useState('all');
 
 const filteredEmployees = approvedEmployees.filter(emp => {
@@ -34,7 +40,6 @@ const filteredEmployees = approvedEmployees.filter(emp => {
   }
   return true; // 'all'
 });
-
 const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
 const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
 
@@ -48,9 +53,6 @@ const handleResetFilter = () => {
   setCurrentPage(1);
 };
 
-const handleViewProfile=(userId) =>{
-    dispatch(get_user_by_id(userId));
-}
 
   const formatLabel = (label) => {
     return label
@@ -64,8 +66,8 @@ const handleViewProfile=(userId) =>{
   const formatValue = (key, value) => {
     const dateFields = ['dob', 'eadStartDate', 'visaEADExpiryDate', 'dateOfSubmission'];
     if (key === 'projectsAssigned' && Array.isArray(value)) {
-      return value.map(p => p.title).join(', ') || 'Unassigned';
-    }
+    return value.map(p => p.title).join(', ') || 'Unassigned';
+  }
     if (dateFields.includes(key) && value) {
       const date = new Date(value);
       return date.toLocaleDateString('en-US');
@@ -74,10 +76,16 @@ const handleViewProfile=(userId) =>{
       return value.join(', ');
     }
     if (typeof value === 'object' && value !== null) {
-      return JSON.stringify(value);
+      return  JSON.stringify(value);
     }
+   
     return value || 'N/A';
   };
+
+
+const handleViewProfile=(userId) =>{
+    dispatch(get_user_by_id(userId));
+}
 
   return (
     <div>
@@ -280,7 +288,6 @@ const handleViewProfile=(userId) =>{
 
     </div>
   );
-
 };
 
 export default CurrentEmployees;

@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const Application = require('../models/applications');
 const User = require('../models/user');
+const Project = require('../models/projects')
 const {responseReturn}  = require("../utils/response")
 const { sendEmail } = require('../utils/mailer');
 const bcrypt = require('bcryptjs');
@@ -43,11 +44,11 @@ exports.getDashboardStats = async (req, res) => {
   try {
     const totalPending = await Application.countDocuments({ status: 'pending' });
     const totalApproved = await Application.countDocuments({ status: 'Approved' });
-    const ongoingProjects = 0; // Placeholder for ongoing projects count
+    const ongoingProjects = await Project.countDocuments({status : 'Active'})
     return res.status(200).json({
       pendingApplications: totalPending,
       activeEmployees: totalApproved,
-      ongoingProjects,
+      ongoingProjects: ongoingProjects,
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);

@@ -78,6 +78,7 @@ exports.getUserById = async (req, res) => {
             address1: user.address1,
             address2: user.address2,
             employeeId: user.employeeId,
+            projectsAssigned: user.projectsAssigned
             // Add other fields you want to return
         });
     } catch (error) {
