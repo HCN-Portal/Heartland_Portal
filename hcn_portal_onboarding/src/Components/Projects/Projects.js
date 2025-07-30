@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import './Projects.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
- import Select from "react-select";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import Select from "react-select";
 
 const Projects = () => {
   // State Management
@@ -10,19 +13,35 @@ const Projects = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
-  const [newManager, setNewManager] = useState({ name: '', email: '' });
-  const [newEmployee, setNewEmployee] = useState({ name: '', position: '' });
+  const [overviewErrors, setOverviewErrors] = useState({});
+  // const [newManager, setNewManager] = useState({ name: '', email: '' });
+  // const [newEmployee, setNewEmployee] = useState({ name: '', position: '' });
 
-  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-  const [newProject, setNewProject] = useState({
-    name: '',
-    description: '',
-    manager: 'Not Assigned',
-    start: '',
-    end: 'N/A',
-    status: 'Active'
+  // Form validation schema using Yup
+  const projectSchema = yup.object().shape({
+    name: yup.string().required("Project name is required"),
+    description: yup.string().required("Description is required"),
+    manager: yup.string().required("Manager name is required"),
+    start: yup.string().required("Start date is required"),
+    end: yup.string().nullable().notRequired(),
+    status: yup.string().required(),
+    skillTags: yup.string().required("Skill tags are required"),
+    client: yup.string().required("Client name is required"),
   });
 
+  // React Hook Form setup with Yup validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    } = useForm({
+    resolver: yupResolver(projectSchema),
+  });
+
+  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
+
+  // Static data for Project
   const [projects, setProjects] = useState([
   {
     id: 1,
@@ -44,19 +63,20 @@ const Projects = () => {
     applications: [
       { name: 'ManagerX', position: 'Manager' },
       { name: 'EmployeeY', position: 'Employee' }
-    ]
+    ],
+    client: 'HCN',
+    skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
   }
   ]);
 
+  // Manager static data for View Manager Details
   const managerStaticData = {
-   name: 'Dhanush', 
-   email: 'dhanush@admin.hcn.com',
   role: 'Manager',
   department: 'Project Management',
   projectCount: 2,
   joiningDate: '01/15/2023'
 };
-
+  
   const options = [
     { Name: "Manmohan", role: "Front-end Developer" },
     { Name: "Shalini", role: "Front-end Developer" },
@@ -187,23 +207,28 @@ const handleAddManager = () => {
   </div>
   );
 
-  const handleSaveNewProject = () => {
-
+  // Called when form is submitted to create a new project
+  const handleSaveNewProject = (data) => {
+    // Format start and end dates to display format
+   
+    // console.log('Triggerd Save event', data)
+    const formattedStart = formatDateToDisplay(data.start);
+    const formattedEnd = data.end ? formatDateToDisplay(data.end) : null;
+     // Construct new project object and update state
     const projectToAdd = {
       id: projects.length + 1,
-      name: newProject.name,
-      manager: newProject.manager,
-      start: newProject.start,
-      end: newProject.end,
-      status: newProject.status,
-      description: '',
+      ...data,
+      start: formattedStart,
+      end: formattedEnd,
       managers: [],
       employees: [],
-      applications: []
+      applications: [],
     };
-  setProjects([...projects, projectToAdd]);
-  setShowCreateProjectModal(false);
-  setNewProject({ name: '', manager: 'Not Assigned', start: '', end: '', status: 'Active' });
+    // console.log('Proojectss in Save ', projects)
+    setProjects([...projects, projectToAdd]);
+    alert("Project created successfully!");
+    setShowCreateProjectModal(false);
+    reset();
   };
 
 
@@ -274,6 +299,8 @@ const handleAddEmployee = () => {
   setPosition('');         // clears the text field
 };
 
+// Removes Selected employee from the Selected Project
+
   const handleRemoveEmployee = (index) => {
   const updatedEmployees = selectedProject.employees.filter((_, i) => i !== index);
   const updatedProject = { ...selectedProject, employees: updatedEmployees };
@@ -283,17 +310,25 @@ const handleAddEmployee = () => {
   );
   };
 
-  // Render Tabs Content
-  
-  console.log(projects)
-
+  // Renders Tabs Content and detailed modal view of selected project
+  // console.log(projects)
+  // Controlled form inputs for editing project overview
+  // Validates using Yup before saving changes
   const renderDetail = () => (
   <div className="project-modal">
     <div className="dashboard-header">
       <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         Project Details: {selectedProject.id}. {selectedProject.name}
       </h2>
-      <button className="close-btn" onClick={() => setSelectedProject(null)}>
+      <button className="close-btn" 
+        onClick={() => {
+        if (isEditingOverview) {
+        alert("Please save your changes before closing.");
+        } else {
+        setSelectedProject(null);
+        }
+        }}
+      >
         Close
       </button>
     </div>
@@ -314,29 +349,35 @@ const handleAddEmployee = () => {
       {activeTab === 'Overview' && (
         <div className="project-modal">
           <h3 className='show-label-h3'>
-            Project Details : {selectedProject.name}
+            Project Details
+             {/* : {selectedProject.name} */}
           </h3>
 
-          {/* <div className="project-detail-row">
+          <div className="project-detail-row">
             <div className="project-label"><strong>Project Name:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
+                <div>
                 <input
                   value={editedProject.name}
                   onChange={(e) =>
                     setEditedProject({ ...editedProject, name: e.target.value })
                   }
                 />
+                <p className="error-text">{overviewErrors.name}</p>
+                </div>
+                
               ) : (
                 selectedProject.name
               )}
             </div>
-          </div> */}
+          </div>
 
           <div className="project-detail-row">
             <div className="project-label"><strong>Description:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
+                <div>
                 <textarea
                   rows={6}
                   value={editedProject.description}
@@ -344,6 +385,8 @@ const handleAddEmployee = () => {
                     setEditedProject({ ...editedProject, description: e.target.value })
                   }
                 />
+                <p className="error-text">{overviewErrors.description}</p>
+                </div>
               ) : (
                 selectedProject.description
               )}
@@ -361,24 +404,70 @@ const handleAddEmployee = () => {
                     onChange={(e) =>
                       setEditedProject({
                         ...editedProject,
-                        start: formatDateToDisplay(e.target.value)
+                        start: e.target.value ? formatDateToDisplay(e.target.value) : null
                       })
                     }
-                  />{' '}
+                  />
+                  <p className="error-text">{overviewErrors.start}</p>
+                  {' '} 
                   -{' '}
                   <input
                     type="date"
                     value={formatDateForInput(editedProject.end)}
-                    onChange={(e) =>
+                    onChange={(e) =>{
+                      const enddate = e.target.value ? formatDateToDisplay(e.target.value) : null;
                       setEditedProject({
                         ...editedProject,
-                        end: formatDateToDisplay(e.target.value)
+                        end: enddate,
                       })
-                    }
+                    }}
                   />
+                  <p className="error-text">{overviewErrors.end}</p>
+                </>
+                
+              ) : (
+                `${selectedProject.start} - ${selectedProject.end ?? "Ongoing"}`
+              )}
+            </div>
+          </div>
+
+          <div className="project-detail-row">
+            <div className="project-label"><strong>Skill Tags:</strong></div>
+            <div className="project-value">
+              {isEditingOverview ? (
+                <div>
+                <textarea
+                  rows={2}
+                  value={editedProject.skillTags}
+                  onChange={(e) =>
+                    setEditedProject({ ...editedProject, skillTags: e.target.value })
+                  }
+                />
+                <p className="error-text">{overviewErrors.skillTags}</p>
+                </div>
+              ) : (
+                selectedProject.skillTags
+              )}
+            </div>
+          </div>
+
+          <div className="project-detail-row">
+            <div className="project-label"><strong>Client Name:</strong></div>
+            <div className="project-value">
+              {isEditingOverview ? (
+                <>
+                
+                <textarea
+                  rows={1}
+                  value={editedProject.client}
+                  onChange={(e) =>
+                    setEditedProject({ ...editedProject, client: e.target.value })
+                  }
+                />
+                <p className="error-text">{overviewErrors.client}</p>
                 </>
               ) : (
-                `${selectedProject.start} - ${selectedProject.end}`
+                selectedProject.client
               )}
             </div>
           </div>
@@ -406,16 +495,33 @@ const handleAddEmployee = () => {
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <button
               className="edit-btn"
-              onClick={() => {
+              onClick={async () => {
                 if (isEditingOverview) {
-                  setSelectedProject(editedProject);
-                  setProjects((prev) =>
-                    prev.map((p) => (p.id === editedProject.id ? editedProject : p))
-                  );
+                  try {
+                    // console.log("Edited project:", editedProject);
+                    await projectSchema.validate(editedProject, { abortEarly: false });
+                    // Validation passed
+                    setSelectedProject(editedProject);
+                    setProjects((prev) =>
+                      prev.map((p) => (p.id === editedProject.id ? editedProject : p))
+                    );
+                    setOverviewErrors({});
+                    setIsEditingOverview(false);
+                  } catch (err) {
+                    const formattedErrors = {};
+                    if (err.inner) {
+                      err.inner.forEach((e) => {
+                        formattedErrors[e.path] = e.message;
+                      });
+                    }
+                    // console.log("Validation failed", err);
+                    setOverviewErrors(formattedErrors);
+                  }
                 } else {
                   setEditedProject({ ...selectedProject });
+                  setOverviewErrors({});
+                  setIsEditingOverview(true);
                 }
-                setIsEditingOverview(!isEditingOverview);
               }}
             >
               {isEditingOverview ? 'Save' : 'Edit Details'}
@@ -448,6 +554,7 @@ const handleAddEmployee = () => {
                 className="view-btn"
                 onClick={() =>
                   setselectedManagerDetails({
+                    ...m,
                     ...managerStaticData
                   })
                 }
@@ -473,7 +580,7 @@ const handleAddEmployee = () => {
           <div className="manager-card">
             <p className="manager-label">Add Manager:</p>
             <div className="add-manager-row">
- <div style={{ width: 200 }}>
+            <div style={{ width: 200 }}>
               <Select
                 options={Managers}
                 onChange={handleManagerChange}
@@ -550,7 +657,7 @@ const handleAddEmployee = () => {
         )}
 
           <div className="add-employee-form">
- <div style={{ width: 200 }}>
+          <div style={{ width: 200 }}>
               <Select
                 options={options}
                 onChange={handleChange}
@@ -597,7 +704,9 @@ const handleAddEmployee = () => {
       {/* {activeTab === 'Updates/Activity' && <p>No activity yet.</p>} */}
     </div>
   </div>
-);
+  );
+
+  
 
   return (
     <div>
@@ -656,50 +765,82 @@ const handleAddEmployee = () => {
               </button>
             </div>
 
+            {/* Conditional rendering for the create project modal */}
+            
             {showCreateProjectModal && (
-              <div className="modal-backdrop" onClick={() => setShowCreateProjectModal(false)}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <h3 className='show-label-h3'>Create a Project</h3>
-                  <div className="add-project-form">
-                    <label >Project Name</label>
-                    <input
-                      value={newProject.name}
-                      onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    />
-                    {/* <label>Manager Name</label>
-                    <input
-                      value={newProject.manager}
-                      onChange={(e) => setNewProject({ ...newProject, manager: e.target.value })}
-                    /> */}
-                    <label>Start Date</label>
-                    <input
-                      type="date"
-                      value={newProject.start}
-                      onChange={(e) => setNewProject({ ...newProject, start: e.target.value })}
-                    />
-                    <label>End Date</label>
-                    <input
-                      type="date"
-                      value={newProject.end}
-                      onChange={(e) => setNewProject({ ...newProject, end: e.target.value })}
-                    />
-                    <label>Status</label>
-                    <select
-                      value={newProject.status}
-                      onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Onhold">On Hold</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                    <div className="action-buttons">
-                      <button className="view-btn" onClick={handleSaveNewProject}>Submit</button>
-                      <button className="close-btn" onClick={() => setShowCreateProjectModal(false)}>Cancel</button>
+                <div className="modal-backdrop" onClick={() => setShowCreateProjectModal(false)}>
+                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="show-label-h3">Create a Project</h3>
+                    {/* <form onSubmit={handleSubmit(handleSaveNewProject)}> */}
+                    <form onSubmit={handleSubmit(handleSaveNewProject, (err) => console.log(" Validation failed", err))}>
+                    <div className="add-project-form">
+
+                      
+                      <label>Project Name *</label>
+                      <div>
+                      <input {...register("name")} />
+                      <p className="error-text">{errors.name?.message}</p>
+                      </div>
+
+                      <label>Description *</label>
+                      <div>
+                      <textarea rows={3} cols={50} {...register("description")} />
+                      <p className="error-text">{errors.description?.message}</p>
+                      </div>
+                      
+
+                      <label>Manager Name *</label>
+                      <div>
+                      <input {...register("manager")} />
+                      <p className="error-text">{errors.manager?.message}</p>
+                      </div>
+                      
+                      <label>Start Date *</label>
+                      <div>
+                      <input type="date" {...register("start")} />
+                      <p className="error-text">{errors.start?.message}</p>
+                      </div>
+                     
+                      <label>End Date</label>
+                      <input type="date" {...register("end")} />
+
+                      <label>Status</label>
+                      <select {...register("status")}>
+                        <option value="Active">Active</option>
+                        <option value="Onhold">On Hold</option>
+                        <option value="Inactive">Inactive</option>
+                      </select>
+
+                      <label>Skill Tags *</label>
+                      <div>
+                      <input {...register("skillTags")} />
+                      <p className="error-text">{errors.skillTags?.message}</p>
+                      </div>
+                      
+                      <label>Client Name *</label>
+                      <div>
+                      <input {...register("client")} />
+                      <p className="error-text">{errors.client?.message}</p>
+                      </div>
+
+                      <div className="action-buttons">
+                        <button className="view-btn" type="submit" onClick={() => console.log("Submit button clicked")}>
+                          Submit
+                        </button>
+                        <button
+                          className="close-btn"
+                          type="button"
+                          onClick={() => {reset(); setShowCreateProjectModal(false);}}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
+                    </form>
                   </div>
                 </div>
-              </div>
-          ) }
+              )}
+
 
               <table className="applicant-table">
                 <thead>
@@ -718,7 +859,7 @@ const handleAddEmployee = () => {
                       <td>{index + 1}. {project.name}</td>
                       <td>{project.manager}</td>
                       <td>{project.start}</td>
-                      <td>{project.end}</td>
+                      <td>{project.end ? project.end : "Ongoing"}</td>
                       <td>{project.status}</td>
                       <td>
                         <button
