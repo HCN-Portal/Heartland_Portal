@@ -69,7 +69,7 @@ const PendingApplications = () => {
               <li><a href="/admin/home">Home / Dashboard</a></li>
               <li><a href="/admin/pending" style={{ fontWeight: "900" }}>Pending Applications</a></li>
               <li><a href="/admin/employees">Active Employees</a></li>
-              <li><a href="#projects">Projects</a></li>
+              <li><a href="/admin/projects">Projects</a></li>
             </ul>
           </nav>
         </aside>

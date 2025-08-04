@@ -13,6 +13,7 @@ import ResetPasswordPage from './Components/Authentication/ResetPasswordPage';
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import PendingApplications from './Components/PendingApplications/PendingApplications';
 import CurrentEmployees from './Components/CurrentEmployees/CurrentEmployees';
+import Projects from './Components/Projects/Projects';
 
 // Employee Pages
 import EmployeeDashboard from './Components/EmployeeDashboard/EmployeeDashboard';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/admin/home" element={<AdminDashboard />} />
           <Route path="/admin/pending" element={<PendingApplications />} />
           <Route path="/admin/employees" element={<CurrentEmployees />} />
+          <Route path="/admin/projects" element={<Projects />} />
         </Route>
 
         {/* Employee Protected Routes */}

@@ -1,145 +1,56 @@
-// import React, { useState, useEffect } from 'react';
-// import './CurrentEmployees.css';
-// import NavigationBar from '../UI/NavigationBar/NavigationBar';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { get_all_applications } from '../../store/reducers/appReducer';
-
-// const CurrentEmployees = () => {
-//   const dispatch = useDispatch();
-//   const { applications, loading } = useSelector((state) => state.application);
-//   const [selectedEmployee, setSelectedEmployee] = useState(null);
-
-//   useEffect(() => {
-//     dispatch(get_all_applications());
-//   }, [dispatch]);
-
-//   const formatLabel = (label) => {
-//     return label
-//       .replace(/([A-Z])/g, ' $1')
-//       .replace(/^./, str => str.toUpperCase());
-//   };
-
-//   const approvedEmployees = applications.filter(app => app.status === 'Approved');
-//   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-//   return (
-//     <div>
-//       <NavigationBar isLoggedIn='true' />
-
-//       <div className="admin-dashboard">
-
-//       <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-//       </button>
-
-//       {sidebarOpen ? (
-//         <aside className="sidebar">
-//           <div className="sidebar-header">
-//             <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
-//               &#9776;
-//             </button>
-//             <h2 className="sidebar-title">Heartland Community Network</h2>
-//           </div>
-
-//           <nav className="sidebar-nav">
-//             <ul>
-//               <li><a href="/admin/home">Home / Dashboard</a></li>
-//               <li><a href="/admin/pending">Pending Applications</a></li>
-//               <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Active Employees</a></li>
-//               <li><a href="#projects">Projects</a></li>
-//             </ul>
-//           </nav>
-//         </aside>
-//       ) : (
-//         <div className="collapsed-sidebar">
-//           <div className="collapsed-top">
-//             <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
-//               &#9776;
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//         <main className="pending-main">
-//           <h2 className="pending-title">Admin Dashboard - Current Employees</h2>
-
-//           <div className="pending-header">
-//             <span><strong>Total Count</strong>: {approvedEmployees.length}</span>
-//             <span>{approvedEmployees.length} Rows</span>
-//           </div>
-
-//           <div className="pending-content">
-//             <table className="applicant-table">
-//               <thead>
-//                 <tr>
-//                   <th>Employee Name</th>
-//                   <th>Role</th>
-//                   <th>Project</th>
-//                   <th>Action</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {approvedEmployees.map((emp, idx) => (
-//                   <tr key={emp._id}>
-//                     <td>{idx + 1}. {emp.firstName} {emp.lastName}</td>
-//                     <td>{emp.roleInterest}</td>
-//                     <td>{emp.projectName || 'N/A'}</td>
-//                     <td>
-//                       <button className="view-btn" onClick={() => setSelectedEmployee(emp)}>
-//                         View Profile
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         </main>
-//       </div>
-
-//       {selectedEmployee && (
-//         <div className="modal-backdrop" onClick={() => setSelectedEmployee(null)}>
-//         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-//           <h3>Employee Profile</h3>
-//             <table className="profile-table">
-//               <tbody>
-//                 {Object.entries(selectedEmployee).map(([key, value]) => (
-//                   <tr key={key}>
-//                     <td className="profile-label">{formatLabel(key)}</td>
-//                     <td className="profile-value">{Array.isArray(value) ? value.join(', ') : value?.toString()}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>  
-          
-//           <div className="action-buttons">
-//             <button className="close-btn" onClick={() => setSelectedEmployee(null)}>Close</button>
-//           </div>
-//         </div>
-//       </div>
-        
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CurrentEmployees;
-
-
 import React, { useState, useEffect } from 'react';
 import './CurrentEmployees.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { get_all_applications } from '../../store/reducers/appReducer';
+import { get_all_users,get_user_by_id,clearSelectedUser } from '../../store/reducers/userReducer';
 
 const CurrentEmployees = () => {
   const dispatch = useDispatch();
-  const { applications, loading } = useSelector((state) => state.application);
+  // const { applications, loading } = useSelector((state) => state.application);
+  const { users, loading,selectedUser  } = useSelector((state) => state.user);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    dispatch(get_all_applications());
+    dispatch(get_all_users());
   }, [dispatch]);
+
+const approvedEmployees = users.filter(user =>
+  ['manager', 'employee'].includes(user.role?.toLowerCase())
+);
+
+const [currentPage, setCurrentPage] = useState(1);
+const employeesPerPage = 2;
+const indexOfLastEmployee = currentPage * employeesPerPage;
+const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+const [filterStatus, setFilterStatus] = useState('all');
+
+const filteredEmployees = approvedEmployees.filter(emp => {
+  if (filterStatus === 'assigned') {
+    return Array.isArray(emp.projectsAssigned) && emp.projectsAssigned.length > 0;
+  }
+  if (filterStatus === 'unassigned') {
+    return !Array.isArray(emp.projectsAssigned) || emp.projectsAssigned.length === 0;
+  }
+  return true; // 'all'
+});
+
+const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+
+const handleFilterChange = (e) => {
+  setFilterStatus(e.target.value);
+  setCurrentPage(1); // reset pagination
+};
+
+const handleResetFilter = () => {
+  setFilterStatus('all');
+  setCurrentPage(1);
+};
+
+const handleViewProfile=(userId) =>{
+    dispatch(get_user_by_id(userId));
+}
 
   const formatLabel = (label) => {
     return label
@@ -150,10 +61,11 @@ const CurrentEmployees = () => {
       .replace(/Dob/g, 'DOB');
   };
 
-  const approvedEmployees = applications.filter(app => app.status === 'Approved');
-
   const formatValue = (key, value) => {
     const dateFields = ['dob', 'eadStartDate', 'visaEADExpiryDate', 'dateOfSubmission'];
+    if (key === 'projectsAssigned' && Array.isArray(value)) {
+      return value.map(p => p.title).join(', ') || 'Unassigned';
+    }
     if (dateFields.includes(key) && value) {
       const date = new Date(value);
       return date.toLocaleDateString('en-US');
@@ -172,7 +84,6 @@ const CurrentEmployees = () => {
       <NavigationBar isLoggedIn='true' />
 
       <div className="admin-dashboard">
-
         <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)} />
 
         {sidebarOpen ? (
@@ -188,8 +99,8 @@ const CurrentEmployees = () => {
               <ul>
                 <li><a href="/admin/home">Home / Dashboard</a></li>
                 <li><a href="/admin/pending">Pending Applications</a></li>
-                <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Active Employees</a></li>
-                <li><a href="#projects">Projects</a></li>
+                <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Employees</a></li>
+                <li><a href="/admin/projects">Projects</a></li>
               </ul>
             </nav>
           </aside>
@@ -204,43 +115,119 @@ const CurrentEmployees = () => {
         )}
 
         <main className="pending-main">
-          <h2 className="pending-title">Admin Dashboard - Current Employees</h2>
+          <h2 className="pending-title">Admin Dashboard - Employees</h2>
 
-          <div className="pending-header">
+          {/* <div className="pending-header">
             <span><strong>Total Count</strong>: {approvedEmployees.length}</span>
             <span>{approvedEmployees.length} Rows</span>
-          </div>
+          </div> */}
 
           <div className="pending-content">
+
+
+<div className="filter-controls">
+  <label htmlFor="statusFilter">Filter by Project Status:</label>
+  <select
+    id="statusFilter"
+    value={filterStatus}
+    onChange={handleFilterChange}
+    className={filterStatus !== 'all' ? 'selected' : ''}
+  >
+    <option value="all">All</option>
+    <option value="assigned">Assigned</option>
+    <option value="unassigned">Unassigned</option>
+  </select>
+  <button className="reset-btn" onClick={handleResetFilter}>
+    Reset
+  </button>
+</div>
+
+
+            <div className="table-wrapper">
             <table className="applicant-table">
               <thead>
                 <tr>
                   <th>Employee Name</th>
                   <th>Role</th>
-                  <th>Project</th>
+                  <th>Project Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
+              {/* <tbody>
                 {approvedEmployees.map((emp, idx) => (
                   <tr key={emp._id}>
-                    <td>{idx + 1}. {emp.firstName} {emp.lastName}</td>
-                    <td>{emp.roleInterest || 'N/A'}</td>
-                    <td>{emp.projectName || 'N/A'}</td>
-                    <td>
-                      <button className="view-btn" onClick={() => setSelectedEmployee(emp)}>
-                        View Profile
-                      </button>
+                    <td data-label = "Employee Name">{idx + 1}. {emp.firstName} {emp.lastName}</td>
+                    <td data-label = "Role">{emp.role || 'N/A'}</td>
+                    <td data-label = "Project Status">{Array.isArray(emp.projectsAssigned) && emp.projectsAssigned.length > 0 ? 'Assigned' : 'Unassigned'}</td>
+
+                    <td data-label = "Action">
+                            <button className="view-btn" onClick={() => handleViewProfile(emp._id)}>
+                                View Profile
+                            </button>
                     </td>
                   </tr>
                 ))}
-              </tbody>
+              </tbody> */}
+
+
+<tbody>
+  {currentEmployees.map((emp, idx) => (
+    <tr key={emp._id}>
+      <td data-label="Employee Name">
+        {(indexOfFirstEmployee + idx + 1)}. {emp.firstName} {emp.lastName}
+      </td>
+      <td data-label="Role">{emp.role || 'N/A'}</td>
+      <td data-label="Project Status">
+        {Array.isArray(emp.projectsAssigned) && emp.projectsAssigned.length > 0 ? 'Assigned' : 'Unassigned'}
+      </td>
+      <td data-label="Action">
+        <button className="view-btn" onClick={() => handleViewProfile(emp._id)}>
+          View Profile
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+
             </table>
+
+              <div className="pagination-controls">
+  <button
+    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+    className="page-btn"
+  >
+    Prev
+  </button>
+
+  {Array.from({ length: totalPages }, (_, i) => (
+    <button
+      key={i}
+      className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+      onClick={() => setCurrentPage(i + 1)}
+    >
+      {i + 1}
+    </button>
+  ))}
+
+  <button
+    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+    disabled={currentPage === totalPages}
+    className="page-btn"
+  >
+    Next
+  </button>
+</div>
+
+
+
+            </div>
           </div>
         </main>
       </div>
 
-      {selectedEmployee && (
+      {/* {selectedEmployee && (
         <div className="modal-backdrop" onClick={() => setSelectedEmployee(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Employee Profile</h3>
@@ -261,9 +248,39 @@ const CurrentEmployees = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+{selectedUser && (
+  <div className="modal-backdrop" onClick={() => dispatch(clearSelectedUser())}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <h3>Employee Profile</h3>
+      <table className="profile-table">
+        <tbody>
+          {Object.entries(selectedUser)
+            .filter(([key]) => !['_id', '__v', 'acknowledgments'].includes(key))
+            .map(([key, value]) => (
+              <tr key={key}>
+                <td className="profile-label">{formatLabel(key)}</td>
+                <td className="profile-value">{formatValue(key, value)}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+      <div className="action-buttons">
+        <button className="close-btn" onClick={() => dispatch(clearSelectedUser())}>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
+
     </div>
   );
+
 };
 
 export default CurrentEmployees;

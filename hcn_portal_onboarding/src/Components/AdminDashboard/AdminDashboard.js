@@ -37,8 +37,8 @@ const AdminDashboard = () => {
               <ul>
                 <li><a href="/admin/home"style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
                 <li><a href="/admin/pending" >Pending Applications</a></li>
-                <li><a href="/admin/employees">Active Employees</a></li>
-                <li><a href="#projects">Projects</a></li>
+                <li><a href="/admin/employees">Employees</a></li>
+                <li><a href="/admin/projects">Projects</a></li>
               </ul>
             </nav>
           </aside>
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
             <p className="card-number">{pendingApplications}</p>
           </div>
           <div className="card">
-            <h3>Active Employees</h3>
+            <h3>Employees</h3>
             <p className="card-number">{activeEmployees}</p>
           </div>
           <div className="card">

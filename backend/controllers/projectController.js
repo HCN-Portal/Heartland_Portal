@@ -164,6 +164,35 @@ exports.addEmployeesToProject = async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
+        // Add project for each employee in Users table.
+        const project  = await Project.findById(projectId).select('title');
+        const projectEntry = {
+            projectId: project._id,
+            title: project.title
+        };
+        // console.log(projectEntry)
+        const validEmployees = employees.filter(e => mongoose.Types.ObjectId.isValid(e.employeeId));
+        const addOps = validEmployees.map(e => ({
+            updateOne: {
+                filter: {
+                    _id: e.employeeId,
+                    'projectsAssigned.projectId': { $ne: projectId }
+                },
+                update: {
+                    $addToSet: {
+                        projectsAssigned: {
+                            projectId: projectEntry.projectId,
+                            title: projectEntry.title
+                        }
+                    }
+                }
+            }
+        }));
+
+        if (addOps.length) await User.bulkWrite(addOps);
+
+
+
         res.status(200).json({ message: 'Employees added to project successfully', employees: updatedProject.teamMembers });
     } catch (error) {
         console.error('Error adding employees to project:', error);
@@ -205,6 +234,33 @@ exports.addManagersToProject = async (req, res) => {
         if (!updatedProject) {
             return res.status(404).json({ message: 'Project not found' });
         }
+
+
+        // Add project for each manager in users table.
+        const project = await Project.findById(projectId).select('title');
+        const projectEntry = {
+            projectId: project._id,
+            title: project.title
+        };
+        // console.log(projectEntry)
+        const validManagers = managers.filter(e => mongoose.Types.ObjectId.isValid(e.managerId));
+        const addOps = validManagers.map(e => ({
+            updateOne: {
+                filter: {
+                    _id: e.managerId,
+                    'projectsAssigned.projectId': { $ne: projectId }
+                },
+                update: {
+                    $addToSet: {
+                        projectsAssigned: {
+                            projectId: projectEntry.projectId,
+                            title: projectEntry.title
+                        }
+                    }
+                }
+            }
+        }));
+        if (addOps.length) await User.bulkWrite(addOps); 
 
         res.status(200).json({ message: 'Managers added to project successfully', managers: updatedProject.managers });
     } catch (error) {
