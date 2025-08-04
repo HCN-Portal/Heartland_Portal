@@ -13,11 +13,15 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: false },   
   address1: { type: String, required: true },  
   address2: { type: String, default: '' },
-  projectsAssigned: { 
-    type: [String], // Array of strings to store multiple project IDs or names
-    default: ['N/A'] // Default to 'N/A' when no projects are assigned
+  projectsAssigned: {
+    type: [{
+      projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+      title: { type: String, required: true, trim: true },
+      _id: false
+    }], // Array of objects to store  project IDs and names
+    default: [] // Default to [] when no projects are assigned
   },
-  
+
   // Immigration/Work Authorization 
   eadStartDate: { type: Date, required: false },
   citizenshipStatus: { type: String, required: true },  

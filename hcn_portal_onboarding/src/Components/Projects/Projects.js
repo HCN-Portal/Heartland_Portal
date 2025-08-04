@@ -1,18 +1,63 @@
-import React, { useState } from 'react';
-import './Projects.css';
-import NavigationBar from '../UI/NavigationBar/NavigationBar';
+import React, { useState, useEffect } from "react";
+import "./Projects.css";
+import NavigationBar from "../UI/NavigationBar/NavigationBar";
+import Select from "react-select";
+import axios from "axios";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 
 const Projects = () => {
   // State Management
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState("Overview");
   const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
-  const [isEditingManagerIndex, setIsEditingManagerIndex] = useState(null);
-  const [newManager, setNewManager] = useState({ name: '', email: '' });
-  const [newEmployee, setNewEmployee] = useState({ name: '', position: '' });
+  const [overviewErrors, setOverviewErrors] = useState({});
 
+  // Form validation schema using Yup
+  const projectSchema = yup.object().shape({
+    name: yup.string().required("Project name is required"),
+    description: yup.string().required("Description is required"),
+    manager: yup.string().required("Manager name is required"),
+    start: yup.string().required("Start date is required"),
+    end: yup.string().nullable().notRequired(),
+    status: yup.string().required(),
+    skillTags: yup.string().required("Skill tags are required"),
+    client: yup.string().required("Client name is required"),
+  });
+
+  const [newManager, setNewManager] = useState({ name: "", email: "" });
+  const [newEmployee, setNewEmployee] = useState({ name: "", position: "" });
+  const [employeeList, setEmployeeList] = useState([]);
+  const [managerList, setManagerList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: "",
+    description: "",
+    manager: "Not Assigned",
+    start: "",
+    end: "N/A",
+    status: "Active",
+  });
+
+  // React Hook Form setup with Yup validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    } = useForm({
+    resolver: yupResolver(projectSchema),
+  });
+
+
+  // Static data for Project
   const [projects, setProjects] = useState([
   {
     id: 1,
@@ -34,57 +79,238 @@ const Projects = () => {
     applications: [
       { name: 'ManagerX', position: 'Manager' },
       { name: 'EmployeeY', position: 'Employee' }
-    ]
+    ],
+    client: 'HCN',
+    skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
   }
   ]);
 
-  const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
+  // Manager static data for View Manager Details
+  const managerStaticData = {
+    name: "Dhanush",
+    email: "dhanush@admin.hcn.com",
+    role: "Manager",
+    department: "Project Management",
+    projectCount: 2,
+    joiningDate: "01/15/2023",
+  };
+
+  const options = [
+    { Name: "Manmohan", role: "Front-end Developer" },
+    { Name: "Shalini", role: "Front-end Developer" },
+    { Name: "Bindu", role: "Backend Developer" },
+    { Name: "Praveen", role: "Backend Developer" },
+    { Name: "Dhanush", role: "Manager" },
+  ];
+
+  // const response = await fetch('https://api.example.com/data');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/users/"); // Assuming this API fetches all users
+        const users = response.data;
+
+        // Filter users with role 'employee'
+        const employees = users
+          .filter((user) => user.role === "employee")
+          .map((user) => ({
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+          }));
+
+        // Filter users with role 'manager'
+        const managers = users
+          .filter((user) => user.role === "manager")
+          .map((user) => ({
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+          }));
+
+        // Set the filtered lists into the state
+        setEmployeeList(employees);
+        setManagerList(managers);
+      } catch (err) {
+        setError("Failed to fetch users");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+  const formattedEmployeeList = employeeList.map((employee) => ({
+    label: employee.name, // Display only the name
+    email: employee.email, // You can still use email or any unique field for value
+  }));
+
+  const formattedManagerList = managerList.map((manager) => ({
+    label: manager.name, // Display only the name
+    email: manager.email, // You can still use email or any unique field for value
+  }));
+
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [position, setPosition] = useState("");
+  const handleChange = (selected) => {
+    console.log("handleChange called with:", selected);
+    setSelectedOption(selected);
+    if (selected) {
+      setPosition(selected.email ?? "");
+      console.log("Setting position to:", selected.email);
+    } else {
+      setPosition("");
+      console.log("Clearing position");
+    }
+  };
+
+ /* const Managers = [
+    { Name: "Manmohan", email: "manmohan@gmail.com" },
+    { Name: "Shalini", email: "shalini@gmail.com" },
+    { Name: "Bindu", email: "bindu@gmail.com" },
+    { Name: "Praveen", email: "praveen@gmail.com" },
+    { Name: "Dhanush", email: "dhanush@gmail.com" },
+  ]; */
+
+  const [selectedMOption, setSelectedMOption] = useState(null);
+  const [email, setEmail] = useState("");
+  /* const handleManagerChange = (selected) => {
+    setSelectedMOption(selected);
+    setEmail(selected?.email ?? "");
+  }; */
+
+  const handleManagerChange = (selectedOption) => {
+    setSelectedMOption(selectedOption); // Set the selected manager
+    if (selectedOption) {
+      setEmail(selectedOption.email); // Set email based on the selected option's value (email)
+    } else {
+      setEmail(""); // Clear email if no option is selected
+    }
+  };
+
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
+
+  // const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
+  const tabs = ["Overview", "Managers", "Employees"];
 
   // Handlers
+
   const formatDateForInput = (dateString) => {
-    const [month, day, year] = dateString.split('/');
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    if (!dateString) return "";
+
+    if (dateString.includes("/")) {
+      const [month, day, year] = dateString.split("/");
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    } else if (dateString.includes("-")) {
+      return dateString; // already in correct format
+    }
+
+    return "";
   };
 
   const formatDateToDisplay = (dateString) => {
-    const [year, month, day] = dateString.split('-');
+    const [year, month, day] = dateString.split("-");
     return `${month}/${day}/${year}`;
   };
 
-  const handleAddManager = () => { 
-  /* add manager logic */ 
-    const updatedManagers = [...selectedProject.managers, { ...newManager }];
+  const handleAddManager = () => {
+    // Make sure the user picked someone and an email is present
+    if (!selectedMOption || !email.trim()) return;
+
+    // Build the new manager object
+    const newManager = {
+      name: selectedMOption.label, // Use label which contains the name
+      email: email.trim(),
+    };
+
+    // Push it into the current project’s manager list
+    const updatedManagers = [...selectedProject.managers, newManager];
     const updatedProject = { ...selectedProject, managers: updatedManagers };
+
     setSelectedProject(updatedProject);
-    setProjects(prev =>
-      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+    setProjects((prev) =>
+      prev.map((p) => (p.id === updatedProject.id ? updatedProject : p))
     );
-    setNewManager({ name: '', email: '' });
+
+    // Clear the picker and email field for the next entry
+    setSelectedMOption(null);
+    setEmail("");
   };
 
-  const handleUpdateManager = (index, field, value) => { /* update manager logic */ 
-    const updatedManagers = [...selectedProject.managers];
-    updatedManagers[index][field] = value;
+  // const handleUpdateManager = (index, field, value) => { /* update manager logic */
+  //   const updatedManagers = [...selectedProject.managers];
+  //   updatedManagers[index][field] = value;
+  //   const updatedProject = { ...selectedProject, managers: updatedManagers };
+  //   setSelectedProject(updatedProject);
+  //   setProjects(prev =>
+  //     prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+  //   );
+  // };
+
+  const handleRemoveManager = (index) => {
+    /* remove manager logic */
+    const updatedManagers = selectedProject.managers.filter(
+      (_, i) => i !== index
+    );
     const updatedProject = { ...selectedProject, managers: updatedManagers };
     setSelectedProject(updatedProject);
-    setProjects(prev =>
-      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+    setProjects((prev) =>
+      prev.map((p) => (p.id === selectedProject.id ? updatedProject : p))
     );
   };
 
-  const handleRemoveManager = (index) => { /* remove manager logic */ 
-    const updatedManagers = selectedProject.managers.filter((_, i) => i !== index);
-    const updatedProject = { ...selectedProject, managers: updatedManagers };
-    setSelectedProject(updatedProject);
-    setProjects(prev =>
-      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
-    );
+  const ProfileModal = ({ data, onClose, title }) => (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <h3>{title}</h3>
+        <table className="profile-table">
+          <tbody>
+            {Object.entries(data).map(([key, value]) => (
+              <tr key={key}>
+                <td className="profile-label">{key}</td>
+                <td className="profile-value">{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="action-buttons">
+          <button className="close-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Called when form is submitted to create a new project
+  const handleSaveNewProject = (data) => {
+    // Format start and end dates to display format
+   
+    // console.log('Triggerd Save event', data)
+    const formattedStart = formatDateToDisplay(data.start);
+    const formattedEnd = data.end ? formatDateToDisplay(data.end) : null;
+     // Construct new project object and update state
+    const projectToAdd = {
+      id: projects.length + 1,
+      ...data,
+      start: formattedStart,
+      end: formattedEnd,
+      managers: [],
+      employees: [],
+      applications: [],
+    };
+    // console.log('Proojectss in Save ', projects)
+    setProjects([...projects, projectToAdd]);
+    alert("Project created successfully!");
+    setShowCreateProjectModal(false);
+    reset();
   };
 
-  // const handleApproveApplication = (index) => { /* approve application logic */ 
+  // const handleApproveApplication = (index) => { /* approve application logic */
   //   const application = selectedProject.applications[index];
   //   let updatedProject = { ...selectedProject };
-  
+
   //   if (application.position === 'Manager') {
   //     updatedProject.managers = [...updatedProject.managers, { name: application.name, email: `${application.name.toLowerCase()}@admin.hcn.com` }];
   //   } else if (application.position === 'Employee') {
@@ -97,7 +323,7 @@ const Projects = () => {
   //       }
   //     ];
   //   }
-  
+
   //   updatedProject.applications = selectedProject.applications.filter((_, i) => i !== index);
   //   setSelectedProject(updatedProject);
   //   setProjects(prev =>
@@ -105,10 +331,10 @@ const Projects = () => {
   //   );
   // };
 
-  // const handleRejectApplication = (index) => { /* reject application logic */ 
+  // const handleRejectApplication = (index) => { /* reject application logic */
   //   const updatedApplications = selectedProject.applications.filter((_, i) => i !== index);
   //   const updatedProject = { ...selectedProject, applications: updatedApplications };
-  
+
   //   setSelectedProject(updatedProject);
   //   setProjects(prev =>
   //     prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
@@ -116,34 +342,72 @@ const Projects = () => {
   // };
 
   const handleAddEmployee = () => {
-    if (!newEmployee.name || !newEmployee.position) return;
-    const todayISO = new Date().toISOString().split('T')[0];
+    // guard clause: make sure both pieces are filled in
+    if (!selectedOption || !position) return;
+
+    console.log("Selected option:", selectedOption);
+    console.log("Position:", position);
+
+    // format today's date as e.g. 2025-07-10 ➜ 10 Jul 2025 (whatever your util does)
+    const todayISO = new Date().toISOString().split("T")[0];
     const formattedDate = formatDateToDisplay(todayISO);
+
+    // build the new employee record
     const newEmp = {
-      name: newEmployee.name,
-      position: newEmployee.position,
+      name: selectedOption.label, // Use label which contains the name
+      position: position,
       date: formattedDate,
     };
+
+    console.log("New employee object:", newEmp);
+
+    // clone + update current project
     const updated = {
       ...selectedProject,
       employees: [...selectedProject.employees, newEmp],
     };
+
+    console.log("Updated project:", updated);
+
+    // push the change into state
     setSelectedProject(updated);
-    setProjects((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
-    );
-    setNewEmployee({ name: '', position: '' });
+    setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+
+    // clear the form
+    setSelectedOption(null); // empties the <Select>
+    setPosition(""); // clears the text field
   };
 
-  // Render Tabs Content
-  
+  const handleRemoveEmployee = (index) => {
+    const updatedEmployees = selectedProject.employees.filter(
+      (_, i) => i !== index
+    );
+    const updatedProject = { ...selectedProject, employees: updatedEmployees };
+    setSelectedProject(updatedProject);
+    setProjects((prev) =>
+      prev.map((p) => (p.id === selectedProject.id ? updatedProject : p))
+    );
+  };
+
+  // Renders Tabs Content and detailed modal view of selected project
+  // console.log(projects)
+  // Controlled form inputs for editing project overview
+  // Validates using Yup before saving changes
   const renderDetail = () => (
   <div className="project-modal">
-    <div className="close-button-container">
+    <div className="dashboard-header">
       <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         Project Details: {selectedProject.id}. {selectedProject.name}
       </h2>
-      <button className="close-btn" onClick={() => setSelectedProject(null)}>
+      <button className="close-btn" 
+        onClick={() => {
+        if (isEditingOverview) {
+        alert("Please save your changes before closing.");
+        } else {
+        setSelectedProject(null);
+        }
+        }}
+      >
         Close
       </button>
     </div>
@@ -157,26 +421,31 @@ const Projects = () => {
         >
           {tab}
         </button>
-      ))}
-    </div>
+       ))}
+      </div>
 
     <div className="project-content">
       {activeTab === 'Overview' && (
         <div className="project-modal">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
-            Project Details : {selectedProject.name}
+          <h3 className='show-label-h3'>
+            Project Details
+             {/* : {selectedProject.name} */}
           </h3>
 
           <div className="project-detail-row">
             <div className="project-label"><strong>Project Name:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
+                <div>
                 <input
                   value={editedProject.name}
                   onChange={(e) =>
                     setEditedProject({ ...editedProject, name: e.target.value })
                   }
                 />
+                <p className="error-text">{overviewErrors.name}</p>
+                </div>
+                
               ) : (
                 selectedProject.name
               )}
@@ -187,6 +456,7 @@ const Projects = () => {
             <div className="project-label"><strong>Description:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
+                <div>
                 <textarea
                   rows={6}
                   value={editedProject.description}
@@ -194,6 +464,8 @@ const Projects = () => {
                     setEditedProject({ ...editedProject, description: e.target.value })
                   }
                 />
+                <p className="error-text">{overviewErrors.description}</p>
+                </div>
               ) : (
                 selectedProject.description
               )}
@@ -211,43 +483,70 @@ const Projects = () => {
                     onChange={(e) =>
                       setEditedProject({
                         ...editedProject,
-                        start: formatDateToDisplay(e.target.value)
+                        start: e.target.value ? formatDateToDisplay(e.target.value) : null
                       })
                     }
-                  />{' '}
+                  />
+                  <p className="error-text">{overviewErrors.start}</p>
+                  {' '} 
                   -{' '}
                   <input
                     type="date"
                     value={formatDateForInput(editedProject.end)}
-                    onChange={(e) =>
+                    onChange={(e) =>{
+                      const enddate = e.target.value ? formatDateToDisplay(e.target.value) : null;
                       setEditedProject({
                         ...editedProject,
-                        end: formatDateToDisplay(e.target.value)
+                        end: enddate,
                       })
-                    }
+                    }}
                   />
+                  <p className="error-text">{overviewErrors.end}</p>
                 </>
+                
               ) : (
-                `${selectedProject.start} - ${selectedProject.end}`
+                `${selectedProject.start} - ${selectedProject.end ?? "Ongoing"}`
               )}
             </div>
           </div>
 
           <div className="project-detail-row">
-            <div className="project-label"><strong>Status:</strong></div>
+            <div className="project-label"><strong>Skill Tags:</strong></div>
             <div className="project-value">
               {isEditingOverview ? (
-                <select
-                  value={editedProject.status}
+                <div>
+                <textarea
+                  rows={2}
+                  value={editedProject.skillTags}
                   onChange={(e) =>
-                    setEditedProject({ ...editedProject, status: e.target.value })
+                    setEditedProject({ ...editedProject, skillTags: e.target.value })
                   }
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
+                />
+                <p className="error-text">{overviewErrors.skillTags}</p>
+                </div>
               ) : (
-                selectedProject.status
+                selectedProject.skillTags
+              )}
+            </div>
+          </div>
+
+          <div className="project-detail-row">
+            <div className="project-label"><strong>Client Name:</strong></div>
+            <div className="project-value">
+              {isEditingOverview ? (
+                <>
+                
+                <textarea
+                  rows={1}
+                  value={editedProject.client}
+                  onChange={(e) =>
+                    setEditedProject({ ...editedProject, client: e.target.value })
+                  }
+                />
+                <p className="error-text">{overviewErrors.client}</p>
+                </>
+              ) : (
+                selectedProject.client
               )}
             </div>
           </div>
@@ -255,16 +554,33 @@ const Projects = () => {
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <button
               className="edit-btn"
-              onClick={() => {
+              onClick={async () => {
                 if (isEditingOverview) {
-                  setSelectedProject(editedProject);
-                  setProjects((prev) =>
-                    prev.map((p) => (p.id === editedProject.id ? editedProject : p))
-                  );
+                  try {
+                    // console.log("Edited project:", editedProject);
+                    await projectSchema.validate(editedProject, { abortEarly: false });
+                    // Validation passed
+                    setSelectedProject(editedProject);
+                    setProjects((prev) =>
+                      prev.map((p) => (p.id === editedProject.id ? editedProject : p))
+                    );
+                    setOverviewErrors({});
+                    setIsEditingOverview(false);
+                  } catch (err) {
+                    const formattedErrors = {};
+                    if (err.inner) {
+                      err.inner.forEach((e) => {
+                        formattedErrors[e.path] = e.message;
+                      });
+                    }
+                    // console.log("Validation failed", err);
+                    setOverviewErrors(formattedErrors);
+                  }
                 } else {
                   setEditedProject({ ...selectedProject });
+                  setOverviewErrors({});
+                  setIsEditingOverview(true);
                 }
-                setIsEditingOverview(!isEditingOverview);
               }}
             >
               {isEditingOverview ? 'Save' : 'Edit Details'}
@@ -273,124 +589,161 @@ const Projects = () => {
         </div>
       )}
 
-      {activeTab === 'Managers' && (
-        <div className="project-modal fade-in">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
-            Manager Details
-          </h3>
+        {activeTab === "Managers" && (
+          <div className="project-modal fade-in">
+            <h3 className="show-label-h3">Manager Details</h3>
 
-          {selectedProject.managers.map((m, i) => (
-            <div key={i} className="manager-card">
-              <div className="manager-info">
-                <p className="manager-label">Manager {i + 1}</p>
-                <div className="manager-field">
-                  <strong>Name:</strong>{' '}
-                  {isEditingManagerIndex === i ? (
-                    <input
-                      value={m.name}
-                      onChange={(e) => handleUpdateManager(i, 'name', e.target.value)}
-                    />
-                  ) : (
-                    <span>{m.name}</span>
-                  )}
+            {selectedProject.managers.map((m, i) => (
+              <div key={i} className="manager-card">
+                <div className="manager-info">
+                  <p className="manager-label">Manager {i + 1}</p>
+                  <div className="manager-field">
+                    <strong>Name:</strong> <span>{m.name}</span>
+                  </div>
+                  <div className="manager-field">
+                    <strong>Email Id:</strong> <span>{m.email}</span>
+                  </div>
                 </div>
-                <div className="manager-field">
-                  <strong>Email Id:</strong>{' '}
-                  {isEditingManagerIndex === i ? (
-                    <input
-                      value={m.email}
-                      onChange={(e) => handleUpdateManager(i, 'email', e.target.value)}
-                    />
-                  ) : (
-                    <span>{m.email}</span>
-                  )}
-                </div>
-              </div>
-              <div className="manager-actions">
-                {isEditingManagerIndex === i ? (
-                  <button className="edit-btn" onClick={() => setIsEditingManagerIndex(null)}>
-                    Save
+                <div className="manager-actions">
+                  <button
+                    className="view-btn"
+                    onClick={() =>
+                      setselectedManagerDetails({
+                        ...managerStaticData,
+                      })
+                    }
+                  >
+                    View Profile
                   </button>
-                ) : (
-                  <>
-                    <button className="edit-btn" onClick={() => setIsEditingManagerIndex(i)}>
-                      Edit Details
-                    </button>
-                    <button className="remove-btn" onClick={() => handleRemoveManager(i)}>
-                      Remove Manager
-                    </button>
-                  </>
-                )}
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemoveManager(i)}
+                  >
+                    Remove Manager
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {selectedManagerDetails && (
+              <ProfileModal
+                data={selectedManagerDetails}
+                onClose={() => setselectedManagerDetails(null)}
+                title="Profile Details"
+              />
+            )}
+
+            <div className="manager-card">
+              <p className="manager-label">Add Manager:</p>
+              <div className="add-manager-row">
+                <div style={{ width: 200 }}>
+                  <Select
+                    options={formattedManagerList}
+                    onChange={handleManagerChange}
+                    placeholder="Select Manager"
+                    value={selectedMOption}
+                    isSearchable
+                    getOptionLabel={(opt) => opt.label} // Displays the label
+                    getOptionValue={(opt) => opt.email} // Sets the value (email, in this case)
+                    isClearable
+                  />
+                </div>
+                <input
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled="true"
+                />
+                <button className="edit-btn" onClick={handleAddManager}>
+                  Add Manager
+                </button>
               </div>
             </div>
-          ))}
+          </div>
+        )}
 
-          <div className="manager-card">
-            <p className="manager-label">Add Manager:</p>
-            <div className="add-manager-row">
-              <input
-                placeholder="Name"
-                value={newManager.name}
-                onChange={(e) => setNewManager({ ...newManager, name: e.target.value })}
+        {activeTab === "Employees" && (
+          <div className="project-modal fade-in">
+            <h3 className="show-label-h3">Employees Details</h3>
+            <table className="applicant-table">
+              <thead>
+                <tr>
+                  <th>Employee Name</th>
+                  <th>Position</th>
+                  <th>Date Assigned</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedProject.employees.map((e, i) => (
+                  <tr key={i}>
+                    <td>
+                      {i + 1}. {e.name}
+                    </td>
+                    <td>{e.position}</td>
+                    <td>{e.date}</td>
+                    <td>
+                      <button
+                        className="view-btn"
+                        onClick={() =>
+                          setSelectedEmployee({
+                            name: e.name,
+                            position: e.position,
+                            date: e.date,
+                          })
+                        }
+                      >
+                        View Profile
+                      </button>
+                      <button
+                        className="remove-btn"
+                        onClick={() => handleRemoveEmployee(i)}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {selectedEmployee && (
+              <ProfileModal
+                data={selectedEmployee}
+                onClose={() => setSelectedEmployee(null)}
+                title="Profile Details"
               />
+            )}
+
+            <div className="add-employee-form">
+              <div style={{ width: 200 }}>
+                <Select
+                  options={formattedEmployeeList}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Name"
+                  value={selectedOption}
+                  isSearchable
+                  getOptionLabel={(opt) => opt.label}
+                  getOptionValue={(opt) => opt.email}
+                />
+              </div>
               <input
+                type="text"
                 placeholder="Email"
-                value={newManager.email}
-                onChange={(e) => setNewManager({ ...newManager, email: e.target.value })}
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                disabled="true"
+                // onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
               />
-              <button className="edit-btn" onClick={handleAddManager}>Add Manager</button>
+              <button className="edit-btn" onClick={handleAddEmployee}>
+                Add Employee
+              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {activeTab === 'Employees' && (
-        <div className="project-modal fade-in">
-          <h3 style={{ textAlign: 'center', color: '#2f6e94', fontWeight: 'bold' }}>
-            Employees Details
-          </h3>
-          <table className="applicant-table">
-            <thead>
-              <tr>
-                <th>Employee Name</th>
-                <th>Position</th>
-                <th>Date Assigned</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedProject.employees.map((e, i) => (
-                <tr key={i}>
-                  <td>{i + 1}. {e.name}</td>
-                  <td>{e.position}</td>
-                  <td>{e.date}</td>
-                  <td>
-                    <button className="view-btn">View Profile</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="add-employee-form">
-            <input
-              type="text"
-              placeholder="Name"
-              value={newEmployee.name}
-              onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Position"
-              value={newEmployee.position}
-              onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
-            />
-            <button className="edit-btn" onClick={handleAddEmployee}>Add Employee</button>
-          </div>
-        </div>
-      )}
-
-      {/* {activeTab === 'Applications' && (
+        {/* {activeTab === 'Applications' && (
         <div className="project-modal fade-in">
           <h3 className="section-title">Pending Applications</h3>
 
@@ -409,10 +762,10 @@ const Projects = () => {
         </div>
       )} */}
 
-      {/* {activeTab === 'Updates/Activity' && <p>No activity yet.</p>} */}
+        {/* {activeTab === 'Updates/Activity' && <p>No activity yet.</p>} */}
+      </div>
     </div>
-  </div>
-);
+  );
 
   return (
     <div>
@@ -436,10 +789,20 @@ const Projects = () => {
             </div>
             <nav className="sidebar-nav">
               <ul>
-                <li><a href="/admin/home">Home / Dashboard</a></li>
-                <li><a href="/admin/pending">Pending Applications</a></li>
-                <li><a href="/admin/employees">Active Employees</a></li>
-                <li><a href="/admin/projects" style={{ fontWeight: '900' }}>Projects</a></li>
+                <li>
+                  <a href="/admin/home">Home / Dashboard</a>
+                </li>
+                <li>
+                  <a href="/admin/pending">Pending Applications</a>
+                </li>
+                <li>
+                  <a href="/admin/employees">Active Employees</a>
+                </li>
+                <li>
+                  <a href="/admin/projects" style={{ fontWeight: "900" }}>
+                    Projects
+                  </a>
+                </li>
               </ul>
             </nav>
           </aside>
@@ -459,7 +822,97 @@ const Projects = () => {
         <main className="pending-main">
           {!selectedProject ? (
             <>
-              <h2 className="pending-title">Admin Dashboard - Projects</h2>
+              {/* <h2 className="pending-title">Admin Dashboard - Projects</h2>
+              <button className="edit-btn" onClick={() => setShowCreateProjectModal(true)}>
+              + Create Project
+            </button> */}
+
+              <div className="dashboard-header">
+                <h2 className="pending-title">Admin Dashboard - Projects</h2>
+                <button
+                  className="create-project-btn"
+                  onClick={() => setShowCreateProjectModal(true)}
+                >
+                  + Create Project
+                </button>
+              </div>
+
+            {/* Conditional rendering for the create project modal */}
+            
+            {showCreateProjectModal && (
+                <div className="modal-backdrop" onClick={() => setShowCreateProjectModal(false)}>
+                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="show-label-h3">Create a Project</h3>
+                    {/* <form onSubmit={handleSubmit(handleSaveNewProject)}> */}
+                    <form onSubmit={handleSubmit(handleSaveNewProject, (err) => console.log(" Validation failed", err))}>
+                    <div className="add-project-form">
+
+                      
+                      <label>Project Name *</label>
+                      <div>
+                      <input {...register("name")} />
+                      <p className="error-text">{errors.name?.message}</p>
+                      </div>
+
+                      <label>Description *</label>
+                      <div>
+                      <textarea rows={3} cols={50} {...register("description")} />
+                      <p className="error-text">{errors.description?.message}</p>
+                      </div>
+                      
+
+                      <label>Manager Name *</label>
+                      <div>
+                      <input {...register("manager")} />
+                      <p className="error-text">{errors.manager?.message}</p>
+                      </div>
+                      
+                      <label>Start Date *</label>
+                      <div>
+                      <input type="date" {...register("start")} />
+                      <p className="error-text">{errors.start?.message}</p>
+                      </div>
+                     
+                      <label>End Date</label>
+                      <input type="date" {...register("end")} />
+
+                      <label>Status</label>
+                      <select {...register("status")}>
+                        <option value="Active">Active</option>
+                        <option value="Onhold">On Hold</option>
+                        <option value="Inactive">Inactive</option>
+                      </select>
+
+                      <label>Skill Tags *</label>
+                      <div>
+                      <input {...register("skillTags")} />
+                      <p className="error-text">{errors.skillTags?.message}</p>
+                      </div>
+                      
+                      <label>Client Name *</label>
+                      <div>
+                      <input {...register("client")} />
+                      <p className="error-text">{errors.client?.message}</p>
+                      </div>
+
+                      <div className="action-buttons">
+                        <button className="view-btn" type="submit" onClick={() => console.log("Submit button clicked")}>
+                          Submit
+                        </button>
+                        <button
+                          className="close-btn"
+                          type="button"
+                          onClick={() => {reset(); setShowCreateProjectModal(false);}}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
               <table className="applicant-table">
                 <thead>
                   <tr>
@@ -474,17 +927,19 @@ const Projects = () => {
                 <tbody>
                   {projects.map((project, index) => (
                     <tr key={index}>
-                      <td>{index + 1}. {project.name}</td>
+                      <td>
+                        {index + 1}. {project.name}
+                      </td>
                       <td>{project.manager}</td>
                       <td>{project.start}</td>
-                      <td>{project.end}</td>
+                      <td>{project.end ? project.end : "Ongoing"}</td>
                       <td>{project.status}</td>
                       <td>
                         <button
                           className="view-btn"
                           onClick={() => {
                             setSelectedProject(project);
-                            setActiveTab('Overview');
+                            setActiveTab("Overview");
                           }}
                         >
                           View Project
