@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import './CurrentEmployees.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { get_all_applications } from '../../store/reducers/appReducer';
+import {get_all_applications, get_all_employees} from '../../store/reducers/appReducer';
 
 const CurrentEmployees = () => {
   const dispatch = useDispatch();
-  const { applications, loading } = useSelector((state) => state.application);
+  const { employees, loading } = useSelector((state) => state.application);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   // const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    dispatch(get_all_applications());
+    dispatch(get_all_employees());
   }, [dispatch]);
 
   const formatLabel = (label) => {
@@ -23,7 +23,7 @@ const CurrentEmployees = () => {
       .replace(/Dob/g, 'DOB');
   };
 
-  const approvedEmployees = applications.filter(app => app.status === 'Approved');
+  const approvedEmployees = employees;
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const formatValue = (key, value) => {
@@ -99,7 +99,7 @@ const CurrentEmployees = () => {
                 {approvedEmployees.map((emp, idx) => (
                   <tr key={emp._id}>
                     <td>{idx + 1}. {emp.firstName} {emp.lastName}</td>
-                    <td>{emp.roleInterest || 'N/A'}</td>
+                    <td>{emp.role || 'N/A'}</td>
                     <td>{emp.projectName || 'N/A'}</td>
                     <td>
                       <button className="view-btn" onClick={() => setSelectedEmployee(emp)}>

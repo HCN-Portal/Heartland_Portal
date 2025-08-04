@@ -33,7 +33,7 @@ export const get_all_applications = createAsyncThunk(
     'app/get_all_applications',
     async (_, { rejectWithValue, fulfillWithValue }) => {
       try {
-        const { data } = await api.get('/applications'); 
+        const { data } = await api.get('applications/');
         return fulfillWithValue(data);
       } catch (error) {
         const errorMessage = error.response?.data?.error || "Failed to load applications";
@@ -42,6 +42,21 @@ export const get_all_applications = createAsyncThunk(
       }
     }
 );
+
+export const get_all_employees = createAsyncThunk(
+    'app/get_all_employees',
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get('users/list/allEmployees');
+            return fulfillWithValue(data);
+        }
+        catch (error) {
+            const errorMessage = error.response?.data?.error || "Failed to load employees";
+            console.log(errorMessage);
+            return rejectWithValue({ error: errorMessage });
+        }
+    }
+)
 //End Method
   
 export const update_application_status = createAsyncThunk(
@@ -65,6 +80,7 @@ export const appReducer = createSlice({
         errorMessage: '',
         successMessage: '',
         applications: [],
+        employees: [],
         pendingApplications: 0,
         activeEmployees:0,
         ongoingProjects:0,
@@ -87,7 +103,7 @@ export const appReducer = createSlice({
         })
         .addCase(get_dashboard_stats.fulfilled, (state, { payload }) => {
             state.pendingApplications = payload.pendingApplications;
-            state.activeEmployees = payload.activeEmployees;
+            // state.activeEmployees = payload.activeEmployees;
             state.ongoingProjects = payload.ongoingProjects;
         })
         .addCase(get_dashboard_stats.rejected, (state, { payload }) => {
@@ -98,6 +114,7 @@ export const appReducer = createSlice({
         })
         .addCase(get_all_applications.fulfilled, (state, { payload }) => {
             state.applications = payload;
+            console.log(payload);
             state.loading = false;
         })
         .addCase(get_all_applications.rejected, (state, { payload }) => {
@@ -109,7 +126,14 @@ export const appReducer = createSlice({
         })
         .addCase(update_application_status.rejected, (state, { payload }) => {
             state.errorMessage = payload?.error || "Failed to update status";
+        })
+        .addCase(get_all_employees.fulfilled, (state, { payload }) => {
+            state.employees = payload.employees;
+            state.activeEmployees = payload.count;
+
+            state.loading = false;
         });
+        
           
     }
 

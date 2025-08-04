@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar'
-import { get_dashboard_stats } from '../../store/reducers/appReducer';
+import {get_all_employees, get_dashboard_stats} from '../../store/reducers/appReducer';
 import { useDispatch, useSelector } from 'react-redux';
 
 
@@ -13,6 +13,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     dispatch(get_dashboard_stats());
+    dispatch(get_all_employees());
   }, [dispatch]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
