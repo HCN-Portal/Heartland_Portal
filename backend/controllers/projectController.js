@@ -317,6 +317,13 @@ exports.removeEmployeeFromProject = async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
+        // Update the User table to remove the project from projectsAssigned
+        await User.findByIdAndUpdate(
+            employeeId,
+            { $pull: { projectsAssigned: { projectId: projectId } } },
+            {new: true}
+        );
+
         res.status(200).json({ 
             message: 'Employee removed from project successfully', 
             teamMembers: updatedProject.teamMembers 
