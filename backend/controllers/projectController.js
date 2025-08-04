@@ -32,6 +32,7 @@ exports.createProject = async (req, res) => {
     }
 }
 
+//Add manager name and status to be returned
 exports.getAllProjectTitles = async (req, res) => {
     try {
         // Fetch only the title and _id fields from all projects
