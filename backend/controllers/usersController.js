@@ -78,8 +78,21 @@ exports.getUserById = async (req, res) => {
             address1: user.address1,
             address2: user.address2,
             employeeId: user.employeeId,
-            projectsAssigned: user.projectsAssigned
-            // Add other fields you want to return
+            projectsAssigned: user.projectsAssigned,
+            // Immigration/Work Authorization
+            eadStartDate: user.eadStartDate,
+            citizenshipStatus: user.citizenshipStatus,
+            workAuthorizationType: user.workAuthorizationType,
+            // Educational Background
+            highestDegreeEarned: user.highestDegreeEarned,
+            fieldOfStudy: user.fieldOfStudy,
+            universityName: user.universityName,
+            graduationYear: user.graduationYear,
+            // Professional Experience
+            totalYearsExperience: user.totalYearsExperience,
+            relevantSkills: user.relevantSkills,
+            previousEmployer: user.previousEmployer,
+            previousPosition: user.previousPosition
         });
     } catch (error) {
         console.error('Error fetching user by ID:', error);
