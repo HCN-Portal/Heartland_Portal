@@ -9,6 +9,8 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
+
+
 .project-detail-container {
   max-height: 600px;
   overflow-y: auto;
@@ -363,6 +365,8 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
+    /* justify-content: flex-end;  */
+
   align-items: center;
   margin-bottom: 1rem;
 }
