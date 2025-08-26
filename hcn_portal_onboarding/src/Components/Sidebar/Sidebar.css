@@ -1,6 +1,7 @@
 /* Sidebar Styles */
 .sidebar {
   background-color: #5C98B8;
+  /* position: fixed; */
   width: 250px;
   min-height: 100vh;
   padding: 20px;

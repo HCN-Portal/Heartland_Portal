@@ -6,6 +6,7 @@ import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import Sidebar from "../Sidebar/Sidebar";
 
 
 const Projects = () => {
@@ -16,6 +17,11 @@ const Projects = () => {
   const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
   const [overviewErrors, setOverviewErrors] = useState({});
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 2;
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 
   // Form validation schema using Yup
   const projectSchema = yup.object().shape({
@@ -56,12 +62,84 @@ const Projects = () => {
     resolver: yupResolver(projectSchema),
   });
 
-
+  
   // Static data for Project
   const [projects, setProjects] = useState([
   {
     id: 1,
-    name: 'HCN Portal',
+    name: 'HCN Portal 1',
+    manager: 'Dhanush',
+    start: '04/08/2025',
+    end: '04/23/2026',
+    status: 'Active',
+    description:
+      'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
+    managers: [
+      { name: 'Dhanush', email: 'dhanush@admin.hcn.com' }
+    ],
+    employees: [
+      { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
+    ],
+    applications: [
+      { name: 'ManagerX', position: 'Manager' },
+      { name: 'EmployeeY', position: 'Employee' }
+    ],
+    client: 'HCN',
+    skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
+  },
+  {
+    id: 2,
+    name: 'HCN Portal 2',
+    manager: 'Dhanush',
+    start: '04/08/2025',
+    end: '04/23/2026',
+    status: 'Active',
+    description:
+      'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
+    managers: [
+      { name: 'Dhanush', email: 'dhanush@admin.hcn.com' }
+    ],
+    employees: [
+      { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
+    ],
+    applications: [
+      { name: 'ManagerX', position: 'Manager' },
+      { name: 'EmployeeY', position: 'Employee' }
+    ],
+    client: 'HCN',
+    skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
+  },
+  {
+    id: 3,
+    name: 'HCN Portal 3',
+    manager: 'Dhanush',
+    start: '04/08/2025',
+    end: '04/23/2026',
+    status: 'Active',
+    description:
+      'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
+    managers: [
+      { name: 'Dhanush', email: 'dhanush@admin.hcn.com' }
+    ],
+    employees: [
+      { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
+      { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
+    ],
+    applications: [
+      { name: 'ManagerX', position: 'Manager' },
+      { name: 'EmployeeY', position: 'Employee' }
+    ],
+    client: 'HCN',
+    skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
+  },
+  {
+    id: 4,
+    name: 'HCN Portal 4',
     manager: 'Dhanush',
     start: '04/08/2025',
     end: '04/23/2026',
@@ -84,6 +162,9 @@ const Projects = () => {
     skillTags: 'ReactJS, MongoDB, Hosting, Node JS, Express JS'
   }
   ]);
+
+  const totalPages = Math.ceil(projects.length / projectsPerPage);
+  const currentProjects = projects.slice(indexOfFirstProject, indexOfLastProject);
 
   // Manager static data for View Manager Details
   const managerStaticData = {
@@ -192,7 +273,7 @@ const Projects = () => {
   const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
 
   // const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
-  const tabs = ["Overview", "Managers", "Employees"];
+  const tabs = ["Overview", "Managers", "Employees", "Applications"];
 
   // Handlers
 
@@ -307,39 +388,39 @@ const Projects = () => {
     reset();
   };
 
-  // const handleApproveApplication = (index) => { /* approve application logic */
-  //   const application = selectedProject.applications[index];
-  //   let updatedProject = { ...selectedProject };
+  const handleApproveApplication = (index) => { /* approve application logic */
+    const application = selectedProject.applications[index];
+    let updatedProject = { ...selectedProject };
 
-  //   if (application.position === 'Manager') {
-  //     updatedProject.managers = [...updatedProject.managers, { name: application.name, email: `${application.name.toLowerCase()}@admin.hcn.com` }];
-  //   } else if (application.position === 'Employee') {
-  //     updatedProject.employees = [
-  //       ...updatedProject.employees,
-  //       {
-  //         name: application.name,
-  //         position: 'Developer',
-  //         date: selectedProject.start
-  //       }
-  //     ];
-  //   }
+    if (application.position === 'Manager') {
+      updatedProject.managers = [...updatedProject.managers, { name: application.name, email: `${application.name.toLowerCase()}@admin.hcn.com` }];
+    } else if (application.position === 'Employee') {
+      updatedProject.employees = [
+        ...updatedProject.employees,
+        {
+          name: application.name,
+          position: 'Developer',
+          date: selectedProject.start
+        }
+      ];
+    }
 
-  //   updatedProject.applications = selectedProject.applications.filter((_, i) => i !== index);
-  //   setSelectedProject(updatedProject);
-  //   setProjects(prev =>
-  //     prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
-  //   );
-  // };
+    updatedProject.applications = selectedProject.applications.filter((_, i) => i !== index);
+    setSelectedProject(updatedProject);
+    setProjects(prev =>
+      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+    );
+  };
 
-  // const handleRejectApplication = (index) => { /* reject application logic */
-  //   const updatedApplications = selectedProject.applications.filter((_, i) => i !== index);
-  //   const updatedProject = { ...selectedProject, applications: updatedApplications };
+  const handleRejectApplication = (index) => { /* reject application logic */
+    const updatedApplications = selectedProject.applications.filter((_, i) => i !== index);
+    const updatedProject = { ...selectedProject, applications: updatedApplications };
 
-  //   setSelectedProject(updatedProject);
-  //   setProjects(prev =>
-  //     prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
-  //   );
-  // };
+    setSelectedProject(updatedProject);
+    setProjects(prev =>
+      prev.map(p => (p.id === selectedProject.id ? updatedProject : p))
+    );
+  };
 
   const handleAddEmployee = () => {
     // guard clause: make sure both pieces are filled in
@@ -743,7 +824,7 @@ const Projects = () => {
           </div>
         )}
 
-        {/* {activeTab === 'Applications' && (
+        {activeTab === 'Applications' && (
         <div className="project-modal fade-in">
           <h3 className="section-title">Pending Applications</h3>
 
@@ -760,7 +841,7 @@ const Projects = () => {
             </div>
           ))}
         </div>
-      )} */}
+      )}
 
         {/* {activeTab === 'Updates/Activity' && <p>No activity yet.</p>} */}
       </div>
@@ -771,7 +852,8 @@ const Projects = () => {
     <div>
       <NavigationBar isLoggedIn="true" />
       <div className="admin-dashboard">
-        <button
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        {/* <button
           className="toggle-sidebar-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         />
@@ -796,7 +878,7 @@ const Projects = () => {
                   <a href="/admin/pending">Pending Applications</a>
                 </li>
                 <li>
-                  <a href="/admin/employees">Active Employees</a>
+                  <a href="/admin/employees">Employees</a>
                 </li>
                 <li>
                   <a href="/admin/projects" style={{ fontWeight: "900" }}>
@@ -817,7 +899,7 @@ const Projects = () => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         <main className="pending-main">
           {!selectedProject ? (
@@ -925,7 +1007,7 @@ const Projects = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map((project, index) => (
+                  {currentProjects.map((project, index) => (
                     <tr key={index}>
                       <td>
                         {index + 1}. {project.name}
@@ -949,6 +1031,33 @@ const Projects = () => {
                   ))}
                 </tbody>
               </table>
+              <div className="pagination-controls">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="page-btn"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="page-btn"
+            >
+              Next
+            </button>
+          </div>
             </>
           ) : (
             <>
@@ -957,7 +1066,11 @@ const Projects = () => {
               {renderDetail()}
             </>
           )}
+
+          
         </main>
+        
+
       </div>
     </div>
   );
