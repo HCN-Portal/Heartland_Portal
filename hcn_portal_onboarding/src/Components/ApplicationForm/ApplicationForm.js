@@ -115,6 +115,15 @@ const ApplicationForm = () => {
       <div>
         <div className="application-container">
           {/* <h1 className="application-title">Hoosier Community Network</h1> */}
+          <div className="back-button-container">
+            <button 
+              type="button" 
+              className="back-button"
+              onClick={() => navigate("/")}
+            >
+              ←
+            </button>
+          </div>
           <p className="application-subtitle">Apply! To join us at HCN.</p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="application-form">
