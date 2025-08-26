@@ -81,7 +81,7 @@ const Projects = () => {
           .filter((user) => user.role === "employee")
           .map((user) => ({
             name: `${user.firstName} ${user.lastName}`,
-            email: user.email,
+            email: user.role,
           }));
 
         // Filter users with role 'manager'
