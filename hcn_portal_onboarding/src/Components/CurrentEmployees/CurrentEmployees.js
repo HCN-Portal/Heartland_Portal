@@ -3,6 +3,7 @@ import './CurrentEmployees.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_all_users,get_user_by_id,clearSelectedUser } from '../../store/reducers/userReducer';
+import Sidebar from '../Sidebar/Sidebar';
 
 const CurrentEmployees = () => {
   const dispatch = useDispatch();
@@ -96,35 +97,7 @@ const handleViewProfile=(userId) =>{
       <NavigationBar isLoggedIn='true' />
 
       <div className="admin-dashboard">
-        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)} />
-
-        {sidebarOpen ? (
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
-                &#9776;
-              </button>
-              <h2 className="sidebar-title">Heartland Community Network</h2>
-            </div>
-
-            <nav className="sidebar-nav">
-              <ul>
-                <li><a href="/admin/home">Home / Dashboard</a></li>
-                <li><a href="/admin/pending">Pending Applications</a></li>
-                <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Employees</a></li>
-                <li><a href="/admin/projects">Projects</a></li>
-              </ul>
-            </nav>
-          </aside>
-        ) : (
-          <div className="collapsed-sidebar">
-            <div className="collapsed-top">
-              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
-                &#9776;
-              </button>
-            </div>
-          </div>
-        )}
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
         <main className="pending-main">
           <h2 className="pending-title">Admin Dashboard - Employees</h2>

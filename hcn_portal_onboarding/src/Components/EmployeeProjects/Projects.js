@@ -64,10 +64,10 @@ const Projects = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value.toLowerCase());
-    setCurrentPage(1); // reset to page 1 on search
-  };
+  // const handleSearch = (e) => {
+  //   setSearchTerm(e.target.value.toLowerCase());
+  //   setCurrentPage(1); // reset to page 1 on search
+  // };
 
   const filteredProjects = dummyProjects.filter(project =>
     project.title.toLowerCase().includes(searchTerm)
@@ -94,14 +94,14 @@ const Projects = () => {
             <button className={activeTab === 'request' ? 'active' : ''} onClick={() => setActiveTab('request')}>Request Projects</button>
           </div>
 
-          <div className="project-search">
+          {/* <div className="project-search">
             <input
               type="text"
               placeholder="Search projects..."
               value={searchTerm}
               onChange={handleSearch}
             />
-          </div>
+          </div> */}
 
           <div className="project-content">
             {activeTab === 'assigned' && (

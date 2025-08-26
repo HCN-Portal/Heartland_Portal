@@ -6,9 +6,11 @@ import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import Sidebar from "../Sidebar/Sidebar";
 import { useSelector, useDispatch } from "react-redux"
 import { clearSelectedProject, getEmployees, getManagers, getAllProjectTitles, getProjectById, updateProjectByID, addEmployeesToProject, addManagersToProject, removeManagersFromProject, removeEmployeesFromProject, createProject } from "../../store/reducers/projectReducer";
 import { clearSelectedUser, get_all_users, get_user_by_id } from "../../store/reducers/userReducer";
+
 
 const Projects = () => {
   // State Management
@@ -18,6 +20,13 @@ const Projects = () => {
   const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
   const [overviewErrors, setOverviewErrors] = useState({});
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 2;
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+
+
 
   // Form validation schema using Yup
   const projectSchema = yup.object().shape({
@@ -90,7 +99,8 @@ const Projects = () => {
     dispatch(getEmployees())
   }, [dispatch]);
 
-
+ const totalPages = Math.ceil(projects.length / projectsPerPage);
+  const currentProjects = projects.slice(indexOfFirstProject, indexOfLastProject);
 
   const formattedEmployeeList = employees.map((employee) => ({
     label: employee.fullName, // Display only the name
@@ -165,6 +175,8 @@ const Projects = () => {
 
   const { users, selectedUser } = useSelector((state) => state.users);
   const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
+
+  // const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
   const tabs = ["Overview", "Managers", "Employees"];
 
   // Handlers
@@ -397,7 +409,6 @@ const Projects = () => {
           <div className="project-modal">
             <h3 className='show-label-h3'>
               Project Details
-              {/* : {selectedProject.name} */}
             </h3>
 
             <div className="project-detail-row">
@@ -775,7 +786,8 @@ const Projects = () => {
     <div>
       <NavigationBar isLoggedIn="true" />
       <div className="admin-dashboard">
-        <button
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        {/* <button
           className="toggle-sidebar-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         />
@@ -821,7 +833,7 @@ const Projects = () => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         <main className="pending-main">
           {!selectedProjectl ? (
@@ -953,7 +965,7 @@ const Projects = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map((project, index) => (
+                  {currentProjects.map((project, index) => (
                     <tr key={index}>
                       <td>
                         {index + 1}. {project.title}
@@ -978,6 +990,33 @@ const Projects = () => {
                   ))}
                 </tbody>
               </table>
+              <div className="pagination-controls">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="page-btn"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="page-btn"
+            >
+              Next
+            </button>
+          </div>
             </>
           ) : (
             <>
@@ -986,7 +1025,11 @@ const Projects = () => {
               {renderDetail()}
             </>
           )}
+
+          
         </main>
+        
+
       </div>
     </div>
   );
