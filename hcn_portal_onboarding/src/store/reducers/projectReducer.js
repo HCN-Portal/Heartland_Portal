@@ -56,7 +56,9 @@ const projectSlice = createSlice({
             })
             .addCase(get_all_projects.fulfilled, (state, action) => {
                 state.loading = false;
-                state.projects = action.payload;
+                // Ensure we're storing the data in the correct format
+                state.projects = Array.isArray(action.payload) ? action.payload :
+                               (action.payload.projects || action.payload.data || []);
             })
             .addCase(get_all_projects.rejected, (state, action) => {
                 state.loading = false;

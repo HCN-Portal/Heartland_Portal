@@ -117,7 +117,7 @@ const EmployeeProfile = () => {
     }
 
     // Skills validation
-    if (!data.relevantSkills || data.relevantSkills.trim() === '') {
+    if (!data.relevantSkills || (Array.isArray(data.relevantSkills) && data.relevantSkills.length === 0)) {
       errors.push('At least one skill is required');
     }
 
@@ -163,7 +163,7 @@ const EmployeeProfile = () => {
         universityName: profile.universityName,
         graduationYear: profile.graduationYear,
         totalYearsExperience: profile.totalYearsExperience,
-        relevantSkills: profile.relevantSkills.split(',').map(skill => skill.trim()),
+        relevantSkills: Array.isArray(profile.relevantSkills) ? profile.relevantSkills : profile.relevantSkills.split(',').map(skill => skill.trim()),
         previousEmployer: profile.previousEmployer,
         previousPosition: profile.previousPosition
       };
@@ -188,12 +188,18 @@ const EmployeeProfile = () => {
       <strong>{label}:</strong>{' '}
       {editMode ? (
         multiline ? (
-          <textarea name={name} value={profile[name]} onChange={handleChange} />
+          <textarea
+            name={name}
+            value={name === 'relevantSkills' ? (Array.isArray(profile[name]) ? profile[name].join(', ') : profile[name]) : profile[name]}
+            onChange={handleChange}
+          />
         ) : (
           <input name={name} value={profile[name]} onChange={handleChange} type={type} />
         )
       ) : (
-        profile[name]
+        name === 'relevantSkills' ?
+          (Array.isArray(profile[name]) ? profile[name].join(', ') : profile[name]) :
+          profile[name]
       )}
     </p>
   );
@@ -237,7 +243,7 @@ const EmployeeProfile = () => {
               <h2>{`${profile.firstName} ${profile.lastName}`}</h2>
               {profile.preferredName && <p><em>Preferred Name: {profile.preferredName}</em></p>}
               <p><strong>Employee ID:</strong> {selectedUser?.employeeId}</p>
-              <p><strong>Role:</strong> {selectedUser?.role}</p>
+              {/*<p><strong>Role:</strong> {selectedUser?.role}</p>*/}
               <p><strong>Email:</strong> {profile.email}</p>
             </div>
 
