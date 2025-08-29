@@ -14,8 +14,9 @@ const Sidebar = ({ sidebarOpen, toggleSidebar, activePath }) => {
   const employeeLinks = [
     { to: '/employee/home', label: 'Employee Home' },
     { to: '/employee/profile', label: 'Profile' },
-    { to: '/employee/projects', label: 'Projects' },
+    // { to: '/employee/projects', label: 'Projects' },
     { to: '/employee/clockify', label: 'Clockify' },
+    { to: '/employee/projects', label: 'Projects'},
     { to: '/employee/help', label: 'Help' },
   ];
 
