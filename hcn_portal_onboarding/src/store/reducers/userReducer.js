@@ -7,6 +7,7 @@ export const get_all_users = createAsyncThunk(
   async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
       const { data } = await api.get('/users/');
+      console.log(data,"yegfhbmxc")
       return fulfillWithValue(data);
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to load users';
@@ -80,7 +81,8 @@ const userReducer = createSlice({
       })
       .addCase(get_all_users.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.users = action.payload.users;
+        console.log("fgdb", state.users)
       })
       .addCase(get_all_users.rejected, (state, action) => {
         state.loading = false;

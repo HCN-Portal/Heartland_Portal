@@ -71,6 +71,10 @@ const Projects = () => {
           return null;
         }
       });
+  // const handleSearch = (e) => {
+  //   setSearchTerm(e.target.value.toLowerCase());
+  //   setCurrentPage(1); // reset to page 1 on search
+  // };
 
       // Wait for all project details to be fetched
       const detailedProjects = await Promise.all(projectPromises);
@@ -122,14 +126,14 @@ const Projects = () => {
             <button className={activeTab === 'request' ? 'active' : ''} onClick={() => setActiveTab('request')}>Request Projects</button>
           </div>
 
-          <div className="project-search">
+          {/* <div className="project-search">
             <input
               type="text"
               placeholder="Search projects..."
               value={searchTerm}
               onChange={handleSearch}
             />
-          </div>
+          </div> */}
 
           <div className="project-content">
             {loading ? (
@@ -142,7 +146,7 @@ const Projects = () => {
                       {paginatedProjects.map((project, index) => (
                         <div key={project.id || `project-${index}`} className="project-card">
                           <h3>{project.title}</h3>
-                          <p><strong>Client:</strong> {project.client}</p>
+                          <p><strong>Assigned By:</strong> {project.client}</p>
                           <p><strong>Duration:</strong> {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}</p>
                           <p><strong>Status:</strong> {project.status}</p>
                           <p className="project-description">{project.description}</p>
