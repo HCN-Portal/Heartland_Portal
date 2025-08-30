@@ -51,13 +51,25 @@ export const update_profile = createAsyncThunk(
   }
 );
 
+export const get_all_managers = createAsyncThunk(
+  'user/get_all_managers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get('/users/list/allManagers');
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to fetch managers');
+    }
+  }
+);
+
 // Slice
 const initialState = {
   users: [],
   loading: false,
   error: null,
   selectedUser: null,
-
+  managers: [],
 };
 
 const userReducer = createSlice({
@@ -113,6 +125,19 @@ const userReducer = createSlice({
         state.selectedUser = action.payload;
       })
       .addCase(update_profile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Handle get_all_managers
+      .addCase(get_all_managers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(get_all_managers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.managers = action.payload.managers;
+      })
+      .addCase(get_all_managers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

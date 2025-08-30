@@ -13,14 +13,14 @@ export const getAllProjectTitles = createAsyncThunk(
       console.error(errorMessage);
       return rejectWithValue({ error: errorMessage });
     }
-  }
+  });
 // Async thunk for fetching all projects
 export const get_all_projects = createAsyncThunk(
     'project/get_all_projects',
-    async (_, { rejectWithValue, fulfillWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
             const { data } = await api.get('/projects');
-            return fulfillWithValue(data);
+            return data;
         } catch (error) {
             const errorMessage = error.response?.data?.error || "Failed to load projects";
             return rejectWithValue({ error: errorMessage });
@@ -32,6 +32,7 @@ export const getProjectById = createAsyncThunk(
   'projects/getProjectById',
   async (projectId, { rejectWithValue }) => {
     try {
+        console.log(projectId);
       const { data } = await api.get(`/projects/${projectId}`);
       return data;
     } catch (error) {
@@ -157,7 +158,7 @@ export const createProject = createAsyncThunk(
         error: error.response?.data?.error || 'Failed to remove employee'
       });
     }
-  }
+  });
 // Async thunk for fetching project details by ID
 export const get_project_details = createAsyncThunk(
     'project/get_project_details',
@@ -211,6 +212,21 @@ const projectReducer = createSlice({
         state.error = action.payload?.error || 'Failed to fetch projects';
       })
 
+      // Get All Projects (Alternative)
+      .addCase(get_all_projects.pending, (state) => {
+        state.loadingl = true;
+        state.error = null;
+      })
+      .addCase(get_all_projects.fulfilled, (state, action) => {
+        state.loadingl = false;
+        // Expecting the API to return { projects: [] } format
+        state.projects = action.payload.projects || action.payload;
+      })
+      .addCase(get_all_projects.rejected, (state, action) => {
+        state.loadingl = false;
+        state.error = action.payload?.error || 'Failed to fetch projects';
+      })
+
       // Get Project By ID
       .addCase(getProjectById.pending, (state) => {
         state.loadingl = true;
@@ -219,6 +235,13 @@ const projectReducer = createSlice({
       .addCase(getProjectById.fulfilled, (state, action) => {
         state.loadingl = false;
         state.selectedProjectl = action.payload;
+        // Add or update the project in the projects array
+        const index = state.projects.findIndex(p => p._id === action.payload._id);
+        if (index !== -1) {
+            state.projects[index] = action.payload;
+        } else {
+            state.projects.push(action.payload);
+        }
       })
       .addCase(getProjectById.rejected, (state, action) => {
         state.loadingl = false;
