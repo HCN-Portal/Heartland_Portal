@@ -4,10 +4,10 @@ const projectController = require('../controllers/projectController');
 const userController = require('../controllers/usersController');
 const { authMiddleware, isAdmin, isAuthUser, isAdminOrManager, isManager, isEmployee } = require('../middlewares/authMiddleware');
 
-router.get('/', authMiddleware, isAuthUser, projectController.getAllProjectTitles); // Get all project titles
+router.get('/', authMiddleware, isEmployee, projectController.getAllProjectTitles); // Get all project titles
 router.post('/', authMiddleware, isAdmin, projectController.createProject); // Create a new project
 router.get('/applications', authMiddleware, isAdminOrManager, projectController.getProjectApplications); // Get all requests for a project
-router.get('/:id', authMiddleware, isAuthUser, projectController.getProjectById); // Get project by ID
+router.get('/:id', authMiddleware, isEmployee, projectController.getProjectById); // Get project by ID
 router.put('/:id', authMiddleware, isAdminOrManager, projectController.updateProject); // Update project by ID
 router.delete('/:id', authMiddleware, isAdmin, projectController.deleteProject); // Delete project by ID
 router.post('/:id/employees', authMiddleware, isAdminOrManager, projectController.addEmployeesToProject); // Add employees to project
