@@ -1,74 +1,102 @@
 import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getProjectById, get_all_projects } from "../../store/reducers/projectReducer";
+import { get_user_by_id, get_all_managers } from "../../store/reducers/userReducer";
 import "../Projects/Projects.css";
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import Sidebar from "../Sidebar/Sidebar";
 
 
 const ProjectsEmployee = () => {
-
+    const dispatch = useDispatch();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [selectedProject, setSelectedProject] = useState(null);
     const [activeTab, setActiveTab] = useState("Overview");
     const tabs = ["Overview", "Managers", "Employees"];
     const [projectView, setProjectView] = useState("My Projects");
+    const [myProjects, setMyProjects] = useState([]);
 
+    const { selectedUser } = useSelector(state => state.user);
+    const { projects } = useSelector(state => state.project);
+    const { managers: managersList } = useSelector(state => state.user); // Rename to managersList for clarity
+    const authState = useSelector(state => state.auth);
+
+    useEffect(() => {
+        // Get user info from Redux or localStorage
+        const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
+        console.log('User Info:', userInfo); // Debug log
+        if (userInfo?.userId) {
+            dispatch(get_user_by_id(userInfo.userId));
+            dispatch(get_all_projects()); // Fetch all projects when component mounts
+            dispatch(get_all_managers()); // Fetch all managers
+        }
+        console.log('Managers',managersList);
+    }, [dispatch, authState.userInfo]);
+
+    useEffect(() => {
+        console.log('Selected User:', selectedUser); // Debug log
+        if (selectedUser?.projectsAssigned && Array.isArray(selectedUser.projectsAssigned)) {
+            console.log('Projects Assigned:', selectedUser.projectsAssigned); // Debug log
+            selectedUser.projectsAssigned.forEach(projectId => {
+                const project = projects.find(p => p._id === projectId);
+                if (!project) {
+                    dispatch(getProjectById(projectId));
+                }
+            });
+        }
+    }, [selectedUser, dispatch, projects]);
+
+    useEffect(() => {
+        console.log('Projects from Redux:', projects); // Debug log
+        if (selectedUser?.projectsAssigned && projects?.length > 0) {
+            const assignedProjects = selectedUser.projectsAssigned
+                .map(assignedProject => {
+                    const projectId = assignedProject.projectId;
+                    const project = projects.find(p => p._id === projectId);
+                    console.log('Found project for ID:', projectId, project); // Debug log
+                    if (project) {
+                        return {
+                            id: project._id,
+                            title: project.title || project.projectName,
+                            startDate: new Date(project.startDate).toLocaleDateString(),
+                            endDate: new Date(project.endDate).toLocaleDateString(),
+                            status: project.status,
+                            description: project.description,
+                            managers: project.managers?.map(m => {
+                                // Use managers array directly from state
+                                const managerDetails = Array.isArray(managersList)
+                                    ? managersList.find(manager => manager.id === m.managerId)
+                                    : null;
+                                return {
+                                    name: m.name,
+                                    email: managerDetails?.email || 'Email not available',
+                                    id: m.managerId
+                                };
+                            }) || [],
+                            teamMembers: project.teamMembers?.map(t => ({
+                                name: t.name,
+                                position: t.position || t.role || 'Team Member',
+                                date: t.joinDate ? new Date(t.joinDate).toLocaleDateString() : ''
+                            })) || [],
+                            client: project.client || 'N/A',
+                            skillTags: project.skillTags || []
+                        };
+                    }
+                    return null;
+                })
+                .filter(Boolean);
+
+            console.log('Processed assigned projects:', assignedProjects); // Debug log
+            setMyProjects(assignedProjects);
+            setProjectsToDisplay(assignedProjects);
+        }
+    }, [selectedUser, projects, managersList]); // Updated dependency to managersList
 
     const [currentPage, setCurrentPage] = useState(1);
     const projectsPerPage = 5;
     const indexOfLastProject = currentPage * projectsPerPage;
     const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 
-    const [myProjects, setMyProjects] = useState([
-        {
-            id: 1,
-            title: 'Project HCN',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com', id:14321 }
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            applications: [
-            { name: 'ManagerX', position: 'Manager' },
-            { name: 'EmployeeY', position: 'Employee' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 2,
-            title: 'Food Store Project',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            applications: [
-            { name: 'ManagerX', position: 'Manager' },
-            { name: 'EmployeeY', position: 'Employee' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        }
-
-    ]);
 
     const [allProjects, setallProjects] = useState([
         {
@@ -352,17 +380,17 @@ const ProjectsEmployee = () => {
                 {activeTab === "Managers" && (
                     <div className="project-modal fade-in">
                         <h3 className="show-label-h3">Manager Details</h3>
-                        {selectedProject.managers.map((m, i) => (
+                        {(selectedProject.managers || []).map((m, i) => (
                             <div key={i} className="manager-card">
-                            <div className="manager-info">
-                                <p className="manager-label">Manager {i + 1}</p>
-                                <div className="manager-field">
-                                    <strong>Name:</strong> <span>{m.name}</span>
+                                <div className="manager-info">
+                                    <p className="manager-label">Manager {i + 1}</p>
+                                    <div className="manager-field">
+                                        <strong>Name:</strong> <span>{m.name}</span>
+                                    </div>
+                                    <div className="manager-field">
+                                        <strong>Email:</strong> <span>{m.email}</span>
+                                    </div>
                                 </div>
-                                <div className="manager-field">
-                                    <strong>Email Id:</strong> <span>{m.id}</span>
-                                </div>
-                            </div>
                             </div>
                         ))}
 
@@ -373,26 +401,23 @@ const ProjectsEmployee = () => {
 
                 {activeTab === "Employees" && (
                     <div className="project-modal fade-in">
-                    <h3 className="show-label-h3">Employees Details</h3>
-                    <table className="applicant-table">
-              <thead>
-                <tr>
-                  <th>Employee Name</th>
-                  <th>Position</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedProject?.teamMembers.map((e, i) => (
-                  <tr key={i}>
-                    <td>
-                      {i + 1}. {e.name}
-                    </td>
-                    <td>{e.name}</td>
-                    {/* <td>{e.date}</td> */}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <h3 className="show-label-h3">Employees Details</h3>
+                        <table className="applicant-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    <th>Position</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(selectedProject?.teamMembers || []).map((e, i) => (
+                                    <tr key={i}>
+                                        <td>{e.name}</td>
+                                        <td>{e.position}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
 
@@ -549,3 +574,4 @@ const ProjectsEmployee = () => {
 }
 
 export default ProjectsEmployee;
+
