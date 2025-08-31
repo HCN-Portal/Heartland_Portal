@@ -87,13 +87,13 @@ const LoginPage = () => {
 
       <div className="login-wrapper">
         <div className="login-card">
-          <div className="back-button-container">
+          <div className="close-button-container">
             <button 
               type="button" 
-              className="back-button"
+              className="close-button"
               onClick={() => navigate("/")}
             >
-              ←
+              ✕
             </button>
           </div>
           <img src={hcn_logo} alt="HCN Logo" className="login-logo" />

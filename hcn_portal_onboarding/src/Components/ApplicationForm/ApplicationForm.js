@@ -115,13 +115,13 @@ const ApplicationForm = () => {
       <div>
         <div className="application-container">
           {/* <h1 className="application-title">Hoosier Community Network</h1> */}
-          <div className="back-button-container">
+          <div className="close-button-container">
             <button 
               type="button" 
-              className="back-button"
+              className="close-button"
               onClick={() => navigate("/")}
             >
-              ←
+              ✕
             </button>
           </div>
           <p className="application-subtitle">Apply! To join us at HCN.</p>

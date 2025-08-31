@@ -214,14 +214,14 @@
   }
 }
 
-/* Add back button styles at the top of the file */
-.back-button-container {
+/* Add close button styles at the top of the file */
+.close-button-container {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   margin-bottom: 20px;
 }
 
-.back-button {
+.close-button {
   background-color: #5C98B8;
   border: none;
   border-radius: 50%;
@@ -236,11 +236,11 @@
   justify-content: center;
 }
 
-.back-button:hover {
+.close-button:hover {
   background-color: #4a7a94;
 }
 
-.back-button:active {
+.close-button:active {
   transform: translateY(1px);
 }
 
