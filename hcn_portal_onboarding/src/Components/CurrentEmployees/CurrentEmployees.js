@@ -3,26 +3,37 @@ import './CurrentEmployees.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_all_users,get_user_by_id,clearSelectedUser } from '../../store/reducers/userReducer';
+import Sidebar from '../Sidebar/Sidebar';
 
 const CurrentEmployees = () => {
   const dispatch = useDispatch();
-  // const { applications, loading } = useSelector((state) => state.application);
-  const { users, loading,selectedUser  } = useSelector((state) => state.user);
+  const { users, loading,selectedUser  } = useSelector((state) => state.users);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+
+
   useEffect(() => {
+    console.log("fdjbhm")
     dispatch(get_all_users());
+    console.log(users,"yushd");
   }, [dispatch]);
 
+
+
+  // const approvedEmployees = users
+console.log(users.users)
+console.log(Array.isArray(users)); // should be true
+console.log(typeof users.users); 
 const approvedEmployees = users.filter(user =>
   ['manager', 'employee'].includes(user.role?.toLowerCase())
 );
-
 const [currentPage, setCurrentPage] = useState(1);
 const employeesPerPage = 2;
 const indexOfLastEmployee = currentPage * employeesPerPage;
 const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+// const currentEmployees = approvedEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+// const totalPages = Math.ceil(approvedEmployees.length / employeesPerPage);
 const [filterStatus, setFilterStatus] = useState('all');
 
 const filteredEmployees = approvedEmployees.filter(emp => {
@@ -34,7 +45,6 @@ const filteredEmployees = approvedEmployees.filter(emp => {
   }
   return true; // 'all'
 });
-
 const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
 const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
 
@@ -48,9 +58,6 @@ const handleResetFilter = () => {
   setCurrentPage(1);
 };
 
-const handleViewProfile=(userId) =>{
-    dispatch(get_user_by_id(userId));
-}
 
   const formatLabel = (label) => {
     return label
@@ -64,8 +71,8 @@ const handleViewProfile=(userId) =>{
   const formatValue = (key, value) => {
     const dateFields = ['dob', 'eadStartDate', 'visaEADExpiryDate', 'dateOfSubmission'];
     if (key === 'projectsAssigned' && Array.isArray(value)) {
-      return value.map(p => p.title).join(', ') || 'Unassigned';
-    }
+    return value.map(p => p.title).join(', ') || 'Unassigned';
+  }
     if (dateFields.includes(key) && value) {
       const date = new Date(value);
       return date.toLocaleDateString('en-US');
@@ -74,45 +81,23 @@ const handleViewProfile=(userId) =>{
       return value.join(', ');
     }
     if (typeof value === 'object' && value !== null) {
-      return JSON.stringify(value);
+      return  JSON.stringify(value);
     }
+   
     return value || 'N/A';
   };
+
+
+const handleViewProfile=(userId) =>{
+    dispatch(get_user_by_id(userId));
+}
 
   return (
     <div>
       <NavigationBar isLoggedIn='true' />
 
       <div className="admin-dashboard">
-        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)} />
-
-        {sidebarOpen ? (
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
-                &#9776;
-              </button>
-              <h2 className="sidebar-title">Heartland Community Network</h2>
-            </div>
-
-            <nav className="sidebar-nav">
-              <ul>
-                <li><a href="/admin/home">Home / Dashboard</a></li>
-                <li><a href="/admin/pending">Pending Applications</a></li>
-                <li><a href="/admin/employees" style={{ fontWeight: "900" }}>Employees</a></li>
-                <li><a href="/admin/projects">Projects</a></li>
-              </ul>
-            </nav>
-          </aside>
-        ) : (
-          <div className="collapsed-sidebar">
-            <div className="collapsed-top">
-              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
-                &#9776;
-              </button>
-            </div>
-          </div>
-        )}
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
         <main className="pending-main">
           <h2 className="pending-title">Admin Dashboard - Employees</h2>
@@ -280,7 +265,6 @@ const handleViewProfile=(userId) =>{
 
     </div>
   );
-
 };
 
 export default CurrentEmployees;

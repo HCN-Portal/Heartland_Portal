@@ -5,7 +5,7 @@ const User = require('../models/user');
 
 exports.createProject = async (req, res) => {
     try {
-        const { title, description, managerId, startDate, endDate, status, teamMembers, skillTags, client } = req.body;
+        const { title, description, startDate, endDate, status,managers, teamMembers, skillTags, client } = req.body;
 
         // Validate required fields
         if (!title || !description || !startDate || !endDate || !status || !client) {
@@ -16,11 +16,11 @@ exports.createProject = async (req, res) => {
         const newProject = new Project({
             title,
             description,
-            //managerId,
+            managers,
             startDate,
             endDate,
             status,
-            //teamMembers,
+            teamMembers,
             skillTags,
             client
         });
@@ -35,15 +35,16 @@ exports.createProject = async (req, res) => {
 exports.getAllProjectTitles = async (req, res) => {
     try {
         // Fetch only the title and _id fields from all projects
-        const projects = await Project.find({}, 'title _id');
+        const projects = await Project.find();
         
         // Return the simplified project list
         res.status(200).json({
-            count: projects.length,
-            projects: projects.map(project => ({
-                id: project._id,
-                title: project.title
-            }))
+            // count: projects.length,
+            // projects: projects.map(project => ({
+            //     id: project._id,
+            //     title: project.title
+            // }))
+            projects:projects
         });
     } catch (error) {
         console.error('Error fetching project titles:', error);
@@ -79,8 +80,8 @@ exports.getProjectById = async (req, res) => {
 exports.updateProject = async (req, res) => {
     try {
         const projectId = req.params.id;
-        const { title, description, managerId, startDate, endDate, status, teamMembers, skillTags, client } = req.body;
-
+        // const { title, description, managerId, startDate, endDate, status, teamMembers, skillTags, client } = req.body;
+        const updatedData = req.body;
         // Validate if projectId is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(projectId)) {
             return res.status(400).json({ message: 'Invalid project ID format' });
@@ -89,7 +90,7 @@ exports.updateProject = async (req, res) => {
         // Find and update the project
         const updatedProject = await Project.findByIdAndUpdate(
             projectId,
-            { title, description, managerId, startDate, endDate, status, teamMembers, skillTags, client },
+            updatedData,
             { new: true }
         );
 
@@ -317,12 +318,18 @@ exports.removeEmployeeFromProject = async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
-        // Update the User table to remove the project from projectsAssigned
-        await User.findByIdAndUpdate(
-            employeeId,
-            { $pull: { projectsAssigned: { projectId: projectId } } },
-            {new: true}
-        );
+       
+            await User.updateOne(
+                { _id: employeeId },
+                {
+                    $pull: {
+                        projectsAssigned: {
+                            projectId: projectId 
+                        }
+                    }
+                }
+            );
+
 
         res.status(200).json({ 
             message: 'Employee removed from project successfully', 
@@ -385,6 +392,17 @@ exports.removeManagerFromProject = async (req, res) => {
         if (!updatedProject) {
             return res.status(404).json({ message: 'Project not found' });
         }
+
+        await User.updateOne(
+                { _id: managerId },
+                {
+                    $pull: {
+                        projectsAssigned: {
+                            projectId: projectId 
+                        }
+                    }
+                }
+            );
 
         res.status(200).json({ 
             message: 'Manager removed from project successfully', 
