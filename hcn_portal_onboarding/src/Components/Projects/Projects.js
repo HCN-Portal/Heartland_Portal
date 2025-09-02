@@ -7,12 +7,29 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Sidebar from "../Sidebar/Sidebar";
-import { useSelector, useDispatch } from "react-redux"
-import { clearSelectedProject, getEmployees, getManagers, getAllProjectTitles, getProjectById, updateProjectByID, addEmployeesToProject, addManagersToProject, removeManagersFromProject, removeEmployeesFromProject, createProject } from "../../store/reducers/projectReducer";
-import { clearSelectedUser, get_all_users, get_user_by_id } from "../../store/reducers/userReducer";
-
+import { useSelector, useDispatch } from "react-redux";
+import {
+  clearSelectedProject,
+  getEmployees,
+  getManagers,
+  getAllProjectTitles,
+  getProjectById,
+  updateProjectByID,
+  addEmployeesToProject,
+  addManagersToProject,
+  removeManagersFromProject,
+  removeEmployeesFromProject,
+  createProject,
+} from "../../store/reducers/projectReducer";
+import {
+  clearSelectedUser,
+  get_all_users,
+  get_user_by_id,
+} from "../../store/reducers/userReducer";
 
 const Projects = () => {
+  // Search functionality
+  const [searchTerm, setSearchTerm] = useState("");
   // State Management
   const [sidebarOpen, setSidebarOpen] = useState(true);
   // const [selectedProject, setSelectedProject] = useState(null);
@@ -25,8 +42,6 @@ const Projects = () => {
   const projectsPerPage = 2;
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-
-
 
   // Form validation schema using Yup
   const projectSchema = yup.object().shape({
@@ -43,10 +58,11 @@ const Projects = () => {
   const createProjectSchema = yup.object().shape({
     title: yup.string().required("Project title is required"),
     description: yup.string().required("Description is required"),
-    manager: yup.object({
-      managerId: yup.string().required(),
-      name: yup.string().required(),
-    })
+    manager: yup
+      .object({
+        managerId: yup.string().required(),
+        name: yup.string().required(),
+      })
       .nullable()
       .required("Manager name is required"),
     startDate: yup.string().required("Start date is required"),
@@ -55,7 +71,6 @@ const Projects = () => {
     skillTags: yup.string().required("Skill tags are required"),
     client: yup.string().required("Client name is required"),
   });
-
 
   const [newManager, setNewManager] = useState({ name: "", email: "" });
   const [newEmployee, setNewEmployee] = useState({ name: "", position: "" });
@@ -84,33 +99,50 @@ const Projects = () => {
     resolver: yupResolver(createProjectSchema),
   });
 
-
-
-
-
-
   const dispatch = useDispatch();
-  const { projects, loadingl, selectedProjectl, employees, managers } = useSelector((state) => state.projects);
-
+  const { projects, loadingl, selectedProjectl, employees, managers } =
+    useSelector((state) => state.projects);
 
   useEffect(() => {
     dispatch(getAllProjectTitles());
     dispatch(getManagers());
-    dispatch(getEmployees())
+    dispatch(getEmployees());
   }, [dispatch]);
 
- const totalPages = Math.ceil(projects.length / projectsPerPage);
-  const currentProjects = projects.slice(indexOfFirstProject, indexOfLastProject);
+  // Ensure projects is always an array
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  // Filter projects by search term (project name or manager name)
+  const filteredProjects = safeProjects.filter((project) => {
+    const titleMatch =
+      project.title &&
+      project.title.toLowerCase().includes(searchTerm.toLowerCase());
+    // manager name can be an array, check all
+    const managerMatch = Array.isArray(project.managers)
+      ? project.managers.some(
+          (mgr) =>
+            mgr &&
+            mgr.name &&
+            mgr.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : false;
+    return titleMatch || managerMatch;
+  });
+  // Pagination on filtered projects
+  const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+  const currentProjects = filteredProjects.slice(
+    indexOfFirstProject,
+    indexOfLastProject
+  );
 
   const formattedEmployeeList = employees.map((employee) => ({
     label: employee.fullName, // Display only the name
     email: employee.email,
-    id: employee.id
+    id: employee.id,
   }));
   const formattedManagerList = managers.map((manager) => ({
     label: manager.fullName, // Display only the name
     email: manager.email,
-    id: manager.id
+    id: manager.id,
   }));
 
   const [selectedOption, setSelectedOption] = useState(null);
@@ -129,37 +161,41 @@ const Projects = () => {
     }
   };
 
-
   const formatLabel = (label) => {
     return label
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .replace(/Id$/, 'ID')
-      .replace(/Ead/g, 'EAD')
-      .replace(/Dob/g, 'DOB');
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase())
+      .replace(/Id$/, "ID")
+      .replace(/Ead/g, "EAD")
+      .replace(/Dob/g, "DOB");
   };
 
   const formatValue = (key, value) => {
-    const dateFields = ['dob', 'eadStartDate', 'visaEADExpiryDate', 'dateOfSubmission'];
-    if (key === 'projectsAssigned' && Array.isArray(value)) {
-      return value.map(p => p.title).join(', ') || 'Unassigned';
+    const dateFields = [
+      "dob",
+      "eadStartDate",
+      "visaEADExpiryDate",
+      "dateOfSubmission",
+    ];
+    if (key === "projectsAssigned" && Array.isArray(value)) {
+      return value.map((p) => p.title).join(", ") || "Unassigned";
     }
     if (dateFields.includes(key) && value) {
       const date = new Date(value);
-      return date.toLocaleDateString('en-US');
+      return date.toLocaleDateString("en-US");
     }
     if (Array.isArray(value)) {
-      return value.join(', ');
+      return value.join(", ");
     }
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === "object" && value !== null) {
       return JSON.stringify(value);
     }
 
-    return value || 'N/A';
+    return value || "N/A";
   };
   useEffect(() => {
-    console.log(selectedProjectl)
-  }, [selectedProjectl])
+    console.log(selectedProjectl);
+  }, [selectedProjectl]);
 
   const [selectedMOption, setSelectedMOption] = useState(null);
   const [email, setEmail] = useState("");
@@ -199,20 +235,19 @@ const Projects = () => {
     return `${month}/${day}/${year}`;
   };
 
-
-
   const handleEachProject = (projectId) => {
     dispatch(getProjectById(projectId));
-  }
+  };
 
   const handleEdit = (editedProject) => {
     // console.log(editedProject, "inside handleEdit")
-    dispatch(updateProjectByID({
-      projectId: editedProject._id,
-      editedProject: editedProject
-    }));
-  }
-
+    dispatch(
+      updateProjectByID({
+        projectId: editedProject._id,
+        editedProject: editedProject,
+      })
+    );
+  };
 
   const handleAddManager = () => {
     // Make sure the user picked someone and an email is present
@@ -221,28 +256,23 @@ const Projects = () => {
     // Build the new manager object
     const newManager = {
       managerId: selectedMOption.id,
-      name: selectedMOption.label
+      name: selectedMOption.label,
     };
 
     const requestBody = { managers: [newManager] };
-    const projectId = selectedProjectl._id
-    dispatch(addManagersToProject({ projectId, requestBody }))
-
+    const projectId = selectedProjectl._id;
+    dispatch(addManagersToProject({ projectId, requestBody }));
 
     // Clear the picker and email field for the next entry
     setSelectedMOption(null);
     setEmail("");
   };
 
-
-
   const handleRemoveManager = (m) => {
     /* remove manager logic */
     const managerId = m.managerId;
-    const projectId = selectedProjectl._id
-    dispatch(removeManagersFromProject({ projectId, managerId }))
-
-
+    const projectId = selectedProjectl._id;
+    dispatch(removeManagersFromProject({ projectId, managerId }));
   };
 
   const ProfileModal = ({ data, onClose, title }) => (
@@ -270,11 +300,12 @@ const Projects = () => {
 
   // Called when form is submitted to create a new project
   const handleSaveNewProject = (data) => {
-
     const formattedStart = formatDateToDisplay(data.startDate);
-    const formattedEnd = data.endDate ? formatDateToDisplay(data.endDate) : null;
-    const managers = []
-    managers.push(data.manager)
+    const formattedEnd = data.endDate
+      ? formatDateToDisplay(data.endDate)
+      : null;
+    const managers = [];
+    managers.push(data.manager);
     // Construct new project object and update state
     const projectToAdd = {
       title: data.title,
@@ -286,10 +317,9 @@ const Projects = () => {
       teamMembers: [],
       skillTags: data.skillTags,
       client: data.client,
-
     };
 
-    dispatch(createProject({ projectToAdd }))
+    dispatch(createProject({ projectToAdd }));
 
     alert("Project created successfully!");
     setShowCreateProjectModal(false);
@@ -330,12 +360,10 @@ const Projects = () => {
   //   );
   // };
 
-
   const handleViewProfile = (e) => {
-
     const userId = e.employeeId ? e.employeeId : e.managerId;
-    dispatch(get_user_by_id(userId))
-  }
+    dispatch(get_user_by_id(userId));
+  };
 
   const handleAddEmployee = () => {
     // guard clause: make sure both pieces are filled in
@@ -351,12 +379,12 @@ const Projects = () => {
     // build the new employee record
     const newEmployees = {
       employeeId: selectedOption.id,
-      name: selectedOption.label
+      name: selectedOption.label,
     };
     const requestBody = { employees: [newEmployees] };
 
-    const projectId = selectedProjectl._id
-    dispatch(addEmployeesToProject({ projectId, requestBody }))
+    const projectId = selectedProjectl._id;
+    dispatch(addEmployeesToProject({ projectId, requestBody }));
 
     // clear the form
     setSelectedOption(null); // empties the <Select>
@@ -365,8 +393,8 @@ const Projects = () => {
 
   const handleRemoveEmployee = (e) => {
     const employeeId = e.employeeId;
-    const projectId = selectedProjectl._id
-    dispatch(removeEmployeesFromProject({ projectId, employeeId }))
+    const projectId = selectedProjectl._id;
+    dispatch(removeEmployeesFromProject({ projectId, employeeId }));
   };
 
   // Renders Tabs Content and detailed modal view of selected project
@@ -379,12 +407,13 @@ const Projects = () => {
         {/* <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         Project Details: {selectedProjectl._id}. {selectedProjectl.title}
       </h2> */}
-        <button className="close-btn"
+        <button
+          className="close-btn"
           onClick={() => {
             if (isEditingOverview) {
               alert("Please save your changes before closing.");
             } else {
-              dispatch(clearSelectedProject())
+              dispatch(clearSelectedProject());
             }
           }}
         >
@@ -396,7 +425,7 @@ const Projects = () => {
         {tabs.map((tab) => (
           <button
             key={tab}
-            className={`tab-button ${activeTab === tab ? 'active-tab' : ''}`}
+            className={`tab-button ${activeTab === tab ? "active-tab" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab}
@@ -405,26 +434,28 @@ const Projects = () => {
       </div>
 
       <div className="project-content">
-        {activeTab === 'Overview' && (
+        {activeTab === "Overview" && (
           <div className="project-modal">
-            <h3 className='show-label-h3'>
-              Project Details
-            </h3>
+            <h3 className="show-label-h3">Project Details</h3>
 
             <div className="project-detail-row">
-              <div className="project-label"><strong>Project Name:</strong></div>
+              <div className="project-label">
+                <strong>Project Name:</strong>
+              </div>
               <div className="project-value">
                 {isEditingOverview ? (
                   <div>
                     <input
                       value={editedProject.title}
                       onChange={(e) =>
-                        setEditedProject({ ...editedProject, title: e.target.value })
+                        setEditedProject({
+                          ...editedProject,
+                          title: e.target.value,
+                        })
                       }
                     />
                     <p className="error-text">{overviewErrors.title}</p>
                   </div>
-
                 ) : (
                   selectedProjectl.title
                 )}
@@ -432,7 +463,9 @@ const Projects = () => {
             </div>
 
             <div className="project-detail-row">
-              <div className="project-label"><strong>Description:</strong></div>
+              <div className="project-label">
+                <strong>Description:</strong>
+              </div>
               <div className="project-value">
                 {isEditingOverview ? (
                   <div>
@@ -440,7 +473,10 @@ const Projects = () => {
                       rows={6}
                       value={editedProject.description}
                       onChange={(e) =>
-                        setEditedProject({ ...editedProject, description: e.target.value })
+                        setEditedProject({
+                          ...editedProject,
+                          description: e.target.value,
+                        })
                       }
                     />
                     <p className="error-text">{overviewErrors.description}</p>
@@ -452,7 +488,9 @@ const Projects = () => {
             </div>
 
             <div className="project-detail-row">
-              <div className="project-label"><strong>Start Date - End Date:</strong></div>
+              <div className="project-label">
+                <strong>Start Date - End Date:</strong>
+              </div>
               <div className="project-value">
                 {isEditingOverview ? (
                   <>
@@ -462,35 +500,40 @@ const Projects = () => {
                       onChange={(e) =>
                         setEditedProject({
                           ...editedProject,
-                          startDate: e.target.value ? formatDateToDisplay(e.target.value) : null
+                          startDate: e.target.value
+                            ? formatDateToDisplay(e.target.value)
+                            : null,
                         })
                       }
                     />
-                    <p className="error-text">{overviewErrors.startDate}</p>
-                    {' '}
-                    -{' '}
+                    <p className="error-text">{overviewErrors.startDate}</p> -{" "}
                     <input
                       type="date"
                       value={formatDateForInput(editedProject.endDate)}
                       onChange={(e) => {
-                        const enddate = e.target.value ? formatDateToDisplay(e.target.value) : null;
+                        const enddate = e.target.value
+                          ? formatDateToDisplay(e.target.value)
+                          : null;
                         setEditedProject({
                           ...editedProject,
                           endDate: enddate,
-                        })
+                        });
                       }}
                     />
                     <p className="error-text">{overviewErrors.endDate}</p>
                   </>
-
                 ) : (
-                  `${selectedProjectl.startDate} - ${selectedProjectl.endDate ?? "Ongoing"}`
+                  `${selectedProjectl.startDate} - ${
+                    selectedProjectl.endDate ?? "Ongoing"
+                  }`
                 )}
               </div>
             </div>
 
             <div className="project-detail-row">
-              <div className="project-label"><strong>Skill Tags:</strong></div>
+              <div className="project-label">
+                <strong>Skill Tags:</strong>
+              </div>
               <div className="project-value">
                 {isEditingOverview ? (
                   <div>
@@ -498,29 +541,35 @@ const Projects = () => {
                       rows={2}
                       value={editedProject.skillTags}
                       onChange={(e) =>
-                        setEditedProject({ ...editedProject, skillTags: e.target.value })
+                        setEditedProject({
+                          ...editedProject,
+                          skillTags: e.target.value,
+                        })
                       }
                     />
                     <p className="error-text">{overviewErrors.skillTags}</p>
                   </div>
                 ) : (
-                  <p>{selectedProjectl.skillTags?.join(', ') || ''}</p>
-
+                  <p>{selectedProjectl.skillTags?.join(", ") || ""}</p>
                 )}
               </div>
             </div>
 
             <div className="project-detail-row">
-              <div className="project-label"><strong>Client Name:</strong></div>
+              <div className="project-label">
+                <strong>Client Name:</strong>
+              </div>
               <div className="project-value">
                 {isEditingOverview ? (
                   <>
-
                     <textarea
                       rows={1}
                       value={editedProject.client}
                       onChange={(e) =>
-                        setEditedProject({ ...editedProject, client: e.target.value })
+                        setEditedProject({
+                          ...editedProject,
+                          client: e.target.value,
+                        })
                       }
                     />
                     <p className="error-text">{overviewErrors.client}</p>
@@ -531,29 +580,31 @@ const Projects = () => {
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
               <button
                 className="edit-btn"
                 onClick={async () => {
                   if (isEditingOverview) {
                     try {
-                      console.log("before val", editedProject)
+                      console.log("before val", editedProject);
                       const projectForValidation = {
                         title: editedProject.title,
                         description: editedProject.description,
                         startDate: editedProject.startDate,
                         endDate: editedProject.endDate,
                         client: editedProject.client,
-                        skillTags: editedProject.skillTags
+                        skillTags: editedProject.skillTags,
                       };
-                      await projectSchema.validate(projectForValidation, { abortEarly: false });
+                      await projectSchema.validate(projectForValidation, {
+                        abortEarly: false,
+                      });
                       // Validation passed
                       handleEdit(editedProject);
                       console.log("Edited project after:", editedProject);
                       setOverviewErrors({});
                       setIsEditingOverview(false);
                     } catch (err) {
-                      console.log("err", err)
+                      console.log("err", err);
                       const formattedErrors = {};
                       if (err.inner) {
                         err.inner.forEach((e) => {
@@ -570,7 +621,7 @@ const Projects = () => {
                   }
                 }}
               >
-                {isEditingOverview ? 'Save' : 'Edit Details'}
+                {isEditingOverview ? "Save" : "Edit Details"}
               </button>
             </div>
           </div>
@@ -594,9 +645,7 @@ const Projects = () => {
                 <div className="manager-actions">
                   <button
                     className="view-btn"
-                    onClick={() =>
-                      handleViewProfile(m)
-                    }
+                    onClick={() => handleViewProfile(m)}
                   >
                     View Profile
                   </button>
@@ -611,23 +660,39 @@ const Projects = () => {
             ))}
 
             {selectedUser && (
-              <div className="modal-backdrop" onClick={() => dispatch(clearSelectedUser())}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="modal-backdrop"
+                onClick={() => dispatch(clearSelectedUser())}
+              >
+                <div
+                  className="modal-content"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <h3>Employee Profile</h3>
                   <table className="profile-table">
                     <tbody>
                       {Object.entries(selectedUser)
-                        .filter(([key]) => !['_id', '__v', 'acknowledgments'].includes(key))
+                        .filter(
+                          ([key]) =>
+                            !["_id", "__v", "acknowledgments"].includes(key)
+                        )
                         .map(([key, value]) => (
                           <tr key={key}>
-                            <td className="profile-label">{formatLabel(key)}</td>
-                            <td className="profile-value">{formatValue(key, value)}</td>
+                            <td className="profile-label">
+                              {formatLabel(key)}
+                            </td>
+                            <td className="profile-value">
+                              {formatValue(key, value)}
+                            </td>
                           </tr>
                         ))}
                     </tbody>
                   </table>
                   <div className="action-buttons">
-                    <button className="close-btn" onClick={() => dispatch(clearSelectedUser())}>
+                    <button
+                      className="close-btn"
+                      onClick={() => dispatch(clearSelectedUser())}
+                    >
                       Close
                     </button>
                   </div>
@@ -687,9 +752,7 @@ const Projects = () => {
                     <td>
                       <button
                         className="view-btn"
-                        onClick={() =>
-                          handleViewProfile(e)
-                        }
+                        onClick={() => handleViewProfile(e)}
                       >
                         View Profile
                       </button>
@@ -706,23 +769,39 @@ const Projects = () => {
             </table>
 
             {selectedUser && (
-              <div className="modal-backdrop" onClick={() => dispatch(clearSelectedUser())}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="modal-backdrop"
+                onClick={() => dispatch(clearSelectedUser())}
+              >
+                <div
+                  className="modal-content"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <h3>Employee Profile</h3>
                   <table className="profile-table">
                     <tbody>
                       {Object.entries(selectedUser)
-                        .filter(([key]) => !['_id', '__v', 'acknowledgments'].includes(key))
+                        .filter(
+                          ([key]) =>
+                            !["_id", "__v", "acknowledgments"].includes(key)
+                        )
                         .map(([key, value]) => (
                           <tr key={key}>
-                            <td className="profile-label">{formatLabel(key)}</td>
-                            <td className="profile-value">{formatValue(key, value)}</td>
+                            <td className="profile-label">
+                              {formatLabel(key)}
+                            </td>
+                            <td className="profile-value">
+                              {formatValue(key, value)}
+                            </td>
                           </tr>
                         ))}
                     </tbody>
                   </table>
                   <div className="action-buttons">
-                    <button className="close-btn" onClick={() => dispatch(clearSelectedUser())}>
+                    <button
+                      className="close-btn"
+                      onClick={() => dispatch(clearSelectedUser())}
+                    >
                       Close
                     </button>
                   </div>
@@ -749,7 +828,7 @@ const Projects = () => {
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
                 disabled="true"
-              // onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
+                // onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
               />
               <button className="edit-btn" onClick={handleAddEmployee}>
                 Add Employee
@@ -786,7 +865,10 @@ const Projects = () => {
     <div>
       <NavigationBar isLoggedIn="true" />
       <div className="admin-dashboard">
-        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
         {/* <button
           className="toggle-sidebar-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -856,14 +938,22 @@ const Projects = () => {
               {/* Conditional rendering for the create project modal */}
 
               {showCreateProjectModal && (
-                <div className="modal-backdrop" onClick={() => setShowCreateProjectModal(false)}>
-                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="modal-backdrop"
+                  onClick={() => setShowCreateProjectModal(false)}
+                >
+                  <div
+                    className="modal-content"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <h3 className="show-label-h3">Create a Project</h3>
                     {/* <form onSubmit={handleSubmit(handleSaveNewProject)}> */}
-                    <form onSubmit={handleSubmit(handleSaveNewProject, (err) => console.log(" Validation failed", err))}>
+                    <form
+                      onSubmit={handleSubmit(handleSaveNewProject, (err) =>
+                        console.log(" Validation failed", err)
+                      )}
+                    >
                       <div className="add-project-form">
-
-
                         <label>Project Name *</label>
                         <div>
                           <input {...register("title")} />
@@ -872,8 +962,14 @@ const Projects = () => {
 
                         <label>Description *</label>
                         <div>
-                          <textarea rows={3} cols={50} {...register("description")} />
-                          <p className="error-text">{errors.description?.message}</p>
+                          <textarea
+                            rows={3}
+                            cols={50}
+                            {...register("description")}
+                          />
+                          <p className="error-text">
+                            {errors.description?.message}
+                          </p>
                         </div>
 
                         {/* 
@@ -889,23 +985,29 @@ const Projects = () => {
                             {...register("manager", {
                               required: "Manager is required",
                               setValueAs: (val) => {
-                                const e = formattedManagerList.find(x => (x._id ?? x.id) === val);
-                                return e ? { managerId: e._id ?? e.id, name: e.label } : null;
+                                const e = formattedManagerList.find(
+                                  (x) => (x._id ?? x.id) === val
+                                );
+                                return e
+                                  ? { managerId: e._id ?? e.id, name: e.label }
+                                  : null;
                               },
                             })}
                             defaultValue=""
                           >
-                            <option value="" disabled>Select a manager…</option>
+                            <option value="" disabled>
+                              Select a manager…
+                            </option>
                             {formattedManagerList.map((e) => (
                               <option key={e.id} value={e.id}>
                                 {e.label}
                               </option>
                             ))}
                           </select>
-                          <p className="error-text">{errors.manager?.message}</p>
+                          <p className="error-text">
+                            {errors.manager?.message}
+                          </p>
                         </div>
-
-
 
                         <label>Start Date *</label>
                         <div>
@@ -926,7 +1028,9 @@ const Projects = () => {
                         <label>Skill Tags *</label>
                         <div>
                           <input {...register("skillTags")} />
-                          <p className="error-text">{errors.skillTags?.message}</p>
+                          <p className="error-text">
+                            {errors.skillTags?.message}
+                          </p>
                         </div>
 
                         <label>Client Name *</label>
@@ -936,13 +1040,20 @@ const Projects = () => {
                         </div>
 
                         <div className="action-buttons">
-                          <button className="view-btn" type="submit" onClick={() => console.log("submit clicked")}>
+                          <button
+                            className="view-btn"
+                            type="submit"
+                            onClick={() => console.log("submit clicked")}
+                          >
                             Submit
                           </button>
                           <button
                             className="close-btn"
                             type="button"
-                            onClick={() => { reset(); setShowCreateProjectModal(false); }}
+                            onClick={() => {
+                              reset();
+                              setShowCreateProjectModal(false);
+                            }}
                           >
                             Cancel
                           </button>
@@ -953,6 +1064,15 @@ const Projects = () => {
                 </div>
               )}
 
+              {/* Search Input */}
+              <div className="projects-search-bar">
+                <input
+                  type="text"
+                  placeholder="Search by project name or manager name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
               <table className="applicant-table">
                 <thead>
                   <tr>
@@ -965,58 +1085,77 @@ const Projects = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentProjects.map((project, index) => (
-                    <tr key={index}>
-                      <td>
-                        {index + 1}. {project.title}
-                      </td>
-                      <td>{project.managers[0] ? project.managers[0].name : "None"}</td>
-                      <td>{project.startDate}</td>
-                      <td>{project.endDate ? project.endDate : "Ongoing"}</td>
-                      <td>{project.status}</td>
-                      <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => {
-                            handleEachProject(project._id)
-                            // setSelectedProject(project);
-                            setActiveTab("Overview");
-                          }}
-                        >
-                          View Project
-                        </button>
+                  {Array.isArray(currentProjects) &&
+                  currentProjects.length > 0 ? (
+                    currentProjects.map((project, index) => (
+                      <tr key={index}>
+                        <td>
+                          {index + 1}. {project.title}
+                        </td>
+                        <td>
+                          {project.managers && project.managers[0]
+                            ? project.managers[0].name
+                            : "None"}
+                        </td>
+                        <td>{project.startDate}</td>
+                        <td>{project.endDate ? project.endDate : "Ongoing"}</td>
+                        <td>{project.status}</td>
+                        <td>
+                          <button
+                            className="view-btn"
+                            onClick={() => {
+                              handleEachProject(project._id);
+                              // setSelectedProject(project);
+                              setActiveTab("Overview");
+                            }}
+                          >
+                            View Project
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: "center" }}>
+                        No projects found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               <div className="pagination-controls">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="page-btn"
-            >
-              Prev
-            </button>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="page-btn"
+                >
+                  Prev
+                </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    className={`page-btn ${
+                      currentPage === i + 1 ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
 
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="page-btn"
-            >
-              Next
-            </button>
-          </div>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="page-btn"
+                >
+                  Next
+                </button>
+              </div>
             </>
           ) : (
             <>
@@ -1025,11 +1164,7 @@ const Projects = () => {
               {renderDetail()}
             </>
           )}
-
-          
         </main>
-        
-
       </div>
     </div>
   );
