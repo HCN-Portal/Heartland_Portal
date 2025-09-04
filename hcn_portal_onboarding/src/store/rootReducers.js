@@ -6,8 +6,8 @@ import projectReducer from "./reducers/projectReducer"
 const rootReducers = {
     application: appReducer,
     auth: authReducer,
-    user: userReducer,
-    project: projectReducer
+    users: userReducer,
+    projects: projectReducer
 }
 
 export default rootReducers
