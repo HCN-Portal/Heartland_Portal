@@ -63,7 +63,7 @@ const EmployeeProfile = () => {
 
   // Get user data from Redux store
   const authState = useSelector(state => state.auth);
-  const { selectedUser, loading, error } = useSelector(state => state.user);
+  const { selectedUser, loading, error } = useSelector(state => state.users);
   const [profile, setProfile] = useState({});
 
   useEffect(() => {

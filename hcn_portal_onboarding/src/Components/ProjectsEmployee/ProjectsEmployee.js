@@ -16,9 +16,9 @@ const ProjectsEmployee = () => {
     const [projectView, setProjectView] = useState("My Projects");
     const [myProjects, setMyProjects] = useState([]);
 
-    const { selectedUser } = useSelector(state => state.user);
-    const { projects } = useSelector(state => state.project);
-    const { managers: managersList } = useSelector(state => state.user); // Rename to managersList for clarity
+    const { selectedUser } = useSelector(state => state.users);
+    const { projects } = useSelector(state => state.projects);
+    const { managers: managersList } = useSelector(state => state.users); // Rename to managersList for clarity
     const authState = useSelector(state => state.auth);
 
     useEffect(() => {
