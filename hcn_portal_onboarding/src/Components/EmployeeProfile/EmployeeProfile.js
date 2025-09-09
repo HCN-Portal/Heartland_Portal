@@ -1,36 +1,14 @@
-import React, { useState } from "react";
-import "./EmployeeProfile.css";
-import NavigationBar from "../UI/NavigationBar/NavigationBar";
-import Sidebar from "../Sidebar/Sidebar";
-import Employee_Icon from "../../Images/Employee_Icon.png";
-
-const initialProfile = {
-  name: "Likhitha A.",
-  role: "Frontend Developer",
-  project: "HCN Portal",
-  email: "likhitha@example.com",
-  phone: "+1 123-456-7890",
-  dob: "1998-06-10",
-  address: "123 Main St, Apt 2B, Los Angeles, CA",
-  skills: ["React", "JavaScript", "CSS"],
-  education: "MS in Computer Science, CSU Northridge",
-  citizenshipStatus: "Citizen",
-  workAuthType: "H1B",
-  eadStartDate: "2025-01-01",
-  fieldOfStudy: "Computer Science",
-  university: "CSU Northridge",
-  gradYear: "2024",
-  experience: "2 years",
-  previousEmployer: "ABC Corp",
-  previousPosition: "Frontend Developer",
-  whyJoin: "To contribute to local businesses...",
-  roleInterest: "Developer",
-};
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import './EmployeeProfile.css';
+import NavigationBar from '../UI/NavigationBar/NavigationBar';
+import Sidebar from '../Sidebar/Sidebar';
+import Employee_Icon from '../../Images/Employee_Icon.png';
+import { get_user_by_id, update_profile } from '../../store/reducers/userReducer';
 
 const EmployeeProfile = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [profile, setProfile] = useState(initialProfile);
   const [photo, setPhoto] = useState(Employee_Icon);
   const [validationErrors, setValidationErrors] = useState({});
   const [skillInput, setSkillInput] = useState("");
@@ -55,32 +33,73 @@ const EmployeeProfile = () => {
   };
   const validateProfile = () => {
     const errors = {};
-    if (!profile.name.trim()) errors.name = "Name is required.";
-    if (!profile.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/))
+    if (!profile?.name?.trim()) errors.name = "Name is required.";
+    if (profile?.email && !profile.email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/))
       errors.email = "Invalid email.";
-    if (!profile.phone.match(/^\d{10}$/))
+    if (profile?.phone && !profile.phone.match(/^\d{10}$/))
       errors.phone = "Phone number must be exactly 10 digits.";
-    if (!profile.dob.match(/^\d{4}-\d{2}-\d{2}$/))
+    if (profile?.dob && !profile.dob.match(/^\d{4}-\d{2}-\d{2}$/))
       errors.dob = "Date format: YYYY-MM-DD";
-    if (!profile.address.trim()) errors.address = "Address is required.";
-    if (!profile.citizenshipStatus.trim())
+    if (!profile?.address?.trim()) errors.address = "Address is required.";
+    if (!profile?.citizenshipStatus?.trim())
       errors.citizenshipStatus = "Required.";
-    if (!profile.workAuthType.trim()) errors.workAuthType = "Required.";
-    if (!profile.eadStartDate.match(/^\d{4}-\d{2}-\d{2}$/))
+    if (!profile?.workAuthType?.trim()) errors.workAuthType = "Required.";
+    if (profile?.eadStartDate && !profile.eadStartDate.match(/^\d{4}-\d{2}-\d{2}$/))
       errors.eadStartDate = "Date format: YYYY-MM-DD";
-    if (!profile.fieldOfStudy.trim()) errors.fieldOfStudy = "Required.";
-    if (!profile.university.trim()) errors.university = "Required.";
-    if (!profile.gradYear.match(/^\d{4}$/))
+    if (!profile?.fieldOfStudy?.trim()) errors.fieldOfStudy = "Required.";
+    if (!profile?.university?.trim()) errors.university = "Required.";
+    if (profile?.gradYear && !profile.gradYear.match(/^\d{4}$/))
       errors.gradYear = "Year format: YYYY";
-    if (!profile.experience.trim()) errors.experience = "Required.";
-    if (!profile.skills.length)
+    if (!profile?.experience?.trim()) errors.experience = "Required.";
+    if (!profile?.skills?.length)
       errors.skills = "At least one skill is required.";
-    if (!profile.previousEmployer.trim()) errors.previousEmployer = "Required.";
-    if (!profile.previousPosition.trim()) errors.previousPosition = "Required.";
-    if (!profile.whyJoin.trim()) errors.whyJoin = "Required.";
-    if (!profile.roleInterest.trim()) errors.roleInterest = "Required.";
+    if (!profile?.previousEmployer?.trim()) errors.previousEmployer = "Required.";
+    if (!profile?.previousPosition?.trim()) errors.previousPosition = "Required.";
+    if (!profile?.whyJoin?.trim()) errors.whyJoin = "Required.";
+    if (!profile?.roleInterest?.trim()) errors.roleInterest = "Required.";
     return errors;
   };
+  const dispatch = useDispatch();
+
+  // Get user data from Redux store
+  const authState = useSelector(state => state.auth);
+  const { selectedUser, loading, error } = useSelector(state => state.users);
+  const [profile, setProfile] = useState({});
+
+  useEffect(() => {
+    // Get user info from Redux or localStorage
+    const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
+
+    if (userInfo?.userId) {
+      dispatch(get_user_by_id(userInfo.userId));
+    }
+  }, [dispatch, authState.userInfo]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      setProfile({
+        firstName: selectedUser.firstName || '',
+        lastName: selectedUser.lastName || '',
+        preferredName: selectedUser.preferredName || '',
+        email: selectedUser.email || '',
+        phoneNumber: selectedUser.phoneNumber || '',
+        address1: selectedUser.address1 || '',
+        address2: selectedUser.address2 || '',
+        citizenshipStatus: selectedUser.citizenshipStatus || '',
+        workAuthorizationType: selectedUser.workAuthorizationType || '',
+        eadStartDate: selectedUser.eadStartDate ? new Date(selectedUser.eadStartDate).toISOString().split('T')[0] : '',
+        highestDegreeEarned: selectedUser.highestDegreeEarned || '',
+        fieldOfStudy: selectedUser.fieldOfStudy || '',
+        universityName: selectedUser.universityName || '',
+        graduationYear: selectedUser.graduationYear || '',
+        totalYearsExperience: selectedUser.totalYearsExperience || '',
+        relevantSkills: selectedUser.relevantSkills || [],
+        previousEmployer: selectedUser.previousEmployer || '',
+        previousPosition: selectedUser.previousPosition || '',
+        projectsAssigned: selectedUser.projectsAssigned || []
+      });
+    }
+  }, [selectedUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,14 +117,121 @@ const EmployeeProfile = () => {
     }
   };
 
-  const handleSave = () => {
-    if (editMode) {
-      const errors = validateProfile();
-      setValidationErrors(errors);
-      if (Object.keys(errors).length === 0) {
-        alert("Profile saved successfully!");
-        setEditMode(false);
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^\+?1?\s*\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // const validateProfile = (data) => {
+  //   const errors = [];
+  //
+  //   // Required field validation
+  //   const requiredFields = {
+  //     'Phone Number': data.phoneNumber,
+  //     'Address': data.address1,
+  //     'Citizenship Status': data.citizenshipStatus,
+  //     'Work Authorization Type': data.workAuthorizationType,
+  //     'Highest Degree': data.highestDegreeEarned,
+  //     'Field of Study': data.fieldOfStudy,
+  //     'University': data.universityName,
+  //     'Graduation Year': data.graduationYear,
+  //     'Total Years of Experience': data.totalYearsExperience,
+  //     'Previous Employer': data.previousEmployer,
+  //     'Previous Position': data.previousPosition
+  //   };
+  //
+  //   Object.entries(requiredFields).forEach(([field, value]) => {
+  //     if (!value || value.trim() === '') {
+  //       errors.push(`${field} is required`);
+  //     }
+  //   });
+  //
+  //   // Phone number format validation
+  //   if (data.phoneNumber && !validatePhoneNumber(data.phoneNumber)) {
+  //     errors.push('Invalid phone number format. Please use format: +1 (123) 456-7890');
+  //   }
+  //
+  //   // Email format validation
+  //   if (data.email && !validateEmail(data.email)) {
+  //     errors.push('Invalid email format');
+  //   }
+  //
+  //   // Graduation year validation
+  //   const currentYear = new Date().getFullYear();
+  //   const gradYear = parseInt(data.graduationYear);
+  //   if (isNaN(gradYear) || gradYear < 1950 || gradYear > currentYear + 10) {
+  //     errors.push('Invalid graduation year');
+  //   }
+  //
+  //   // Skills validation
+  //   if (!data.relevantSkills || (Array.isArray(data.relevantSkills) && data.relevantSkills.length === 0)) {
+  //     errors.push('At least one skill is required');
+  //   }
+  //
+  //   // Experience validation
+  //   if (data.totalYearsExperience) {
+  //     const years = parseFloat(data.totalYearsExperience);
+  //     if (isNaN(years) || years < 0) {
+  //       errors.push('Experience years must be a positive number');
+  //     }
+  //   }
+  //
+  //   // EAD date validation if provided
+  //   if (data.eadStartDate) {
+  //     const eadDate = new Date(data.eadStartDate);
+  //     if (isNaN(eadDate.getTime())) {
+  //       errors.push('Invalid EAD start date');
+  //     }
+  //   }
+  //
+  //   return errors;
+  // };
+
+  const handleSave = async () => {
+    try {
+      const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
+      if (!userInfo?.userId) {
+        throw new Error('User ID not found');
       }
+
+      // Prepare the update data
+      const updateData = {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        preferredName: profile.preferredName,
+        phoneNumber: profile.phoneNumber,
+        address1: profile.address1,
+        address2: profile.address2,
+        citizenshipStatus: profile.citizenshipStatus,
+        workAuthorizationType: profile.workAuthorizationType,
+        eadStartDate: profile.eadStartDate,
+        highestDegreeEarned: profile.highestDegreeEarned,
+        fieldOfStudy: profile.fieldOfStudy,
+        universityName: profile.universityName,
+        graduationYear: profile.graduationYear,
+        totalYearsExperience: profile.totalYearsExperience,
+        relevantSkills: Array.isArray(profile.relevantSkills) ? profile.relevantSkills : profile.relevantSkills.split(',').map(skill => skill.trim()),
+        previousEmployer: profile.previousEmployer,
+        previousPosition: profile.previousPosition
+      };
+
+      // Validate the data
+      const validationErrors = validateProfile(updateData);
+      if (validationErrors.length > 0) {
+        throw new Error('Validation errors:\n' + validationErrors.join('\n'));
+      }
+
+      await dispatch(update_profile({ userId: userInfo.userId, profileData: updateData })).unwrap();
+      setEditMode(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert(error.message || 'Failed to update profile. Please try again.');
     }
   };
 
@@ -292,6 +418,14 @@ const EmployeeProfile = () => {
     );
   };
 
+  if (loading) {
+    return <div>Loading profile...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading profile: {error}</div>;
+  }
+
   return (
     <div>
       <NavigationBar isLoggedIn={true} />
@@ -302,7 +436,7 @@ const EmployeeProfile = () => {
         />
         <main className="dashboard-main">
           <div className="employee-header">
-            <h1>Employee Dashboard - "{profile.name}" Profile</h1>
+            <h1>Employee Profile</h1>
             <button className="edit-btn" onClick={() => setEditMode(!editMode)}>
               {editMode ? "Cancel" : "Edit"}
             </button>
@@ -328,43 +462,39 @@ const EmployeeProfile = () => {
                   onChange={handlePhotoChange}
                 />
               </div>
-              <h2>{profile.name}</h2>
-              <p>
-                <strong>Role:</strong> {profile.role}
-              </p>
-              <p>
-                <strong>Project:</strong> {profile.project}
-              </p>
-              <p>
-                <strong>Email:</strong> {profile.email}
-              </p>
+              <h2>{`${profile.firstName} ${profile.lastName}`}</h2>
+              {profile.preferredName && <p><em>Preferred Name: {profile.preferredName}</em></p>}
+              <p><strong>Employee ID:</strong> {selectedUser?.employeeId}</p>
+              {/*<p><strong>Role:</strong> {selectedUser?.role}</p>*/}
+              <p><strong>Email:</strong> {profile.email}</p>
             </div>
 
             <div className="profile-details">
               <h3>Personal Information</h3>
-              {renderField("Phone", "phone")}
-              {renderField("Date of Birth", "dob")}
-              {renderField("Address", "address")}
+              {renderField("Phone Number", "phoneNumber")}
+              {renderField("Address Line 1", "address1")}
+              {/*{renderField("Address Line 2", "address2")}*/}
 
               <h3>Immigration / Work Authorization</h3>
               {renderField("Citizenship Status", "citizenshipStatus")}
-              {renderField("Work Auth Type", "workAuthType")}
-              {renderField("EAD Start Date", "eadStartDate")}
+              {renderField("Work Authorization Type", "workAuthorizationType")}
+              {renderField("EAD Start Date", "eadStartDate", false, "date")}
 
               <h3>Education</h3>
+              {renderField("Highest Degree Earned", "highestDegreeEarned")}
               {renderField("Field of Study", "fieldOfStudy")}
-              {renderField("University", "university")}
-              {renderField("Graduation Year", "gradYear")}
+              {renderField("University", "universityName")}
+              {renderField("Graduation Year", "graduationYear")}
 
               <h3>Professional Experience</h3>
-              {renderField("Experience", "experience")}
-              {renderField("Skills", "skills", true)}
+              {renderField("Total Years of Experience", "totalYearsExperience")}
+              {renderField("Skills", "relevantSkills", true)}
               {renderField("Previous Employer", "previousEmployer")}
               {renderField("Previous Position", "previousPosition")}
 
-              <h3>HR Questions</h3>
-              {renderField("Why Join", "whyJoin", true)}
-              {renderField("Role Interest", "roleInterest")}
+              {/*<h3>HR Questions</h3>*/}
+              {/*{renderField("Why Join", "whyJoin", true)}*/}
+              {/*{renderField("Role Interest", "roleInterest")}*/}
 
               {editMode && (
                 <button className="save-btn" onClick={handleSave}>

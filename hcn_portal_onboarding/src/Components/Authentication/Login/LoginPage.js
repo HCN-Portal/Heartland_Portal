@@ -87,6 +87,15 @@ const LoginPage = () => {
 
       <div className="login-wrapper">
         <div className="login-card">
+          <div className="close-button-container">
+            <button 
+              type="button" 
+              className="close-button"
+              onClick={() => navigate("/")}
+            >
+              ✕
+            </button>
+          </div>
           <img src={hcn_logo} alt="HCN Logo" className="login-logo" />
           <h2>Welcome! Please enter your details.</h2>
 

@@ -3,9 +3,6 @@
   height: 100vh;
   font-family: 'Segoe UI', sans-serif;
   overflow: hidden; /* Prevent the global scrollbars */
-   margin-top: 80px;    /* same as header height */
-  margin-left: 240px;  /* if using fixed sidebar */
-  padding: 16px;
 }
 
 /* Sidebar */

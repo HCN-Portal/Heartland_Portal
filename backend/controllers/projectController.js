@@ -331,10 +331,6 @@ exports.removeEmployeeFromProject = async (req, res) => {
             );
 
 
-       
-       
-
-
         res.status(200).json({ 
             message: 'Employee removed from project successfully', 
             teamMembers: updatedProject.teamMembers 
