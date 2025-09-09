@@ -43,11 +43,14 @@ exports.createApplication = async (req, res) => {
 exports.getDashboardStats = async (req, res) => {
   try {
     const totalPending = await Application.countDocuments({ status: 'pending' });
-    const totalApproved = await Application.countDocuments({ status: 'Approved' });
+const totalEmployees = await User.countDocuments({ role: 'employee' });
+const totalManagers = await User.countDocuments({ role: 'manager' });
+
+    const totalUsers = totalEmployees + totalManagers;
     const ongoingProjects = await Project.countDocuments({status : 'Active'})
     return res.status(200).json({
       pendingApplications: totalPending,
-      activeEmployees: totalApproved,
+      activeEmployees: totalUsers,
       ongoingProjects: ongoingProjects,
     });
   } catch (error) {

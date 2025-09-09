@@ -4,6 +4,7 @@ import NavigationBar from '../UI/NavigationBar/NavigationBar'
 import { get_dashboard_stats } from '../../store/reducers/appReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import Sidebar from '../Sidebar/Sidebar';
+import '../Sidebar/Sidebar.css'
 
 
 

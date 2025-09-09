@@ -1,14 +1,16 @@
 /* Sidebar Styles */
 .sidebar {
   background-color: #5C98B8;
-  /* position: fixed; */
+  position: fixed;
   width: 250px;
-  min-height: 100vh;
-  padding: 20px;
+  left:0;
+  /* min-height: 100vh; */
+  padding-right: 20px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: all 0.3s ease;
   color: white;
+  /* margin-top:81px; */
 }
 
 .sidebar.collapsed {

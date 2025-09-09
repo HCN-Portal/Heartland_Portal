@@ -1,0 +1,188 @@
+/* ---------- Base & tokens ---------- */
+:root {
+  --ms-radius: 8px;
+  --ms-chip-radius: 999px;
+  --ms-h: 44px;
+  --ms-gap: 6px;
+
+  --ms-bg: #fff;
+  --ms-surface: #fff;
+  --ms-border: #d0d7de;
+  --ms-border-hover: #b6c0c8;
+  --ms-text: #1f2328;
+  --ms-muted: #8a8f98;
+  --ms-placeholder: #8a8f98;
+  --ms-accent: #5C98B8; /* your brand */
+  --ms-focus-ring: rgba(92,152,184,0.25);
+
+  --ms-chip-bg: #eef6fb;
+  --ms-chip-border: #cfe3ef;
+
+  --ms-popover-shadow: 0 10px 30px rgba(0,0,0,.12);
+  --ms-item-hover: #f6f8fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ms-bg: #0f1115;
+    --ms-surface: #151822;
+    --ms-border: #2a3140;
+    --ms-border-hover: #394155;
+    --ms-text: #e6edf3;
+    --ms-muted: #9aa4b2;
+    --ms-placeholder: #9aa4b2;
+    --ms-focus-ring: rgba(92,152,184,0.35);
+
+    --ms-chip-bg: #1a2230;
+    --ms-chip-border: #2b3a4d;
+
+    --ms-item-hover: #1b2330;
+    --ms-popover-shadow: 0 12px 36px rgba(0,0,0,.45);
+  }
+}
+
+/* Optional: consistent box sizing */
+.ms-wrap, .ms-wrap * { box-sizing: border-box; }
+
+/* ---------- Wrapper & label ---------- */
+.ms-wrap { position: relative; max-width: 640px; font: inherit; color: var(--ms-text); }
+.ms-label { display:block; margin:0 0 6px; font-weight:600; }
+
+/* ---------- Input (chip field) ---------- */
+.ms-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--ms-h);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius);
+  padding: 6px 10px;
+  background: var(--ms-surface);
+  color: var(--ms-text);
+  cursor: text;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.ms-input:hover { border-color: var(--ms-border-hover); }
+.ms-input.ms-open,
+.ms-input:focus-within {
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 0 3px var(--ms-focus-ring);
+}
+
+/* Tag chips inside the input */
+.ms-tags { display: flex; flex-wrap: wrap; gap: var(--ms-gap); flex: 1; min-width: 0; }
+.ms-placeholder { color: var(--ms-placeholder); user-select: none; }
+
+.ms-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--ms-chip-bg);
+  border: 1px solid var(--ms-chip-border);
+  border-radius: var(--ms-chip-radius);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.ms-tag .ms-x {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ms-muted);
+  padding: 0;
+}
+.ms-tag .ms-x:hover { color: var(--ms-text); }
+
+.ms-caret { margin-left: 8px; user-select: none; font-size: 12px; color: var(--ms-muted); }
+
+/* ---------- Popover (dropdown) ---------- */
+.ms-popover {
+  position: absolute;
+  left: 0; right: 0;
+  margin-top: 6px;
+  background: var(--ms-bg);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius);
+  box-shadow: var(--ms-popover-shadow);
+  z-index: 2000; /* keep above other UI */
+  max-height: 320px;
+  overflow: hidden;
+  contain: style layout paint;
+}
+
+/* Search bar inside popover */
+.ms-search { padding: 8px; border-bottom: 1px solid var(--ms-border); background: var(--ms-surface); }
+.ms-search input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: var(--ms-bg);
+  color: var(--ms-text);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ms-search input:focus {
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 0 3px var(--ms-focus-ring);
+}
+
+/* Options list */
+.ms-list { max-height: 200px; overflow: auto; padding: 4px 6px; color: var(--ms-text); }
+
+.ms-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  /* gap: 8px; */
+  /* padding: 6px 8px; */
+  width: 50% !important;
+  margin: 0;
+  text-align: left !important;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.ms-item:hover { background: var(--ms-item-hover); }
+
+/* Checkbox */
+.ms-item input[type="checkbox"] {
+  flex: 0 0 auto;
+  margin: 0;
+  transform: translateY(0);
+}
+
+/* Text label (make sure global label rules don't hide it) */
+.ms-item label {
+  flex: 1 1 auto;
+  display: block;
+  margin: 0 ;
+  width: auto ;
+  text-align: left ;
+  justify-content: flex-start;
+  color: inherit ;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Checked styling */
+.ms-item input[type="checkbox"]:checked + label { font-weight: 600; }
+
+/* Empty state */
+.ms-empty { padding: 12px; color: var(--ms-muted); }
+/* The trigger stays in the grid; the popover is absolutely positioned */
+.ms-wrap { position: relative; }
+.ms-popover { position: absolute; left: 0; right: 0; margin-top: 6px; z-index: 2000; }
+
+
+/* ---------- Small screens ---------- */
+@media (max-width: 480px) {
+  .ms-wrap { max-width: 100%; }
+  .ms-input { min-height: 40px; padding: 6px 8px; }
+  .ms-tag { font-size: 11px; }
+}

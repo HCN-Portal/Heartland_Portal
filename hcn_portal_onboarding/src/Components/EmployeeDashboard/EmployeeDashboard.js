@@ -10,8 +10,9 @@ const EmployeeDashboard = () => {
   return (
     <div>
       <NavigationBar isLoggedIn={true} />
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <div className="employee-dashboard">
-        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        
         <main className="dashboard-main">
           <div className="employee-header">
             <h1>Employee Dashboard - "Employee Name"</h1>

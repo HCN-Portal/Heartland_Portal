@@ -415,7 +415,7 @@
   align-items: center;
 }
 
-.add-project-form label {
+.add-project-form .field-label {
   text-align: right;
   font-weight: bold;
   color: #333;

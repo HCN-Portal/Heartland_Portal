@@ -687,7 +687,8 @@ exports.approveProjectApplication = async (req, res) => {
                 // Add user to team members
                 project.teamMembers.push({
                     employeeId: application.employeeId,
-                    name: `${user.firstName} ${user.lastName}`
+                    name: `${user.firstName} ${user.lastName}`,
+                    email : user.email
                 });
                 
                 await project.save();
@@ -708,7 +709,8 @@ exports.approveProjectApplication = async (req, res) => {
                 // Add user to managers
                 project.managers.push({
                     managerId: application.employeeId,
-                    name: `${user.firstName} ${user.lastName}`
+                    name: `${user.firstName} ${user.lastName}`,
+                    email : user.email
                 });
                 
                 await project.save();
