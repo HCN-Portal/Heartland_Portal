@@ -1,0 +1,1225 @@
+openapi: 3.0.0
+info:
+  title: Heartland Community Network API
+  description: API for the Heartland Community Network portal to manage applications, users, and projects
+  version: 1.0.0
+  contact:
+    email: admin@hcn.net
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://yourapp.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Application:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        preferredName:
+          type: string
+        phoneNumber:
+          type: string
+        address1:
+          type: string
+        address2:
+          type: string
+        citizenshipStatus:
+          type: string
+        workAuthorizationType:
+          type: string
+        eadStartDate:
+          type: string
+          format: date
+        highestDegreeEarned:
+          type: string
+        fieldOfStudy:
+          type: string
+        universityName:
+          type: string
+        graduationYear:
+          type: string
+        totalYearsExperience:
+          type: number
+        relevantSkills:
+          type: array
+          items:
+            type: string
+        previousEmployer:
+          type: string
+        previousPosition:
+          type: string
+        status:
+          type: string
+          enum: [pending, Approved, Rejected]
+          default: pending
+      required:
+        - firstName
+        - lastName
+        - email
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [employee, manager, admin]
+        projectsAssigned:
+          type: array
+          items:
+            type: string
+      required:
+        - email
+        - firstName
+        - lastName
+        - role
+
+    Project:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        client:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, completed, onhold]
+        managers:
+          type: array
+          items:
+            type: object
+            properties:
+              managerId:
+                type: string
+                format: uuid
+              name:
+                type: string
+        teamMembers:
+          type: array
+          items:
+            type: object
+            properties:
+              employeeId:
+                type: string
+                format: uuid
+              name:
+                type: string
+        skillTags:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - client
+        - status
+
+    ProjectApplication:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        employeeId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, approved, declined]
+          default: pending
+        requestDate:
+          type: string
+          format: date-time
+        responseDate:
+          type: string
+          format: date-time
+        role:
+          type: string
+          enum: [employee, manager]
+        requestDetails:
+          type: string
+        responseNotes:
+          type: string
+      required:
+        - employeeId
+        - projectId
+        - role
+        - requestDetails
+
+    LoginCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    StatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [Approved, Rejected]
+      required:
+        - status
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate a user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /applications:
+    post:
+      summary: Create a new application
+      tags:
+        - Applications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Application'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  savedApplication:
+                    $ref: '#/components/schemas/Application'
+        '409':
+          description: Application with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    get:
+      summary: Get all applications
+      tags:
+        - Applications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of all applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /applications/{id}:
+    get:
+      summary: Get an application by ID
+      tags:
+        - Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Application found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /applications/{id}/status:
+    put:
+      summary: Update application status
+      tags:
+        - Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
+      responses:
+        '200':
+          description: Application status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /dashboard/stats:
+    get:
+      summary: Get dashboard statistics
+      tags:
+        - Dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pendingApplications:
+                    type: number
+                  activeEmployees:
+                    type: number
+                  ongoingProjects:
+                    type: number
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects:
+    get:
+      summary: Get all project titles
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of all project titles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    title:
+                      type: string
+                    client:
+                      type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: Create a new project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}:
+    get:
+      summary: Get a project by ID
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid project ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid project ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid project ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}/employees:
+    post:
+      summary: Add employees to a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employees:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      employeeId:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+      responses:
+        '200':
+          description: Employees added to project successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  employees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        employeeId:
+                          type: string
+                        name:
+                          type: string
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}/managers:
+    post:
+      summary: Add managers to a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                managers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      managerId:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+      responses:
+        '200':
+          description: Managers added to project successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  managers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        managerId:
+                          type: string
+                        name:
+                          type: string
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{projectId}/employees/{employeeId}:
+    delete:
+      summary: Remove an employee from a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Employee removed from project successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  teamMembers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        employeeId:
+                          type: string
+                        name:
+                          type: string
+        '400':
+          description: Invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project or employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{projectId}/managers/{managerId}:
+    delete:
+      summary: Remove a manager from a project
+      tags:
+        - Projects
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: managerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Manager removed from project successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  managers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        managerId:
+                          type: string
+                        name:
+                          type: string
+        '400':
+          description: Invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project or manager not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/applications:
+    get:
+      summary: Get all project applications
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of all project applications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: number
+                  requests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectApplication'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}/applications:
+    get:
+      summary: Get all applications for a specific project
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of applications for the project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  count:
+                    type: number
+                  requests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectApplication'
+        '400':
+          description: Invalid project ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No requests found for this project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}/apply-manager:
+    post:
+      summary: Apply to manage a project
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employeeId:
+                  type: string
+                  format: uuid
+                requestDetails:
+                  type: string
+      responses:
+        '201':
+          description: Application submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  request:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      projectId:
+                        type: string
+                      status:
+                        type: string
+                      requestDate:
+                        type: string
+                        format: date-time
+        '400':
+          description: Invalid request or already applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{id}/apply-employee:
+    post:
+      summary: Apply to join a project as an employee
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employeeId:
+                  type: string
+                  format: uuid
+                requestDetails:
+                  type: string
+      responses:
+        '201':
+          description: Application submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  request:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      projectId:
+                        type: string
+                      status:
+                        type: string
+                      requestDate:
+                        type: string
+                        format: date-time
+                      role:
+                        type: string
+        '400':
+          description: Invalid request or already applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{projectId}/applications/{applicationId}/approve:
+    post:
+      summary: Approve a project application
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responseNotes:
+                  type: string
+      responses:
+        '200':
+          description: Application approved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  application:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                      responseDate:
+                        type: string
+                        format: date-time
+                      role:
+                        type: string
+                  project:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      title:
+                        type: string
+                      teamMembers:
+                        type: array
+                        items:
+                          type: object
+                      managers:
+                        type: array
+                        items:
+                          type: object
+        '400':
+          description: Invalid request or application already processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project or application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects/{projectId}/applications/{applicationId}/decline:
+    post:
+      summary: Decline a project application
+      tags:
+        - Project Applications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responseNotes:
+                  type: string
+      responses:
+        '200':
+          description: Application declined successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  application:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+                      responseDate:
+                        type: string
+                        format: date-time
+                      role:
+                        type: string
+                      responseNotes:
+                        type: string
+        '400':
+          description: Invalid request or application already processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project or application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

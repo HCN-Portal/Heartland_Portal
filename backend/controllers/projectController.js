@@ -16,11 +16,11 @@ exports.createProject = async (req, res) => {
         const newProject = new Project({
             title,
             description,
-            managers,
             startDate,
             endDate,
             status,
-            teamMembers,
+            managers: managers || [],
+            teamMembers: teamMembers || [],
             skillTags,
             client
         });
@@ -32,6 +32,7 @@ exports.createProject = async (req, res) => {
     }
 }
 
+//Add manager name and status to be returned
 exports.getAllProjectTitles = async (req, res) => {
     try {
         // Fetch only the title and _id fields from all projects
@@ -152,10 +153,16 @@ exports.addEmployeesToProject = async (req, res) => {
             }
         }
 
+        // Add dateAdded to each employee before pushing
+        const employeesWithDate = employees.map(employee => ({
+            ...employee,
+            dateAdded: new Date()
+        }));
+
         // Find the project and update teamMembers
         const updatedProject = await Project.findByIdAndUpdate(
             projectId,
-            { $push: { teamMembers: { $each: employees } } },
+            { $push: { teamMembers: { $each: employeesWithDate } } },
             { new: true }
         );
 
@@ -223,10 +230,16 @@ exports.addManagersToProject = async (req, res) => {
             }
         }
 
+        // Add dateAdded to each manager before pushing
+        const managersWithDate = managers.map(manager => ({
+            ...manager,
+            dateAdded: new Date()
+        }));
+
         // Find the project and update managers
         const updatedProject = await Project.findByIdAndUpdate(
             projectId,
-            { $push: { managers: { $each: managers } } },
+            { $push: { managers: { $each: managersWithDate } } },
             { new: true }
         );
 
@@ -541,6 +554,38 @@ exports.getProjectApplicationsById = async (req, res) => {
     }
 }
 
+exports.getProjectApplicationsByUserId = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Validate if userId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID format' });
+        }
+
+        const requests = await ProjectApplication.find({ employeeId: userId })
+            .populate('employeeId', 'firstName lastName email role')
+            .populate('projectId', 'title client')
+            .sort({ requestDate: -1 }); // Sort by most recent first
+
+        if (requests.length === 0) {
+            return res.status(404).json({ message: 'No requests found for this user' });
+        }
+
+        res.status(200).json({
+            message: `Requests for user ${userId} retrieved successfully`,
+            count: requests.length,
+            requests: requests
+        });
+    } catch (error) {
+        console.error('Error fetching project requests by user ID:', error);
+        res.status(500).json({
+            message: 'Error fetching project requests by user ID',
+            error: error.message
+        });
+    }
+}
+
 exports.applyToJoinProject = async (req, res) => {
     try {
         const projectId = req.params.id;
@@ -676,18 +721,26 @@ exports.approveProjectApplication = async (req, res) => {
             
             // Check if employee is already in the team
             const isAlreadyMember = project.teamMembers.some(
-                member => member.employeeId.toString() === application.employeeId.toString()
+                member => member.employeeId.toString() === user._id.toString()
             );
             
             if (!isAlreadyMember) {
                 // Add user to team members
                 project.teamMembers.push({
-                    employeeId: application.employeeId,
+                    employeeId: user._id,
                     name: `${user.firstName} ${user.lastName}`,
-                    email : user.email
+                    email : user.email,
+                    dateAdded: new Date()
                 });
                 
+                // Also add the project to the user's projectsAssigned list
+                user.projectsAssigned.push({
+                    projectId: project._id,
+                    title: project.title
+                });
+
                 await project.save();
+                await user.save();
             }
         } else if (application.role === 'manager') {
             // Get user details
@@ -698,18 +751,26 @@ exports.approveProjectApplication = async (req, res) => {
             
             // Check if manager is already in the managers list
             const isAlreadyManager = project.managers.some(
-                manager => manager.managerId.toString() === application.employeeId.toString()
+                manager => manager.managerId.toString() === user._id.toString()
             );
             
             if (!isAlreadyManager) {
                 // Add user to managers
                 project.managers.push({
-                    managerId: application.employeeId,
+                    managerId: user._id,
                     name: `${user.firstName} ${user.lastName}`,
-                    email : user.email
+                    email : user.email,
+                    dateAdded: new Date()
+                });
+
+                // Also add the project to the user's projectsAssigned list
+                user.projectsAssigned.push({
+                    projectId: project._id,
+                    title: project.title
                 });
                 
                 await project.save();
+                await user.save();
             }
         }
 
@@ -801,3 +862,5 @@ exports.declineProjectApplication = async (req, res) => {
         });
     }
 };
+
+

@@ -142,7 +142,7 @@ exports.updateUserProfile = async (req, res) => {
             'phoneNumber',
             'address1',
             'address2',
-            'projectsAssigned',
+            'projectsAssigned',//needs to be only accessible to admin
             'eadStartDate',
             'citizenshipStatus',
             'workAuthorizationType',
@@ -295,4 +295,4 @@ exports.getAllEmployees = async (req, res) => {
         console.error('Error fetching employees:', error);
         res.status(500).json({ message: 'Error fetching employees', error: error.message });
     }
-}
+};
