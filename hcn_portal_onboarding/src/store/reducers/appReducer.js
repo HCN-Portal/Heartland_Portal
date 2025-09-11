@@ -103,7 +103,7 @@ export const appReducer = createSlice({
         })
         .addCase(get_dashboard_stats.fulfilled, (state, { payload }) => {
             state.pendingApplications = payload.pendingApplications;
-            // state.activeEmployees = payload.activeEmployees;
+            state.activeEmployees = payload.activeEmployees;
             state.ongoingProjects = payload.ongoingProjects;
         })
         .addCase(get_dashboard_stats.rejected, (state, { payload }) => {

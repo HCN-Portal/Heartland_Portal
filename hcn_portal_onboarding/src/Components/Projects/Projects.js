@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./Projects.css";
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import Select from "react-select";
@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Sidebar from "../Sidebar/Sidebar";
+import SkillsMultiSelect from '../SkillsMultiSelect.jsx'
 import { useSelector, useDispatch } from "react-redux";
 import {
   clearSelectedProject,
@@ -43,6 +44,13 @@ const Projects = () => {
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 
+const LANGUAGE_OPTIONS = [
+  "JavaScript","TypeScript","Python","Java","C#","C++","Go","Rust","PHP","Ruby",
+  "Kotlin","Swift","Scala","Dart","R","SQL","Tableau","Power BI", "Mongo DB", "React", "Angular", "Node","Express" , "Spring Boot"
+];
+
+
+
   // Form validation schema using Yup
   const projectSchema = yup.object().shape({
     title: yup.string().required("Project title is required"),
@@ -51,7 +59,8 @@ const Projects = () => {
     startDate: yup.string().required("Start date is required"),
     endDate: yup.string().nullable().notRequired(),
     // status: yup.string().required(),
-    skillTags: yup.string().required("Skill tags are required"),
+    // skillTags: yup.string().required("Skill tags are required"),
+     skillTags: yup.array().of(yup.string().trim()).min(1, "Pick at least one skill").required(),
     client: yup.string().required("Client name is required"),
   });
 
@@ -68,29 +77,24 @@ const Projects = () => {
     startDate: yup.string().required("Start date is required"),
     endDate: yup.string().nullable().notRequired(),
     status: yup.string().required(),
-    skillTags: yup.string().required("Skill tags are required"),
+    // skillTags: yup.string().required("Skill tags are required"),
+    skillTags: yup
+    .array()
+    .of(yup.string().trim())
+    .min(1, "Pick at least one skill")
+    .required("Skill tags are required"),
     client: yup.string().required("Client name is required"),
   });
 
-  const [newManager, setNewManager] = useState({ name: "", email: "" });
-  const [newEmployee, setNewEmployee] = useState({ name: "", position: "" });
-  const [employeeList, setEmployeeList] = useState([]);
-  const [managerList, setManagerList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+ 
 
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-  const [newProject, setNewProject] = useState({
-    name: "",
-    description: "",
-    manager: "Not Assigned",
-    start: "",
-    end: "N/A",
-    status: "Active",
-  });
+ 
 
   // React Hook Form setup with Yup validation
   const {
+     control,
     register,
     handleSubmit,
     formState: { errors },
@@ -209,6 +213,9 @@ const Projects = () => {
     }
   };
 
+
+
+
   const { users, selectedUser } = useSelector((state) => state.users);
   const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
 
@@ -218,13 +225,14 @@ const Projects = () => {
   // Handlers
 
   const formatDateForInput = (dateString) => {
+    console.log(dateString)
     if (!dateString) return "";
 
     if (dateString.includes("/")) {
       const [month, day, year] = dateString.split("/");
       return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     } else if (dateString.includes("-")) {
-      return dateString; // already in correct format
+      return dateString.split("T")[0]; // already in correct format
     }
 
     return "";
@@ -257,6 +265,7 @@ const Projects = () => {
     const newManager = {
       managerId: selectedMOption.id,
       name: selectedMOption.label,
+      email:selectedMOption.email
     };
 
     const requestBody = { managers: [newManager] };
@@ -301,12 +310,9 @@ const Projects = () => {
   // Called when form is submitted to create a new project
   const handleSaveNewProject = (data) => {
     const formattedStart = formatDateToDisplay(data.startDate);
-    const formattedEnd = data.endDate
-      ? formatDateToDisplay(data.endDate)
-      : null;
-    const managers = [];
-    managers.push(data.manager);
-    // Construct new project object and update state
+    const formattedEnd = data.endDate ? formatDateToDisplay(data.endDate) : null;
+    const managers = []
+    managers.push(data.manager)
     const projectToAdd = {
       title: data.title,
       description: data.description,
@@ -380,6 +386,7 @@ const Projects = () => {
     const newEmployees = {
       employeeId: selectedOption.id,
       name: selectedOption.label,
+      email: selectedOption.email
     };
     const requestBody = { employees: [newEmployees] };
 
@@ -523,9 +530,7 @@ const Projects = () => {
                     <p className="error-text">{overviewErrors.endDate}</p>
                   </>
                 ) : (
-                  `${selectedProjectl.startDate} - ${
-                    selectedProjectl.endDate ?? "Ongoing"
-                  }`
+                  `${selectedProjectl.startDate.split("T")[0]} - ${selectedProjectl.endDate.split("T")[0] ?? "Ongoing"}`
                 )}
               </div>
             </div>
@@ -537,16 +542,13 @@ const Projects = () => {
               <div className="project-value">
                 {isEditingOverview ? (
                   <div>
-                    <textarea
-                      rows={2}
-                      value={editedProject.skillTags}
-                      onChange={(e) =>
-                        setEditedProject({
-                          ...editedProject,
-                          skillTags: e.target.value,
-                        })
-                      }
-                    />
+                    <SkillsMultiSelect
+          options={LANGUAGE_OPTIONS}
+          value={editedProject.skillTags}      // already prefilled
+          onChange={(next) =>
+            setEditedProject({ ...editedProject, skillTags: next })
+          }
+        />
                     <p className="error-text">{overviewErrors.skillTags}</p>
                   </div>
                 ) : (
@@ -639,7 +641,7 @@ const Projects = () => {
                     <strong>Name:</strong> <span>{m.name}</span>
                   </div>
                   <div className="manager-field">
-                    <strong>Email Id:</strong> <span>{m.id}</span>
+                    <strong>Email Id:</strong> <span>{m.email}</span>
                   </div>
                 </div>
                 <div className="manager-actions">
@@ -736,7 +738,7 @@ const Projects = () => {
               <thead>
                 <tr>
                   <th>Employee Name</th>
-                  <th>Position</th>
+                  <th>Email</th>
                   <th>Date Assigned</th>
                   <th>Action</th>
                 </tr>
@@ -747,8 +749,8 @@ const Projects = () => {
                     <td>
                       {i + 1}. {e.name}
                     </td>
-                    <td>{e.name}</td>
-                    {/* <td>{e.date}</td> */}
+                    <td>{e.email}</td>
+                    <td>tbd</td>
                     <td>
                       <button
                         className="view-btn"
@@ -954,13 +956,15 @@ const Projects = () => {
                       )}
                     >
                       <div className="add-project-form">
-                        <label>Project Name *</label>
+
+
+                        <label className="field-label">Project Name *</label>
                         <div>
                           <input {...register("title")} />
                           <p className="error-text">{errors.title?.message}</p>
                         </div>
 
-                        <label>Description *</label>
+                        <label className="field-label">Description *</label>
                         <div>
                           <textarea
                             rows={3}
@@ -972,25 +976,21 @@ const Projects = () => {
                           </p>
                         </div>
 
-                        {/* 
-                      <label>Manager Name *</label>
-                      <div>
-                      <input {...register("manager")} />
+{/*                         
+                       <label>Manager Name *</label>
+                       <div>
+                       <input {...register("manager")} />
                       <p className="error-text">{errors.manager?.message}</p>
-                      </div> */}
+                       </div> */}
 
-                        <label>Manager Name *</label>
+   <label className="field-label">Manager Name *</label>
                         <div>
                           <select
                             {...register("manager", {
                               required: "Manager is required",
                               setValueAs: (val) => {
-                                const e = formattedManagerList.find(
-                                  (x) => (x._id ?? x.id) === val
-                                );
-                                return e
-                                  ? { managerId: e._id ?? e.id, name: e.label }
-                                  : null;
+                                const e = formattedManagerList.find(x => (x._id ?? x.id) === val);
+                                return e ? { managerId: e._id ?? e.id, name: e.label, email:e.email } : null;
                               },
                             })}
                             defaultValue=""
@@ -1009,31 +1009,57 @@ const Projects = () => {
                           </p>
                         </div>
 
-                        <label>Start Date *</label>
+
+
+
+
+
+                        <label className="field-label">Start Date *</label>
                         <div>
                           <input type="date" {...register("startDate")} />
                           <p className="error-text">{errors.start?.message}</p>
                         </div>
 
-                        <label>End Date</label>
+                        <label className="field-label">End Date</label>
                         <input type="date" {...register("endDate")} />
 
-                        <label>Status</label>
+                        <label className="field-label">Status</label>
                         <select {...register("status")}>
                           <option value="Active">Active</option>
                           <option value="On Hold">On Hold</option>
                           <option value="Inactive">Inactive</option>
                         </select>
 
-                        <label>Skill Tags *</label>
+                        {/* <label>Skill Tags *</label>
                         <div>
                           <input {...register("skillTags")} />
-                          <p className="error-text">
-                            {errors.skillTags?.message}
-                          </p>
-                        </div>
+                          <p className="error-text">{errors.skillTags?.message}</p>
+                        </div> */}
 
-                        <label>Client Name *</label>
+
+<label className="field-label">Skill Tags *</label>
+<div>
+  <Controller
+    name="skillTags"
+    control={control}
+    rules={{ 
+      validate: (arr) => (Array.isArray(arr) && arr.length > 0) || "Pick at least one skill"
+    }}
+    render={({ field }) => (
+      <SkillsMultiSelect
+        options={LANGUAGE_OPTIONS}
+        value={field.value || []}
+        onChange={field.onChange}
+      />
+    )}
+  />
+  <p className="error-text">{errors.skillTags?.message}</p>
+</div>
+
+                        
+                        
+
+                        <label className="field-label">Client Name *</label>
                         <div>
                           <input {...register("client")} />
                           <p className="error-text">{errors.client?.message}</p>
@@ -1097,8 +1123,8 @@ const Projects = () => {
                             ? project.managers[0].name
                             : "None"}
                         </td>
-                        <td>{project.startDate}</td>
-                        <td>{project.endDate ? project.endDate : "Ongoing"}</td>
+                        <td>{project.startDate.split("T")[0]}</td>
+                        <td>{project.endDate ? project.endDate.split("T")[0] : "Ongoing"}</td>
                         <td>{project.status}</td>
                         <td>
                           <button
