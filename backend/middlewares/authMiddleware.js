@@ -18,6 +18,7 @@ module.exports.authMiddleware = (req, res, next) => {
   }
 };
 
+
 module.exports.isAdmin = (req, res, next) => {
   if (req.role === 'admin') {
     return next();

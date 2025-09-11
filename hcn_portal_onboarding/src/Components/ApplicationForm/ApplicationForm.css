@@ -214,6 +214,36 @@
   }
 }
 
+/* Add close button styles at the top of the file */
+.close-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.close-button {
+  background-color: #5C98B8;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background-color: #4a7a94;
+}
+
+.close-button:active {
+  transform: translateY(1px);
+}
+
 
 
 

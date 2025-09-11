@@ -8,7 +8,24 @@ const hashPassword = require('../utils/hashPassword'); // Assuming you have a ut
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find(); // Fetch all users from the database
-        res.status(200).json(users); // Send the users as a JSON response
+         res.status(200).json({
+           users: users.map(user => ({
+            _id: user._id,
+            email: user.email,
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            preferredName: user.preferredName,
+            phoneNumber: user.phoneNumber,
+            address1: user.address1,
+            address2: user.address2,
+            employeeId: user.employeeId,
+            projectsAssigned: user.projectsAssigned
+            }))
+            
+        });
+
+        // res.status(200).json(users); // Send the users as a JSON response
     } catch (error) {
         res.status(500).json({ message: 'Error fetching users', error: error.message });
     }
@@ -78,8 +95,21 @@ exports.getUserById = async (req, res) => {
             address1: user.address1,
             address2: user.address2,
             employeeId: user.employeeId,
-            projectsAssigned: user.projectsAssigned
-            // Add other fields you want to return
+            projectsAssigned: user.projectsAssigned,
+            // Immigration/Work Authorization
+            eadStartDate: user.eadStartDate,
+            citizenshipStatus: user.citizenshipStatus,
+            workAuthorizationType: user.workAuthorizationType,
+            // Educational Background
+            highestDegreeEarned: user.highestDegreeEarned,
+            fieldOfStudy: user.fieldOfStudy,
+            universityName: user.universityName,
+            graduationYear: user.graduationYear,
+            // Professional Experience
+            totalYearsExperience: user.totalYearsExperience,
+            relevantSkills: user.relevantSkills,
+            previousEmployer: user.previousEmployer,
+            previousPosition: user.previousPosition
         });
     } catch (error) {
         console.error('Error fetching user by ID:', error);
@@ -222,14 +252,15 @@ exports.changePassword = async (req, res) => {
 exports.getAllManagers = async (req, res) => {
     try {
         // Find all users with role 'manager'
-        const managers = await User.find({ role: 'manager' }, 'firstName lastName _id');
+        const managers = await User.find({ role: 'manager' }, 'firstName lastName _id email');
         
         // Format the response
         const formattedManagers = managers.map(manager => ({
             id: manager._id,
             firstName: manager.firstName,
             lastName: manager.lastName,
-            fullName: `${manager.firstName} ${manager.lastName}`
+            fullName: `${manager.firstName} ${manager.lastName}`,
+            email : manager.email,
         }));
         
         res.status(200).json({
@@ -245,16 +276,17 @@ exports.getAllManagers = async (req, res) => {
 exports.getAllEmployees = async (req, res) => {
     try {
         // Find all users with role 'employee'
-        const employees = await User.find({ role: 'employee' }, 'firstName lastName _id');
+        const employees = await User.find({ role: 'employee' }, 'firstName lastName _id email');
         
         // Format the response
         const formattedEmployees = employees.map(employee => ({
             id: employee._id,
             firstName: employee.firstName,
             lastName: employee.lastName,
-            fullName: `${employee.firstName} ${employee.lastName}`
+            fullName: `${employee.firstName} ${employee.lastName}`,
+            email : employee.email
         }));
-        
+        // console.log(formattedEmployees)
         res.status(200).json({
             count: formattedEmployees.length,
             employees: formattedEmployees

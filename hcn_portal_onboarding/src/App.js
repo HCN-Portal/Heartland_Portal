@@ -21,6 +21,7 @@ import EmployeeProfile from './Components/EmployeeProfile/EmployeeProfile';
 import EmployeeProjects from './Components/EmployeeProjects/Projects';
 import EmployeeClockify from './Components/EmployeeClockify/ClockifyPage';
 import EmployeeHelp from './Components/EmployeeHelp/HelpPage';
+import ProjectsEmployee from './Components/ProjectsEmployee/ProjectsEmployee';
 
 
 
@@ -48,9 +49,10 @@ function App() {
         <Route element={<PrivateRoute allowedRoles={['employee']} />}>
           <Route path="/employee/home" element={<EmployeeDashboard />} />
           <Route path="/employee/profile" element={<EmployeeProfile />} />
-          <Route path="/employee/projects" element={<EmployeeProjects />} />
+          {/* <Route path="/employee/projects" element={<EmployeeProjects />} /> */}
           <Route path="/employee/clockify" element={<EmployeeClockify />} />
           <Route path="/employee/help" element={<EmployeeHelp />} />
+          <Route path="/employee/projects" element={<ProjectsEmployee />} />
         </Route>
       </Routes>
     </Router>

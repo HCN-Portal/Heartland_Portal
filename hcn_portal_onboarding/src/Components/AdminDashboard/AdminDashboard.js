@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar'
-import { get_dashboard_stats } from '../../store/reducers/appReducer';
+import {get_all_employees, get_dashboard_stats} from '../../store/reducers/appReducer';
 import { useDispatch, useSelector } from 'react-redux';
+import Sidebar from '../Sidebar/Sidebar';
+import '../Sidebar/Sidebar.css'
 
 
 
@@ -13,6 +15,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     dispatch(get_dashboard_stats());
+    dispatch(get_all_employees());
   }, [dispatch]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -21,36 +24,7 @@ const AdminDashboard = () => {
         <NavigationBar isLoggedIn= 'ture' />
     
     <div className="admin-dashboard">
-        <button className="toggle-sidebar-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-        </button>
-
-        {sidebarOpen ? (
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <button className="toggle-sidebar-btn-inside" onClick={() => setSidebarOpen(false)}>
-                &#9776;
-              </button>
-              <h2 className="sidebar-title">Heartland Community Network</h2>
-            </div>
-
-            <nav className="sidebar-nav">
-              <ul>
-                <li><a href="/admin/home"style={{ fontWeight: "900" }}>Home / Dashboard</a></li>
-                <li><a href="/admin/pending" >Pending Applications</a></li>
-                <li><a href="/admin/employees">Employees</a></li>
-                <li><a href="/admin/projects">Projects</a></li>
-              </ul>
-            </nav>
-          </aside>
-        ) : (
-          <div className="collapsed-sidebar">
-            <div className="collapsed-top">
-              <button className="toggle-sidebar-btn-collapsed" onClick={() => setSidebarOpen(true)}>
-                &#9776;
-              </button>
-            </div>
-          </div>
-        )}
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       {/* Main Content */}
       <main className="dashboard-main">

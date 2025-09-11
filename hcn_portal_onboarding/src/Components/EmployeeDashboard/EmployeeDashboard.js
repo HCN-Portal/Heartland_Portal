@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import './EmployeeDashboard.css';
 import NavigationBar from '../UI/NavigationBar/NavigationBar';
 import Sidebar from '../Sidebar/Sidebar';
+import { get_user_by_id } from '../../store/reducers/userReducer';
 
 const EmployeeDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
+// const [user] = useSelector(dispatch(get_user_by_id))
   return (
     <div>
       <NavigationBar isLoggedIn={true} />
+     
       <div className="employee-dashboard">
-        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+         <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="dashboard-main">
           <div className="employee-header">
             <h1>Employee Dashboard - "Employee Name"</h1>
