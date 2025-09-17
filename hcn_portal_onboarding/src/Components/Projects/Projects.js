@@ -4,7 +4,7 @@ import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import Select from "react-select";
 import axios from "axios";
 import api from '../../api/api';
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -166,6 +166,9 @@ const Projects = () => {
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
+  // profile loading / error states
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState(null);
   const [processingAction, setProcessingAction] = useState(false);
 
   // include Applications tab so pending applications can be managed
@@ -241,16 +244,44 @@ const Projects = () => {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3>{title}</h3>
-        <table className="profile-table">
-          <tbody>
-            {Object.entries(data).map(([key, value]) => (
-              <tr key={key}>
-                <td className="profile-label">{key}</td>
-                <td className="profile-value">{value}</td>
+        {data ? (
+          <table className="profile-table">
+            <tbody>
+              <tr>
+                <td className="profile-label">Name</td>
+                <td className="profile-value">{data.firstName ? `${data.firstName} ${data.lastName || ''}`.trim() : (data.name || data.fullName || '')}</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+              <tr>
+                <td className="profile-label">Email</td>
+                <td className="profile-value">{data.email || ''}</td>
+              </tr>
+              <tr>
+                <td className="profile-label">Role</td>
+                <td className="profile-value">{data.role || data.position || ''}</td>
+              </tr>
+              <tr>
+                <td className="profile-label">Employee ID</td>
+                <td className="profile-value">{data.employeeId || data.employeeID || ''}</td>
+              </tr>
+              <tr>
+                <td className="profile-label">Phone</td>
+                <td className="profile-value">{data.phoneNumber || data.phone || ''}</td>
+              </tr>
+              <tr>
+                <td className="profile-label">Address</td>
+                <td className="profile-value">{(data.address1 || '') + (data.address2 ? `, ${data.address2}` : '')}</td>
+              </tr>
+              {data.relevantSkills && (
+                <tr>
+                  <td className="profile-label">Skills</td>
+                  <td className="profile-value">{Array.isArray(data.relevantSkills) ? data.relevantSkills.join(', ') : data.relevantSkills}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        ) : (
+          <p>No profile data available.</p>
+        )}
         <div className="action-buttons">
           <button className="close-btn" onClick={onClose}>
             Close
@@ -259,6 +290,30 @@ const Projects = () => {
       </div>
     </div>
   );
+
+  // Fetch a user profile from backend by userId (preferred) or email (fallback)
+  const fetchUserProfile = async ({ userId, email }) => {
+    try {
+      if (userId) {
+        const resp = await api.get(`/users/${userId}`);
+        return resp.data;
+      }
+
+      // If no userId, try to fetch all users and match by email
+      if (email) {
+        const all = await api.get('/users');
+        const users = all.data.users || all.data;
+        const match = (users || []).find(u => u.email === email || `${u.firstName} ${u.lastName}`.trim() === email);
+        if (match) return match;
+      }
+
+      return null;
+    } catch (err) {
+      console.error('Failed to fetch user profile', err);
+      return null;
+    }
+    
+  };
 
   // Called when form is submitted to create a new project
   const handleSaveNewProject = (data) => {
@@ -298,7 +353,7 @@ const Projects = () => {
       // If the project and application have backend IDs, call the backend.
       // For the static/demo project we use local state update.
       if (selectedProject._id && application._id) {
-        const resp = await api.post(`/projects/${selectedProject._id}/applications/${application._id}/approve`);
+  await api.post(`/projects/${selectedProject._id}/applications/${application._id}/approve`);
         // After server confirms, refresh project from backend to stay in sync
         const fresh = await fetchProjectById(selectedProject._id);
         if (fresh) {
@@ -397,8 +452,8 @@ const Projects = () => {
           _id: fresh._id,
           name: fresh.title || project.name,
           description: fresh.description || project.description,
-          managers: fresh.managers ? fresh.managers.map(m => ({ name: m.name, email: m.email || '' })) : project.managers,
-          employees: fresh.teamMembers ? fresh.teamMembers.map(e => ({ name: e.name, position: 'Employee', date: '' })) : project.employees,
+          managers: fresh.managers ? fresh.managers.map(m => ({ name: m.name, email: m.email || '', managerId: (m.managerId || m._id) })) : project.managers,
+          employees: fresh.teamMembers ? fresh.teamMembers.map(e => ({ name: e.name, position: 'Employee', date: '', employeeId: (e.employeeId || e._id) })) : project.employees,
           skillTags: Array.isArray(fresh.skillTags) ? fresh.skillTags.join(', ') : (fresh.skillTags || ''),
           client: fresh.client || project.client || '',
           start: fresh.startDate ? (() => { const d = new Date(fresh.startDate); return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}` })() : 'N/A',
@@ -434,7 +489,7 @@ const Projects = () => {
       const application = selectedProject.applications[index];
 
       if (selectedProject._id && application._id) {
-        const resp = await api.post(`/projects/${selectedProject._id}/applications/${application._id}/decline`, { responseNotes: 'Rejected via UI' });
+  await api.post(`/projects/${selectedProject._id}/applications/${application._id}/decline`, { responseNotes: 'Rejected via UI' });
         // refresh project from backend
         const fresh = await fetchProjectById(selectedProject._id);
         if (fresh) {
@@ -545,7 +600,7 @@ const Projects = () => {
         status: fresh.status || 'Active',
         description: fresh.description || '',
         managers: fresh.managers ? fresh.managers.map(m => ({ name: m.name, email: m.email || '' })) : [],
-        employees: fresh.teamMembers ? fresh.teamMembers.map(e => ({ name: e.name, position: 'Employee', date: '' })) : [],
+          employees: fresh.teamMembers ? fresh.teamMembers.map(e => ({ name: e.name, position: 'Employee', date: '', employeeId: (e.employeeId || e._id) })) : [],
         applications: [],
         skillTags: Array.isArray(fresh.skillTags) ? fresh.skillTags.join(', ') : (fresh.skillTags || ''),
         client: fresh.client || ''
@@ -792,13 +847,28 @@ const Projects = () => {
                 <div className="manager-actions">
                   <button
                     className="view-btn"
-                    onClick={() =>
-                      setselectedManagerDetails({
-                        ...managerStaticData,
-                      })
-                    }
+                    onClick={async () => {
+                      setProfileError(null);
+                      setProfileLoading(true);
+                      try {
+                        const manager = m;
+                        const userId = manager.managerId || manager.manager_id || null;
+                        const profile = await fetchUserProfile({ userId, email: manager.email });
+                        if (profile) setselectedManagerDetails(profile);
+                        else {
+                          console.warn('Manager profile not found, using fallback', manager);
+                          setselectedManagerDetails({ ...managerStaticData, name: manager.name, email: manager.email });
+                        }
+                      } catch (err) {
+                        console.error('View Profile (manager) error', err);
+                        setProfileError('Failed to load manager profile');
+                        setselectedManagerDetails(null);
+                      } finally {
+                        setProfileLoading(false);
+                      }
+                    }}
                   >
-                    View Profile
+                    {profileLoading ? 'Loading...' : 'View Profile'}
                   </button>
                   <button
                     className="remove-btn"
@@ -816,6 +886,9 @@ const Projects = () => {
                 onClose={() => setselectedManagerDetails(null)}
                 title="Profile Details"
               />
+            )}
+            {profileError && (
+              <div className="profile-error">{profileError}</div>
             )}
 
             <div className="manager-card">
@@ -870,15 +943,27 @@ const Projects = () => {
                     <td>
                       <button
                         className="view-btn"
-                        onClick={() =>
-                          setSelectedEmployee({
-                            name: e.name,
-                            position: e.position,
-                            date: e.date,
-                          })
-                        }
+                        onClick={async () => {
+                          setProfileError(null);
+                          setProfileLoading(true);
+                          try {
+                            const userId = e.employeeId || e.employee_id || null;
+                            const profile = await fetchUserProfile({ userId, email: e.email || e.name });
+                            if (profile) setSelectedEmployee(profile);
+                            else {
+                              console.warn('Employee profile not found, using fallback', e);
+                              setSelectedEmployee({ name: e.name, position: e.position, date: e.date });
+                            }
+                          } catch (err) {
+                            console.error('View Profile (employee) error', err);
+                            setProfileError('Failed to load employee profile');
+                            setSelectedEmployee(null);
+                          } finally {
+                            setProfileLoading(false);
+                          }
+                        }}
                       >
-                        View Profile
+                        {profileLoading ? 'Loading...' : 'View Profile'}
                       </button>
                       <button
                         className="remove-btn"
@@ -898,6 +983,9 @@ const Projects = () => {
                 onClose={() => setSelectedEmployee(null)}
                 title="Profile Details"
               />
+            )}
+            {profileError && (
+              <div className="profile-error">{profileError}</div>
             )}
 
             <div className="add-employee-form">
@@ -938,7 +1026,26 @@ const Projects = () => {
                 <p className="applicant-label">{app.name} - {app.position}</p>
               </div>
               <div className="application-actions">
-                <button className="view-btn">View Profile</button>
+                <button className="view-btn" onClick={async () => {
+                  setProfileError(null);
+                  setProfileLoading(true);
+                  try {
+                    const appObj = selectedProject.applications[i];
+                    const userId = appObj.employeeId || appObj.employee_id || null;
+                    const profile = await fetchUserProfile({ userId, email: appObj.email || appObj.name });
+                    if (profile) setSelectedEmployee(profile);
+                    else {
+                      console.warn('Application profile not found, using fallback', appObj);
+                      setSelectedEmployee({ name: appObj.name, position: appObj.position });
+                    }
+                  } catch (err) {
+                    console.error('View Profile (application) error', err);
+                    setProfileError('Failed to load applicant profile');
+                    setSelectedEmployee(null);
+                  } finally {
+                    setProfileLoading(false);
+                  }
+                }}>{profileLoading ? 'Loading...' : 'View Profile'}</button>
                 <button className="approve-btn" disabled={processingAction} onClick={() => handleApproveApplication(i)}>Approve</button>
                 <button className="reject-btn" disabled={processingAction} onClick={() => handleRejectApplication(i)}>Reject</button>
               </div>
@@ -1144,6 +1251,14 @@ const Projects = () => {
             </>
           )}
         </main>
+        {/* Global ProfileModal rendered outside of tab content so it appears immediately */}
+        {(selectedEmployee || selectedManagerDetails) && (
+          <ProfileModal
+            data={selectedEmployee || selectedManagerDetails}
+            onClose={() => { setSelectedEmployee(null); setselectedManagerDetails(null); setProfileError(null); }}
+            title="Profile Details"
+          />
+        )}
       </div>
     </div>
   );
