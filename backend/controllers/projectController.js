@@ -565,7 +565,7 @@ exports.getProjectApplicationsByUserId = async (req, res) => {
 
         const requests = await ProjectApplication.find({ employeeId: userId })
             .populate('employeeId', 'firstName lastName email role')
-            .populate('projectId', 'title client')
+            .populate('projectId', 'title client managers.name managers.email startDate')
             .sort({ requestDate: -1 }); // Sort by most recent first
 
         if (requests.length === 0) {
