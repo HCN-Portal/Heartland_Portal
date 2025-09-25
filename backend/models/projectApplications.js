@@ -30,6 +30,9 @@ const projectApplicationSchema = new mongoose.Schema({
     requestDetails:{
         type: String,
         required: true
+    },
+    responseDate: {
+        type: Date
     }
 });
 

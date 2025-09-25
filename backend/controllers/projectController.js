@@ -709,6 +709,7 @@ exports.approveProjectApplication = async (req, res) => {
 
         // Update application status to approved
         application.status = 'approved';
+        application.responseDate = new Date();
         await application.save();
         
         // Add user to the project based on their role
@@ -842,6 +843,7 @@ exports.declineProjectApplication = async (req, res) => {
 
         // Update application status to declined
         application.status = 'declined';
+        application.responseDate = new Date();
         await application.save();
 
         res.status(200).json({
