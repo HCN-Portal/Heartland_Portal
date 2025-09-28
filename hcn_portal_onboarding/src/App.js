@@ -8,6 +8,7 @@ import ApplicationForm from './Components/ApplicationForm/ApplicationForm';
 import LoginPage from './Components/Authentication/Login/LoginPage';
 import ForgotPasswordPage from './Components/Authentication/ForgotPasswordPage';
 import ResetPasswordPage from './Components/Authentication/ResetPasswordPage';
+import Services from './Components/Services/Services';
 
 // Admin Pages
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
@@ -36,6 +37,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/first-time" element={<ResetPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/services" element={<Services />} />
 
         {/* Admin Protected Routes */}
         <Route element={<PrivateRoute allowedRoles={['admin']} />}>

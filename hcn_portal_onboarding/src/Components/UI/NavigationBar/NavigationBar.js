@@ -18,13 +18,15 @@ const NavigationBar = ({ isLoggedIn }) => {
     <div>
       <header className="header">
         <div className="logo">
-          <img src={hcn_logo} alt="Hoosier Community Network" className="logo" />
+          <Link to="/">
+            <img src={hcn_logo} alt="Hoosier Community Network" className="logo" />
+          </Link>
         </div>
         <nav>
           <ul className="nav-links">
             <li><a href="#support">Support</a></li>
             <li><a href="#mission">Mission</a></li>
-            <li><a href="#services">Services</a></li>
+            <li><Link to="/services">Services</Link></li>
             <li>
               {isLoggedIn ? (
                 <button onClick={handleLogout} className="nav-button">Logout</button>
