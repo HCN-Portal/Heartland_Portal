@@ -83,6 +83,10 @@ const userReducer = createSlice({
     clearSelectedUser: (state) => {
       state.selectedUser = null;
     }
+    ,
+    setSelectedUser: (state, action) => {
+      state.selectedUser = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -145,5 +149,5 @@ const userReducer = createSlice({
 });
 
 // EXPORTS
-export const { clearUsers ,clearSelectedUser} = userReducer.actions;
+export const { clearUsers, clearSelectedUser, setSelectedUser } = userReducer.actions;
 export default userReducer.reducer;
