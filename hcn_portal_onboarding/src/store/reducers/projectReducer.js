@@ -173,6 +173,43 @@ export const get_project_details = createAsyncThunk(
     }
 );
 
+export const getProjectApplicationsById = createAsyncThunk(
+  'projects/getProjectApplicationsById',
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/projects/${projectId}/applications`);
+      return data; // { message, count, requests }
+    } catch (error) {
+      return rejectWithValue({ error: error.response?.data?.error || 'Failed to fetch project applications' });
+    }
+  }
+);
+
+export const approveProjectApplication = createAsyncThunk(
+  'projects/approveProjectApplication',
+  async ({ projectId, applicationId }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/applications/${applicationId}/approve`);
+      return data; // { message, application, project }
+    } catch (error) {
+      return rejectWithValue({ error: error.response?.data?.error || 'Failed to approve application' });
+    }
+  }
+);
+
+export const declineProjectApplication = createAsyncThunk(
+  'projects/declineProjectApplication',
+  async ({ projectId, applicationId, responseNotes }, { rejectWithValue }) => {
+    try {
+      const body = responseNotes ? { responseNotes } : {};
+      const { data } = await api.post(`/projects/${projectId}/applications/${applicationId}/decline`, body);
+      return data; // { message, application }
+    } catch (error) {
+      return rejectWithValue({ error: error.response?.data?.error || 'Failed to decline application' });
+    }
+  }
+);
+
 const initialState = {
   projects: [],
   employees: [],
@@ -384,6 +421,65 @@ const projectReducer = createSlice({
 
 
 
+        // Project applications
+        .addCase(getProjectApplicationsById.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(getProjectApplicationsById.fulfilled, (state, action) => {
+          state.loading = false;
+          // action.payload.requests expected
+          if (state.selectedProjectl) {
+            state.selectedProjectl.applications = action.payload.requests || [];
+          }
+        })
+        .addCase(getProjectApplicationsById.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload?.error || 'Failed to fetch project applications';
+        })
+
+        .addCase(approveProjectApplication.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(approveProjectApplication.fulfilled, (state, action) => {
+          state.loading = false;
+          state.successMessage = action.payload.message;
+          const { project } = action.payload;
+          if (project && state.selectedProjectl && project.id === state.selectedProjectl._id) {
+            // update managers/teamMembers depending on response
+            if (project.teamMembers) state.selectedProjectl.teamMembers = project.teamMembers;
+            if (project.managers) state.selectedProjectl.managers = project.managers;
+          }
+          // remove application from list if present
+          if (state.selectedProjectl && state.selectedProjectl.applications) {
+            const applicationId = action.payload.application?.id;
+            if (applicationId) {
+              state.selectedProjectl.applications = state.selectedProjectl.applications.filter(a => a._id !== applicationId && a.id !== applicationId);
+            }
+          }
+        })
+        .addCase(approveProjectApplication.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload?.error || 'Failed to approve application';
+        })
+
+        .addCase(declineProjectApplication.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(declineProjectApplication.fulfilled, (state, action) => {
+          state.loading = false;
+          state.successMessage = action.payload.message;
+          const applicationId = action.payload.application?.id;
+          if (state.selectedProjectl && applicationId && state.selectedProjectl.applications) {
+            state.selectedProjectl.applications = state.selectedProjectl.applications.filter(a => a._id !== applicationId && a.id !== applicationId);
+          }
+        })
+        .addCase(declineProjectApplication.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload?.error || 'Failed to decline application';
+        })
 
 
 // create a project
