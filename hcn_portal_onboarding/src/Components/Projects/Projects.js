@@ -750,7 +750,7 @@ const LANGUAGE_OPTIONS = [
                       {i + 1}. {e.name}
                     </td>
                     <td>{e.email}</td>
-                    <td>tbd</td>
+                    <td>{e.dateAdded.split("T")[0]}</td>
                     <td>
                       <button
                         className="view-btn"

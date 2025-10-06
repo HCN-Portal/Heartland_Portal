@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getProjectById, get_all_projects } from "../../store/reducers/projectReducer";
+import { getAllProjectTitles, getProjectById, get_all_projects } from "../../store/reducers/projectReducer";
 import { get_user_by_id, get_all_managers } from "../../store/reducers/userReducer";
+import {getProjectApplicationsByUserId , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectApplicationReducer';
 import "../Projects/Projects.css";
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import Sidebar from "../Sidebar/Sidebar";
@@ -17,43 +18,34 @@ const ProjectsEmployee = () => {
     const [myProjects, setMyProjects] = useState([]);
 
     const { selectedUser } = useSelector(state => state.users);
-    const { projects } = useSelector(state => state.projects);
     const { managers: managersList } = useSelector(state => state.users); // Rename to managersList for clarity
     const authState = useSelector(state => state.auth);
+    const { projects, loadingl, selectedProjectl, employees, managers } = useSelector((state) => state.projects);
+
+    const [projectStatus , setProjectStatus] = useState("Available");
+
+  useEffect(() => {
+    // Get user info from Redux or localStorage
+    const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
+    console.log('User Info:', userInfo); // Debug log
+    if (userInfo?.userId) {
+      dispatch(get_user_by_id(userInfo.userId));
+      dispatch(get_all_projects()); // Fetch all projects when component mounts
+      dispatch(get_all_managers()); // Fetch all managers
+      dispatch(getProjectApplicationsByUserId(userInfo.userId));
+      dispatch(getAllProjectTitles());
+    }
+  }, [dispatch, authState.userInfo]);
+
+   const { projectApplications } = useSelector((state) => state.projectApplications);
+
 
     useEffect(() => {
-        // Get user info from Redux or localStorage
-        const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
-        console.log('User Info:', userInfo); // Debug log
-        if (userInfo?.userId) {
-            dispatch(get_user_by_id(userInfo.userId));
-            dispatch(get_all_projects()); // Fetch all projects when component mounts
-            dispatch(get_all_managers()); // Fetch all managers
-        }
-        console.log('Managers',managersList);
-    }, [dispatch, authState.userInfo]);
-
-    useEffect(() => {
-        console.log('Selected User:', selectedUser); // Debug log
-        if (selectedUser?.projectsAssigned && Array.isArray(selectedUser.projectsAssigned)) {
-            console.log('Projects Assigned:', selectedUser.projectsAssigned); // Debug log
-            selectedUser.projectsAssigned.forEach(projectId => {
-                const project = projects.find(p => p._id === projectId);
-                if (!project) {
-                    dispatch(getProjectById(projectId));
-                }
-            });
-        }
-    }, [selectedUser, dispatch, projects]);
-
-    useEffect(() => {
-        console.log('Projects from Redux:', projects); // Debug log
         if (selectedUser?.projectsAssigned && projects?.length > 0) {
             const assignedProjects = selectedUser.projectsAssigned
                 .map(assignedProject => {
                     const projectId = assignedProject.projectId;
                     const project = projects.find(p => p._id === projectId);
-                    console.log('Found project for ID:', projectId, project); // Debug log
                     if (project) {
                         return {
                             id: project._id,
@@ -75,7 +67,7 @@ const ProjectsEmployee = () => {
                             }) || [],
                             teamMembers: project.teamMembers?.map(t => ({
                                 name: t.name,
-                                position: t.position || t.role || 'Team Member',
+                                position: t.role || 'Team Member',
                                 date: t.joinDate ? new Date(t.joinDate).toLocaleDateString() : ''
                             })) || [],
                             client: project.client || 'N/A',
@@ -85,207 +77,68 @@ const ProjectsEmployee = () => {
                     return null;
                 })
                 .filter(Boolean);
-
-            console.log('Processed assigned projects:', assignedProjects); // Debug log
             setMyProjects(assignedProjects);
             setProjectsToDisplay(assignedProjects);
         }
     }, [selectedUser, projects, managersList]); // Updated dependency to managersList
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const projectsPerPage = 5;
-    const indexOfLastProject = currentPage * projectsPerPage;
-    const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 
+// Re-Assign for easier understanding and identification
+// const [requestedProjects , setRequestedProjects ] = useState(projectApplications)
+// useEffect( () =>{
+//   const requests = projectApplications.filter(
+//   (req) => req.status?.toLowerCase() === "pending"
+// );
 
-    const [allProjects, setallProjects] = useState([
-        {
-            id: 3,
-            title: 'HCN Portal 1 ALL',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com', id:14321 }
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 4,
-            title: 'HCN Portal 2 ALL',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 567,
-            title: 'HCN Portal 3 REQ',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 876,
-            title: 'HCN Portal 2 REQ',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 1,
-            title: 'Project HCN',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com', id:14321 }
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            applications: [
-            { name: 'ManagerX', position: 'Manager' },
-            { name: 'EmployeeY', position: 'Employee' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 2,
-            title: 'Food Store Project',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            applications: [
-            { name: 'ManagerX', position: 'Manager' },
-            { name: 'EmployeeY', position: 'Employee' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        }
+const requestedProjects = useMemo(() => {
+  return (projectApplications || []).filter(
+    (req) => (req.status || req.requestStatus || "").toLowerCase() === "pending"
+  );
+}, [projectApplications]);
 
-    ]);
+// setRequestedProjects(requests)
+// console.log("useeffect projectApplications");
+// },[projectApplications])
+useEffect(() => {
+  console.log("projectApplications changed:", projectApplications);
+  console.log("derived requestedProjects:", requestedProjects);
+}, [projectApplications, requestedProjects]);
 
-    const [requestedProjects, setRequestedProjects] = useState([
-        {
-            id: 567,
-            title: 'HCN Portal 1 REQ',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com', id:14321 }
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        },
-        {
-            id: 876,
-            title: 'HCN Portal 2 REQ',
-            manager: 'Dhanush',
-            start: '04/08/2025',
-            end: '04/23/2026',
-            status: 'Active',
-            description:
-            'The HCN Portal (Heartland Community Network Portal) is a web platform designed for efficient community management, providing administrators, managers, and employees with role-specific dashboards. Administrators can manage employees, create projects, and monitor applications. Managers oversee their teams, manage projects, and approve timesheets. Employees can view assigned projects, submit timesheets, and update profiles. The portal features role-based access controls, ensuring each user has access to relevant features. Admins can assign projects, managers can supervise teams, and employees can engage with assigned tasks. Automated workflows streamline approvals, while secure data handling ensures compliance. The modular design allows easy customization and scalability for various organizational needs.',
-            managers: [
-            { name: 'Dhanush', email: 'dhanush@admin.hcn.com' , id:14321}
-            ],
-            teamMembers: [
-            { name: 'Harshitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Likhitha', position: 'Developer', date: '04/08/2025' },
-            { name: 'Preeth', position: 'Developer', date: '04/08/2025' }
-            ],
-            client: 'HCN',
-            skillTags: ['ReactJS', 'MongoDB', 'Hosting', 'NodeJS', 'ExpressJS']
-        }
+const allProjects = projects
+const [projectsToDisplay, setProjectsToDisplay] = useState(myProjects);
 
-    ]);
+// Pagination setup
+const projectsPerPage = 5; // state/prop
+const [currentPage, setCurrentPage] = useState(1);
+const totalPages = Math.max(1, Math.ceil(projectsToDisplay.length / projectsPerPage));
+const indexOfFirstProject = (currentPage - 1) * projectsPerPage;
+const indexOfLastProject = indexOfFirstProject + projectsPerPage;
 
+// keep local list in sync with source
+useEffect(() => {
+  setProjectsToDisplay(myProjects || []);
+  setCurrentPage(1); 
+}, [myProjects]);
 
-    const [projectsToDisplay, setProjectsToDisplay] = useState(myProjects);
+// compute the current slice whenever data or page changes
+const currentProjects = useMemo(
+  () => projectsToDisplay.slice(indexOfFirstProject, indexOfLastProject),
+  [projectsToDisplay, indexOfFirstProject, indexOfLastProject]
+);
 
-    const totalPages = Math.ceil(projectsToDisplay.length / projectsPerPage);
-    const currentProjects = projectsToDisplay.slice(indexOfFirstProject, indexOfLastProject);
+// if currentPage is out of range after data changes, clamp it
+useEffect(() => {
+  if (currentPage > totalPages) setCurrentPage(totalPages);
+}, [currentPage, totalPages]);
 
-    // console.log(selectedProject)
-    const handleEachProject = (projectId) => {
-        // dispatch(getProjectById(projectId));
-        setSelectedProject(projectId);
-        
-    }
+// Combined UseEffect for proper render after prop update.
+useEffect ( ()=>{
+},[currentProjects , selectedProject,projectStatus]);
+useEffect ( ()=>{
+console.log("useeffect projectApplications");
+},[requestedProjects]);
+// Essential Handle Functions
+// set projects to be displayed based on Tab
     const handleProjectViewChange = (view) => {
         setProjectView(view);
 
@@ -298,45 +151,219 @@ const ProjectsEmployee = () => {
         else {
             setProjectsToDisplay(myProjects);
         }
+         setCurrentPage(1); 
     };
-
+// Send Request to backend api
     const handleRequest = () => {
+
+        const confirmSend = window.confirm("Are you sure you want to send this request?");
+  if (!confirmSend) return;
+
+
+        const projectId = selectedProject._id;
+        const requestBody = {
+            employeeId : selectedUser._id,
+            requestDetails : "I want to apply for this project due to xyz reasons"
+        }
+        getProjectStatus(projectId)
+        dispatch(applyToJoinProject({projectId,requestBody}))
         alert("Request has been sent successfully!");
-        // Add actual request logic here later
+       
     };
 
+// Check status of Project ...Joined/Requested/Available
     const getProjectStatus = (projectId) => {
         if (myProjects.some((p) => p.id === projectId)) {
+            setProjectStatus("Joined");
             return "Joined";
         }
-        if (requestedProjects.some((p) => p.id === projectId)) {
+        if (requestedProjects.some((p) => p.projectId.id === projectId)) {
+            setProjectStatus("Requested");
             return "Requested";
         }
+        setProjectStatus("Available");
         return "Available";
     };
 
+// Extract projectId from request since request structure is different from project structure
+const getProjectIdOfRequest = (request) => request?.projectId?._id;
+
+
+// is this project already requested by the current user?
+const isProjectRequested = (projId) => {
+  const pid = String(projId ?? "");
+  return (requestedProjects || []).some((req) => {
+    const reqPid = getProjectIdOfRequest(req); // handles { _id }, { id }, or string
+    return String(reqPid ?? "") === pid;
+  });
+};
+
+// has the user already joined this project?
+const isProjectJoined = (projId) => {
+  const pid = String(projId ?? "");
+  return (myProjects || []).some((p) => String((p._id ?? p.id)) === pid);
+};
+
+// one-stop status get status of project...currently requested/joined by user?
+const getRelationship = (projId) => {
+  if (isProjectJoined(projId)) return "joined";
+  if (isProjectRequested(projId)) return "requested";
+  return "available";
+};
+// fn for setting view project under requested projects tab
+const openRequest = (request) => {
+  const projectId = request.projectId._id
+  // filter the request's projectId and match with allProjects
+  const project =  allProjects.find(project => project._id === projectId) || null;
+  setSelectedProject(project)
+
+}
+
+// Case Table view for each tab.
+function TableForView({ projectView, currentProjects, openProject, getProjectStatus, projectStatus }) {
+  switch (projectView) {
+    case "My Projects":
+      return (
+        <table className="applicant-table">
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>Project Name</th>
+              <th>Manager</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentProjects.map((p, i) => (
+              <tr key={p._id || i}>
+                <td>{indexOfFirstProject + i + 1}</td>
+                <td>{p.title}</td>
+                <td>{p.managers && p.managers[0]? p.managers[0].name : "None"}</td>
+                <td>{p.startDate? p.startDate.split('T')[0] : "-"}</td>
+                <td>{p.endDate ? p.endDate.split('T')[0] : "Ongoing"}</td>
+                <td>{p.status}</td>
+                <td>
+                  <button className="view-btn" onClick={() =>  openProject(p)}>
+                    View Project
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+    case "Requested Projects":
+      return (
+        <table className="applicant-table">
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>Project Name</th>
+              <th>Manager</th>
+              <th>Requested On</th>
+              <th>Request Status</th>
+              <th>Action</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {currentProjects.map((p, i) => (
+              <tr key={p._id || i}>
+                <td>{indexOfFirstProject + i + 1}</td>
+                <td>{p.projectId?.title ?? p.title}</td>
+                <td>{p.projectId?.managers?.[0]?.name ?? "None"}</td>
+                <td>{p.requestDate?.split("T")[0] ?? "—"}</td>
+                <td>{p.status ?? "Pending"}</td>
+                <td>
+                  <button className="view-btn" onClick={() => openRequest(p)}>
+                    View Project
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+    case "All Projects":
+    default:
+      return (
+        <table className="applicant-table">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Project</th>
+              <th>Manager</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentProjects.map((p, i) => (
+              <tr key={p._id || i}>
+                <td>{indexOfFirstProject + i + 1}</td>
+                <td>{p.title ?? p.projectId?.title}</td>
+                <td>{p.managers?.[0]?.name ?? "None"}</td>
+                <td>{p.startDate.split('T')[0] ?? "-"}</td>
+                <td>{p.endDate.split('T')[0] ?? "Ongoing"}</td>
+                <td>{p.status}</td>
+                <td>
+                  {projectView === "All Projects" ? (
+                    projectStatus === "Available" ? (
+                      <button className="view-btn" onClick={() => openProject(p)}>
+                        View Project
+                      </button>
+                    ) : (
+                      <div className={`status-label ${getProjectStatus(p._id).toLowerCase()}`}>
+                        <span>{getProjectStatus(p._id)}</span>
+                      </div>
+                    )
+                  ) : (
+                    <button className="view-btn" onClick={() => openProject(p)}>
+                      View Project
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+  }
+}
+
+
+
     const renderDetail = () => (
         <div className="project-modal">
-            <div className="dashboard-header">
-                <button className="close-btn"
-                          onClick={() => {
-                            setSelectedProject(null)
-                          }}
-                        >
-                          Close
-                </button>
-                {projectView === "All Projects" && (  // show only when allProjects is loaded
-                    <button
-                        className="close-btn"
-                        onClick={handleRequest}
-                        >
-                        Send Request
-                    </button>
-                )}
-                {projectView === "Requested Projects" && (
-                        <h3 color="Green"> Requested! </h3>
-                )}
-            </div>
+           <div className="dashboard-header">
+  <button className="close-btn" onClick={() => setSelectedProject(null)}>Close</button>
+
+  {(() => {
+    // decide based on actual relationship, not only the tab
+    const rel = getRelationship(selectedProject?._id ?? selectedProject?.id);
+    
+    if (rel === "joined") {
+      return <h3 className="status-label joined"> Joined </h3>;
+    }
+    if (rel === "requested") {
+      return <h3 className="status-label requested"> Requested! </h3>;
+    }
+    // available → show send request button
+    return (
+      <button className="close-btn" onClick={handleRequest}>
+        Send Request
+      </button>
+    );
+  })()}
+</div>
+
 
             <div className="project-tabs">
                 {tabs.map((tab) => (
@@ -364,8 +391,7 @@ const ProjectsEmployee = () => {
                         </div>
                         <div className="project-detail-row">
                             <div className="project-label"><strong>Start Date - End Date:</strong></div>
-                            {/*  We need to change the date to display correctly */}
-                            <div className="project-value"> {`${selectedProject.startDate} - ${selectedProject.endDate ?? "Ongoing"}`} </div>
+                            <div className="project-value"> {`${selectedProject.startDate.split('T')[0]} - ${selectedProject.endDate.split('T')[0] ?? "Ongoing"}`} </div>
                         </div>    
                         <div className="project-detail-row">
                             <div className="project-label"><strong>Skill Tags:</strong></div>
@@ -413,7 +439,7 @@ const ProjectsEmployee = () => {
                                 {(selectedProject?.teamMembers || []).map((e, i) => (
                                     <tr key={i}>
                                         <td>{e.name}</td>
-                                        <td>{e.position}</td>
+                                        <td>Team Member</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -453,108 +479,32 @@ const ProjectsEmployee = () => {
                         ))}
                     </div>
                     </div>
-                    <table className="applicant-table">
-                        <thead>
-                        <tr>
-                            <th>Project Name</th>
-                            <th>Manager Name</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {currentProjects.map((project, index) => (
-                            <>
-                            <tr key={index}>
-                            <td>
-                                {index + 1}. {project.title}
-                            </td>
-                            <td>{project.managers[0] ? project.managers[0].name : "None"}</td>
-                            <td>{project.startDate}</td>
-                            <td>{project.endDate ? project.endDate : "Ongoing"}</td>
-                            <td>{project.status}</td>
-                            {/* <td>
-                                <button
-                                className="view-btn"
-                                onClick={() => {
-                                    // console.log(project)
-                                    // handleEachProject(project)
+    
+
+                            <TableForView
+                                projectView={projectView}
+                                currentProjects={currentProjects}
+                                openProject={(project) => {
                                     setSelectedProject(project);
                                     setActiveTab("Overview");
                                 }}
-                                >
-                                View Project
-                                </button>
-                            </td> */}
-                            <td>
-                                {projectView === "All Projects" ? (
-                                    <>
-                                    {getProjectStatus(project.id) === "Available" ? (
-                                        <button
-                                        className="view-btn"
-                                        onClick={() => {
-                                            setSelectedProject(project);
-                                            setActiveTab("Overview");
-                                        }}
-                                        >
-                                        View Project
-                                        </button>
-                                    ) : (
-                                        <div className={`status-label ${getProjectStatus(project.id).toLowerCase()}`}>
-                                        <span
-                                        // className={`status-label ${getProjectStatus(project.id).toLowerCase()}`}
-                                        >
-                                        {getProjectStatus(project.id)}
-                                        </span>
-                                        </div>
-                                    )}
-                                    </>
-                                ) : (
-                                    <button
-                                    className="view-btn"
-                                    onClick={() => {
-                                        setSelectedProject(project);
-                                        setActiveTab("Overview");
-                                    }}
-                                    >
-                                    View Project
-                                    </button>
-                                )}
-                                </td>
+                                getProjectStatus={getProjectStatus}
+                                projectStatus={projectStatus}
+                            />
 
-                            </tr>
-                            </>
-                        ))}
-                        </tbody>
-                    </table>
+
+
                     <div className="pagination-controls">
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className="page-btn"
-                        >
-                        Prev
-                        </button>
 
-                        {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i}
-                            className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                            onClick={() => setCurrentPage(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
-                        ))}
+                                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="page-btn">Prev</button>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <button key={i} className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`} onClick={() => setCurrentPage(i + 1)}>
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="page-btn">Next</button>
 
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            className="page-btn"
-                        >
-                        Next
-                        </button>
+
                     </div>
                     </>
                     ):(

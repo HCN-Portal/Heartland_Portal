@@ -20,7 +20,7 @@ router.get('/:id/applications', authMiddleware, isAdminOrManager, projectControl
 router.post('/:id/apply-employee', authMiddleware, isEmployee, projectController.applyToJoinProject); // Apply to join a project
 router.post('/:projectId/applications/:applicationId/approve', authMiddleware, isAdmin, projectController.approveProjectApplication); // Approve a project application
 router.post('/:projectId/applications/:applicationId/decline', authMiddleware, isAdmin, projectController.declineProjectApplication); // Decline a project application
-
+router.get('/applications/user/:userId', authMiddleware, isEmployee, projectController.getProjectApplicationsByUserId); // Get requests by user ID
 
 //router.get('/', projectController.getAllProjectTitles); // Get all project titles
 //router.post('/', projectController.createProject); // Create a new project
