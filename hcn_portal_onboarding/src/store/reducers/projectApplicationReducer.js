@@ -14,7 +14,18 @@ export const getProjectApplicationsByUserId = createAsyncThunk(
     }
   });
 
-
+export const getProjectApplicationsById = createAsyncThunk(
+  'projects/getProjectApplicationsById',
+  async (projectId, { rejectWithValue }) => {
+    try {
+      console.log(projectId,"gvbnm ")
+      const { data } = await api.get(`/projects/${projectId}/applications`);
+      return data; // { message, count, requests }
+    } catch (error) {
+      return rejectWithValue({ error: error.response?.data?.error || 'Failed to fetch project applications' });
+    }
+  }
+);
 export const applyToJoinProject = createAsyncThunk(
   'projects/applyToJoinProject',
   async ({ projectId, requestBody }, { rejectWithValue }) => {
@@ -85,6 +96,7 @@ const initialState = {
   loading: false,
   error: null,
   selectedProjectl: null,
+  currentProjectApplications:[]
 };
 
 
@@ -96,6 +108,7 @@ const projectApplicationReducer = createSlice({
       state.projectApplications = [];
       state.error = null;
       state.loading = false;
+      state.currentProjectApplications = [];
     },
     clearSelectedProject: (state) => {
       state.selectedProjectl = null;
@@ -116,6 +129,28 @@ const projectApplicationReducer = createSlice({
         state.loading = false;
         state.error = action.payload?.error || `Failed to fetch projectFailed to load project Requests`;
       })
+// Get all applications for a projectId
+      .addCase(getProjectApplicationsById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProjectApplicationsById.fulfilled, (state, action) => {
+        state.loading = false;
+        // action.payload.requests expected
+        console.log("inred",action.payload.requests)
+        state.currentProjectApplications = action.payload.requests || [];
+        // state.currentProjectApplications = projectAllApplications.filter((application)=> application.status=='pending')
+        console.log("inred", state.currentProjectApplications)
+        }
+      )
+      .addCase(getProjectApplicationsById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || 'Failed to fetch project applications';
+      })
+
+
+
+
 
       // Apply for a Project
       .addCase(applyToJoinProject.pending, (state) => {
@@ -128,8 +163,8 @@ const projectApplicationReducer = createSlice({
         state.successMessage = action.payload.message;
 
         const createdApplication = action.payload.request;
-        console.log("reducer addcase")
-        console.log(createdApplication, "reducer")
+        // console.log("reducer addcase")
+        // console.log(createdApplication, "reducer")
         if (!createdApplication) return;
         
 
@@ -181,6 +216,10 @@ const projectApplicationReducer = createSlice({
           // Replace with updated status from API
           state.projectApplications[index].status = action.payload.application.status;
         }
+        const curApplicationIndex = state.currentProjectApplications.findIndex(p=>p.id==applicationId)
+        if (curApplicationIndex !== -1){
+          state.currentProjectApplications[curApplicationIndex].status = action.payload.application.status
+        }
       })
       .addCase(approveProjectApplication.rejected, (state, action) => {
         state.loading = false;
@@ -205,6 +244,10 @@ const projectApplicationReducer = createSlice({
         if (index !== -1) {
           // Replace with updated status from API
           state.projectApplications[index].status = action.payload.application.status;
+        }
+          const curApplicationIndex = state.currentProjectApplications.findIndex(p=>p.id==applicationId)
+        if (curApplicationIndex !== -1){
+          state.currentProjectApplications[curApplicationIndex].status = action.payload.application.status
         }
       })
       .addCase(declineProjectApplication.rejected, (state, action) => {

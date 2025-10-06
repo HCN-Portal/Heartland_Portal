@@ -32,7 +32,7 @@ export const getProjectById = createAsyncThunk(
   'projects/getProjectById',
   async (projectId, { rejectWithValue }) => {
     try {
-        console.log(projectId);
+        // console.log(projectId);
       const { data } = await api.get(`/projects/${projectId}`);
       return data;
     } catch (error) {
@@ -69,7 +69,7 @@ export const updateProjectByID = createAsyncThunk(
   'projects/updateById',
   async ({ projectId, editedProject }, { rejectWithValue }) => {
     try {
-      console.log(editedProject,"in reducer")
+      // console.log(editedProject,"in reducer")
       const { data } = await api.put(`/projects/${projectId}`, editedProject);
       return {
         project: data, // updated project object
@@ -88,7 +88,7 @@ export const addEmployeesToProject = createAsyncThunk(
   'projects/addEmployeesToProject',
   async ({ projectId, requestBody }, { rejectWithValue }) => {
     try {
-      console.log(requestBody,"in reducer req body")
+      // console.log(requestBody,"in reducer req body")
       const { data } = await api.post(`/projects/${projectId}/employees`, requestBody);
       return data;
     } catch (error) {
@@ -104,7 +104,7 @@ export const addManagersToProject = createAsyncThunk(
   'projects/addManagersToProject',
   async ({ projectId, requestBody }, { rejectWithValue }) => {
     try {
-      console.log(requestBody,"in reducer req body manager")
+      // console.log(requestBody,"in reducer req body manager")
       const { data } = await api.post(`/projects/${projectId}/managers`, requestBody);
       return data;
     } catch (error) {
@@ -119,7 +119,7 @@ export const removeManagersFromProject = createAsyncThunk(
   'projects/removeManagersFromProject',
   async ({ projectId, managerId }, { rejectWithValue }) => {
     try {
-      console.log(managerId,"in reducer req remove manager")
+      // console.log(managerId,"in reducer req remove manager")
       const { data } = await api.delete(`/projects/${projectId}/managers/${managerId}`);
       return data;
     } catch (error) {
@@ -135,7 +135,7 @@ export const removeEmployeesFromProject = createAsyncThunk(
   'projects/removeEmployeesFromProject',
   async ({ projectId, employeeId }, { rejectWithValue }) => {
     try {
-      console.log(employeeId,"in reducer req remove employee")
+      // console.log(employeeId,"in reducer req remove employee")
       const { data } = await api.delete(`/projects/${projectId}/employees/${employeeId}`);
       return data;
     } catch (error) {
@@ -150,7 +150,7 @@ export const createProject = createAsyncThunk(
   'projects/',
   async ({ projectToAdd }, { rejectWithValue }) => {
     try {
-      console.log(projectToAdd,"in reducer create project")
+      // console.log(projectToAdd,"in reducer create project")
       const { data } = await api.post(`/projects/`, projectToAdd);
       return data;
     } catch (error) {
