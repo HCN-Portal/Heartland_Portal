@@ -37,6 +37,7 @@ router.get('/applications/user/:userId', authMiddleware, isEmployee, projectCont
 //router.post('/:id/apply-employee', projectController.applyToJoinProject); // Apply to join a project
 //router.post('/:projectId/applications/:applicationId/approve', projectController.approveProjectApplication); // Approve a project application
 //router.post('/:projectId/applications/:applicationId/decline', projectController.declineProjectApplication); // Decline a project application
+//router.get('/applications/user/:userId', projectController.getProjectApplicationsByUserId); // Get requests by user ID
 
 
 module.exports = router;

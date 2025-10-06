@@ -8,6 +8,7 @@ const projectSchema = new mongoose.Schema({
             managerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
             name: { type: String, required: true, trim: true },
             email: { type: String, required: true, unique: true },
+            dateAdded: { type: Date, default: Date.now },
             _id: false // Prevents the creation of an additional _id field for this subdocument
         }
     ],
@@ -19,6 +20,7 @@ const projectSchema = new mongoose.Schema({
             employeeId: {type: mongoose.Schema.Types.ObjectId, ref: 'User' },
             name: { type: String, required: true, trim: true },
             email: { type: String, required: true, unique: true },
+            dateAdded: { type: Date, default: Date.now },
             _id: false // Prevents the creation of an additional _id field for this subdocument
         }
     ],

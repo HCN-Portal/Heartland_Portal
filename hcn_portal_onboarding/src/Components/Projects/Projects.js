@@ -21,11 +21,14 @@ import {
   removeManagersFromProject,
   removeEmployeesFromProject,
   createProject,
+  getProjectApplicationsById,
+  approveProjectApplication,
+  declineProjectApplication,
 } from "../../store/reducers/projectReducer";
 import {
   clearSelectedUser,
-  get_all_users,
   get_user_by_id,
+  setSelectedUser,
 } from "../../store/reducers/userReducer";
 
 const Projects = () => {
@@ -40,7 +43,7 @@ const Projects = () => {
   const [overviewErrors, setOverviewErrors] = useState({});
 
   const [currentPage, setCurrentPage] = useState(1);
-  const projectsPerPage = 2;
+  const projectsPerPage = 6;
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
 
@@ -104,7 +107,7 @@ const LANGUAGE_OPTIONS = [
   });
 
   const dispatch = useDispatch();
-  const { projects, loadingl, selectedProjectl, employees, managers } =
+  const { projects, selectedProjectl, employees, managers } =
     useSelector((state) => state.projects);
 
   useEffect(() => {
@@ -137,6 +140,8 @@ const LANGUAGE_OPTIONS = [
     indexOfFirstProject,
     indexOfLastProject
   );
+
+  // global profile modal will be rendered inside returned JSX (so it has access to selectedUser)
 
   const formattedEmployeeList = employees.map((employee) => ({
     label: employee.fullName, // Display only the name
@@ -216,11 +221,10 @@ const LANGUAGE_OPTIONS = [
 
 
 
-  const { users, selectedUser } = useSelector((state) => state.users);
-  const [selectedManagerDetails, setselectedManagerDetails] = useState(null);
+  const { selectedUser } = useSelector((state) => state.users);
 
   // const tabs = ['Overview', 'Managers', 'Employees', 'Applications', 'Updates/Activity'];
-  const tabs = ["Overview", "Managers", "Employees"];
+  const tabs = ["Overview", "Managers", "Employees", "Applications"];
 
   // Handlers
 
@@ -277,35 +281,27 @@ const LANGUAGE_OPTIONS = [
     setEmail("");
   };
 
-  const handleRemoveManager = (m) => {
-    /* remove manager logic */
-    const managerId = m.managerId;
-    const projectId = selectedProjectl._id;
-    dispatch(removeManagersFromProject({ projectId, managerId }));
+  const handleRemoveManager = async (m) => {
+    // remove manager logic - support different id shapes returned by API
+    const managerId = m?.managerId || m?._id || m?.id;
+    const projectId = selectedProjectl?._id;
+    console.log('handleRemoveManager called', { m, managerId, projectId });
+    if (!managerId || !projectId) {
+      console.warn('Cannot remove manager - missing managerId or projectId', { m, selectedProjectl });
+      return;
+    }
+    try {
+      const result = await dispatch(removeManagersFromProject({ projectId, managerId })).unwrap();
+      console.log('remove manager result', result);
+      // refresh project details to reflect removal
+      dispatch(getProjectById(projectId));
+    } catch (err) {
+      console.error('remove manager failed', err);
+      alert('Failed to remove manager. See console for details.');
+    }
   };
 
-  const ProfileModal = ({ data, onClose, title }) => (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3>{title} jfn</h3>
-        <table className="profile-table">
-          <tbody>
-            {Object.entries(data).map(([key, value]) => (
-              <tr key={key}>
-                <td className="profile-label">{key}</td>
-                <td className="profile-value">{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="action-buttons">
-          <button className="close-btn" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  // Profile modal helper removed — using `selectedUser` modal blocks below instead
 
   // Called when form is submitted to create a new project
   const handleSaveNewProject = (data) => {
@@ -367,8 +363,62 @@ const LANGUAGE_OPTIONS = [
   // };
 
   const handleViewProfile = (e) => {
-    const userId = e.employeeId ? e.employeeId : e.managerId;
-    dispatch(get_user_by_id(userId));
+    console.log('handleViewProfile called with', e);
+
+    // Build a local user object from whatever fields are available so modal appears immediately
+    const maybeNested = e && typeof e === 'object' && (e.employeeId || e.managerId) ? (e.employeeId && typeof e.employeeId === 'object' ? e.employeeId : (e.managerId && typeof e.managerId === 'object' ? e.managerId : null)) : null;
+    const source = maybeNested || e;
+
+    const localUser = {
+      firstName: source?.firstName || source?.name?.split?.(' ')?.[0] || '',
+      lastName: source?.lastName || (source?.name ? source.name.split(' ').slice(1).join(' ') : ''),
+      preferredName: source?.preferredName || '',
+      email: source?.email || '',
+      employeeId: source?._id || source?.id || source?.employeeId || source?.managerId || '',
+      projectsAssigned: source?.projectsAssigned || [],
+    };
+
+    // Show quick modal immediately
+    dispatch(setSelectedUser(localUser));
+
+    // If we have an id, fetch full profile to replace partial data
+    const id = source?._id || source?.id || (e && typeof e === 'object' && (typeof e.employeeId === 'string' ? e.employeeId : (typeof e.managerId === 'string' ? e.managerId : null)));
+    if (id) {
+      dispatch(get_user_by_id(id)).catch((err) => console.warn('get_user_by_id failed', err));
+    }
+  };
+
+  // Fetch project applications when Applications tab is selected
+  useEffect(() => {
+    // Clear any open profile modal when switching tabs
+    dispatch(clearSelectedUser());
+
+    if (activeTab === 'Applications' && selectedProjectl && selectedProjectl._id) {
+      dispatch(getProjectApplicationsById(selectedProjectl._id));
+    }
+  }, [activeTab, selectedProjectl, dispatch]);
+
+  const handleApproveApplication = async (applicationId) => {
+    if (!selectedProjectl || !selectedProjectl._id) return;
+    try {
+      await dispatch(approveProjectApplication({ projectId: selectedProjectl._id, applicationId }));
+      // refresh applications and project details
+      dispatch(getProjectApplicationsById(selectedProjectl._id));
+      dispatch(getProjectById(selectedProjectl._id));
+    } catch (err) {
+      console.error('Approve failed', err);
+    }
+  };
+
+  const handleRejectApplication = async (applicationId) => {
+    if (!selectedProjectl || !selectedProjectl._id) return;
+    try {
+      await dispatch(declineProjectApplication({ projectId: selectedProjectl._id, applicationId }));
+      // refresh applications
+      dispatch(getProjectApplicationsById(selectedProjectl._id));
+    } catch (err) {
+      console.error('Decline failed', err);
+    }
   };
 
   const handleAddEmployee = () => {
@@ -377,10 +427,6 @@ const LANGUAGE_OPTIONS = [
 
     // console.log("Selected option:", selectedOption);
     // console.log("Position:", position);
-
-    // format today's date as e.g. 2025-07-10 ➜ 10 Jul 2025 (whatever your util does)
-    const todayISO = new Date().toISOString().split("T")[0];
-    const formattedDate = formatDateToDisplay(todayISO);
 
     // build the new employee record
     const newEmployees = {
@@ -398,10 +444,23 @@ const LANGUAGE_OPTIONS = [
     setPosition(""); // clears the text field
   };
 
-  const handleRemoveEmployee = (e) => {
-    const employeeId = e.employeeId;
-    const projectId = selectedProjectl._id;
-    dispatch(removeEmployeesFromProject({ projectId, employeeId }));
+  const handleRemoveEmployee = async (e) => {
+    const employeeId = e?.employeeId || e?._id || e?.id;
+    const projectId = selectedProjectl?._id;
+    console.log('handleRemoveEmployee called', { e, employeeId, projectId });
+    if (!employeeId || !projectId) {
+      console.warn('Cannot remove employee - missing employeeId or projectId', { e, selectedProjectl });
+      return;
+    }
+    try {
+      const result = await dispatch(removeEmployeesFromProject({ projectId, employeeId })).unwrap();
+      console.log('remove employee result', result);
+      // refresh project details to reflect removal
+      dispatch(getProjectById(projectId));
+    } catch (err) {
+      console.error('remove employee failed', err);
+      alert('Failed to remove employee. See console for details.');
+    }
   };
 
   // Renders Tabs Content and detailed modal view of selected project
@@ -661,46 +720,7 @@ const LANGUAGE_OPTIONS = [
               </div>
             ))}
 
-            {selectedUser && (
-              <div
-                className="modal-backdrop"
-                onClick={() => dispatch(clearSelectedUser())}
-              >
-                <div
-                  className="modal-content"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3>Employee Profile</h3>
-                  <table className="profile-table">
-                    <tbody>
-                      {Object.entries(selectedUser)
-                        .filter(
-                          ([key]) =>
-                            !["_id", "__v", "acknowledgments"].includes(key)
-                        )
-                        .map(([key, value]) => (
-                          <tr key={key}>
-                            <td className="profile-label">
-                              {formatLabel(key)}
-                            </td>
-                            <td className="profile-value">
-                              {formatValue(key, value)}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                  <div className="action-buttons">
-                    <button
-                      className="close-btn"
-                      onClick={() => dispatch(clearSelectedUser())}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* selectedUser modal moved to global location below */}
 
             <div className="manager-card">
               <p className="manager-label">Add Manager:</p>
@@ -770,46 +790,7 @@ const LANGUAGE_OPTIONS = [
               </tbody>
             </table>
 
-            {selectedUser && (
-              <div
-                className="modal-backdrop"
-                onClick={() => dispatch(clearSelectedUser())}
-              >
-                <div
-                  className="modal-content"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3>Employee Profile</h3>
-                  <table className="profile-table">
-                    <tbody>
-                      {Object.entries(selectedUser)
-                        .filter(
-                          ([key]) =>
-                            !["_id", "__v", "acknowledgments"].includes(key)
-                        )
-                        .map(([key, value]) => (
-                          <tr key={key}>
-                            <td className="profile-label">
-                              {formatLabel(key)}
-                            </td>
-                            <td className="profile-value">
-                              {formatValue(key, value)}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                  <div className="action-buttons">
-                    <button
-                      className="close-btn"
-                      onClick={() => dispatch(clearSelectedUser())}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* selectedUser modal moved to global location below */}
 
             <div className="add-employee-form">
               <div style={{ width: 200 }}>
@@ -839,24 +820,35 @@ const LANGUAGE_OPTIONS = [
           </div>
         )}
 
-        {/* {activeTab === 'Applications' && (
+        {activeTab === 'Applications' && (
         <div className="project-modal fade-in">
           <h3 className="section-title">Pending Applications</h3>
 
-          {selectedProject.applications.map((app, i) => (
-            <div key={i} className="application-card">
-              <div className="application-info">
-                <p className="applicant-label">{app.name} - {app.position}</p>
+          {(selectedProjectl?.applications && selectedProjectl.applications.filter(a => a.status === 'pending').length > 0) ? (
+            selectedProjectl.applications.filter(a => a.status === 'pending').map((app, i) => (
+              <div key={app._id || app.id || i} className="application-card">
+                <div className="application-info">
+                  <p className="applicant-label">{(app.employeeId && (app.employeeId.firstName || app.employeeId.firstName)) ? `${app.employeeId.firstName || ''} ${app.employeeId.lastName || ''}` : (app.name || app.firstName || 'Unknown')}</p>
+                  <p className="applicant-sub">Role: {app.role || app.position || 'N/A'}</p>
+                </div>
+                <div className="application-actions">
+                  <button className="view-btn" onClick={() => handleViewProfile(app.employeeId || app)}>
+                    View Profile
+                  </button>
+                  <button className="approve-btn" onClick={() => handleApproveApplication(app._id || app.id)}>
+                    Approve
+                  </button>
+                  <button className="reject-btn" onClick={() => handleRejectApplication(app._id || app.id)}>
+                    Reject
+                  </button>
+                </div>
               </div>
-              <div className="application-actions">
-                <button className="view-btn">View Profile</button>
-                <button className="approve-btn" onClick={() => handleApproveApplication(i)}>Approve</button>
-                <button className="reject-btn" onClick={() => handleRejectApplication(i)}>Reject</button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>No pending applications for this project.</p>
+          )}
         </div>
-      )} */}
+      )}
 
         {/* {activeTab === 'Updates/Activity' && <p>No activity yet.</p>} */}
       </div>
@@ -1191,6 +1183,32 @@ const LANGUAGE_OPTIONS = [
             </>
           )}
         </main>
+
+        {selectedUser && (
+          <div className="modal-backdrop" onClick={() => dispatch(clearSelectedUser())}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>Employee Profile</h3>
+              <table className="profile-table">
+                <tbody>
+                  {Object.entries(selectedUser)
+                    .filter(([key]) => !["_id", "__v", "acknowledgments"].includes(key))
+                    .map(([key, value]) => (
+                      <tr key={key}>
+                        <td className="profile-label">{formatLabel(key)}</td>
+                        <td className="profile-value">{formatValue(key, value)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <div className="action-buttons">
+                <button className="close-btn" onClick={() => dispatch(clearSelectedUser())}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

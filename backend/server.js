@@ -10,6 +10,9 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 // Create the Express app
 const app = express();
@@ -34,7 +37,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
+
 app.get('/', (req, res) => res.send('My Backend'));
+// Swagger api documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Main routes
 app.use('/api/applications', applicationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // Use user routes
