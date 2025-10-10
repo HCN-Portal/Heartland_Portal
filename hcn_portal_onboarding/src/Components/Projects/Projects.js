@@ -21,16 +21,17 @@ import {
   removeManagersFromProject,
   removeEmployeesFromProject,
   createProject,
-  // getProjectApplicationsById,
-  // approveProjectApplication,
-  // declineProjectApplication,
+  getProjectApplicationsById,
+  getProjectApplicationsByUserId,
+  approveProjectApplication,
+  declineProjectApplication,
 } from "../../store/reducers/projectReducer";
 import {
   clearSelectedUser,
   get_user_by_id,
   setSelectedUser,
 } from "../../store/reducers/userReducer";
-import {getProjectApplicationsByUserId,getProjectApplicationsById , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectApplicationReducer';
+// import {getProjectApplicationsByUserId,getProjectApplicationsById , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectApplicationReducer';
 
 const Projects = () => {
   // Search functionality
@@ -108,8 +109,8 @@ const LANGUAGE_OPTIONS = [
   });
 
   const dispatch = useDispatch();
-  const { projects, selectedProjectl, employees, managers } = useSelector((state) => state.projects);
-  const { projectApplications, currentProjectApplications } = useSelector((state) => state.projectApplications);
+  const { projects, selectedProjectl, employees, managers , userApplications, currentProjectApplications} = useSelector((state) => state.projects);
+  // const { projectApplications, currentProjectApplications } = useSelector((state) => state.projectApplications);
   
 
   useEffect(() => {
@@ -117,6 +118,10 @@ const LANGUAGE_OPTIONS = [
     dispatch(getManagers());
     dispatch(getEmployees());
   }, [dispatch]);
+
+
+useEffect(()=>{
+},[currentProjectApplications])
 
   // Ensure projects is always an array
   const safeProjects = Array.isArray(projects) ? projects : [];
@@ -205,7 +210,6 @@ const LANGUAGE_OPTIONS = [
     return value || "N/A";
   };
   useEffect(() => {
-    console.log(selectedProjectl);
   }, [selectedProjectl]);
 
   const [selectedMOption, setSelectedMOption] = useState(null);
@@ -231,7 +235,6 @@ const LANGUAGE_OPTIONS = [
   // Handlers
 
   const formatDateForInput = (dateString) => {
-    console.log(dateString)
     if (!dateString) return "";
 
     if (dateString.includes("/")) {
@@ -250,10 +253,8 @@ const LANGUAGE_OPTIONS = [
   };
 
   const handleEachProject = (projectId) => {
-    console.log("in projects",projectId)
     dispatch(getProjectById(projectId));
     dispatch(getProjectApplicationsById(projectId))
-    console.log(currentProjectApplications,"projects.jssss")
   };
 
   const handleEdit = (editedProject) => {
@@ -290,7 +291,6 @@ const LANGUAGE_OPTIONS = [
     // remove manager logic - support different id shapes returned by API
     const managerId = m?.managerId || m?._id || m?.id;
     const projectId = selectedProjectl?._id;
-    console.log('handleRemoveManager called', { m, managerId, projectId });
     if (!managerId || !projectId) {
       console.warn('Cannot remove manager - missing managerId or projectId', { m, selectedProjectl });
       return;
@@ -368,8 +368,6 @@ const LANGUAGE_OPTIONS = [
   // };
 
   const handleViewProfile = (e) => {
-    console.log('handleViewProfile called with', e);
-
     // Build a local user object from whatever fields are available so modal appears immediately
     const maybeNested = e && typeof e === 'object' && (e.employeeId || e.managerId) ? (e.employeeId && typeof e.employeeId === 'object' ? e.employeeId : (e.managerId && typeof e.managerId === 'object' ? e.managerId : null)) : null;
     const source = maybeNested || e;
@@ -393,23 +391,12 @@ const LANGUAGE_OPTIONS = [
     }
   };
 
-  // Fetch project applications when Applications tab is selected
-  // useEffect(() => {
-  //   // Clear any open profile modal when switching tabs
-  //   dispatch(clearSelectedUser());
 
-  //   if (activeTab === 'Applications' && selectedProjectl && selectedProjectl._id) {
-  //     dispatch(getProjectApplicationsById(selectedProjectl._id));
-  //   }
-  // }, [activeTab, selectedProjectl]);
 
   const handleApproveApplication = async (applicationId) => {
     if (!selectedProjectl || !selectedProjectl._id) return;
     try {
       await dispatch(approveProjectApplication({ projectId: selectedProjectl._id, applicationId }));
-      // refresh applications and project details
-      // dispatch(getProjectApplicationsById(selectedProjectl._id));
-      dispatch(getProjectById(selectedProjectl._id));
     } catch (err) {
       console.error('Approve failed', err);
     }
@@ -419,8 +406,6 @@ const LANGUAGE_OPTIONS = [
     if (!selectedProjectl || !selectedProjectl._id) return;
     try {
       await dispatch(declineProjectApplication({ projectId: selectedProjectl._id, applicationId }));
-      // refresh applications
-      // dispatch(getProjectApplicationsById(selectedProjectl._id));
     } catch (err) {
       console.error('Decline failed', err);
     }
@@ -429,10 +414,6 @@ const LANGUAGE_OPTIONS = [
   const handleAddEmployee = () => {
     // guard clause: make sure both pieces are filled in
     if (!selectedOption || !position) return;
-
-    // console.log("Selected option:", selectedOption);
-    // console.log("Position:", position);
-
     // build the new employee record
     const newEmployees = {
       employeeId: selectedOption.id,
@@ -452,7 +433,6 @@ const LANGUAGE_OPTIONS = [
   const handleRemoveEmployee = async (e) => {
     const employeeId = e?.employeeId || e?._id || e?.id;
     const projectId = selectedProjectl?._id;
-    console.log('handleRemoveEmployee called', { e, employeeId, projectId });
     if (!employeeId || !projectId) {
       console.warn('Cannot remove employee - missing employeeId or projectId', { e, selectedProjectl });
       return;
@@ -460,7 +440,6 @@ const LANGUAGE_OPTIONS = [
     try {
       const result = await dispatch(removeEmployeesFromProject({ projectId, employeeId })).unwrap();
       console.log('remove employee result', result);
-      // refresh project details to reflect removal
       dispatch(getProjectById(projectId));
     } catch (err) {
       console.error('remove employee failed', err);
@@ -666,7 +645,7 @@ const LANGUAGE_OPTIONS = [
                       });
                       // Validation passed
                       handleEdit(editedProject);
-                      console.log("Edited project after:", editedProject);
+                      // console.log("Edited project after:", editedProject);
                       setOverviewErrors({});
                       setIsEditingOverview(false);
                     } catch (err) {

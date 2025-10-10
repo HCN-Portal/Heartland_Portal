@@ -2,7 +2,7 @@ import React, { useState, useEffect,useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllProjectTitles, getProjectById, get_all_projects } from "../../store/reducers/projectReducer";
 import { get_user_by_id, get_all_managers } from "../../store/reducers/userReducer";
-import {getProjectApplicationsByUserId , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectApplicationReducer';
+import {getProjectApplicationsByUserId , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectReducer';
 import "../Projects/Projects.css";
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
 import Sidebar from "../Sidebar/Sidebar";
@@ -20,14 +20,14 @@ const ProjectsEmployee = () => {
     const { selectedUser } = useSelector(state => state.users);
     const { managers: managersList } = useSelector(state => state.users); // Rename to managersList for clarity
     const authState = useSelector(state => state.auth);
-    const { projects, loadingl, selectedProjectl, employees, managers } = useSelector((state) => state.projects);
+    const { projects,selectedProjectl, employees, managers ,userApplications,currentProjectApplications} = useSelector((state) => state.projects);
 
     const [projectStatus , setProjectStatus] = useState("Available");
 
   useEffect(() => {
     // Get user info from Redux or localStorage
     const userInfo = authState.userInfo || JSON.parse(localStorage.getItem('userInfo'));
-    console.log('User Info:', userInfo); // Debug log
+    // Debug log
     if (userInfo?.userId) {
       dispatch(get_user_by_id(userInfo.userId));
       dispatch(get_all_projects()); // Fetch all projects when component mounts
@@ -36,9 +36,6 @@ const ProjectsEmployee = () => {
       dispatch(getAllProjectTitles());
     }
   }, [dispatch, authState.userInfo]);
-
-   const { projectApplications } = useSelector((state) => state.projectApplications);
-
 
     useEffect(() => {
         if (selectedUser?.projectsAssigned && projects?.length > 0) {
@@ -83,26 +80,16 @@ const ProjectsEmployee = () => {
     }, [selectedUser, projects, managersList]); // Updated dependency to managersList
 
 
-// Re-Assign for easier understanding and identification
-// const [requestedProjects , setRequestedProjects ] = useState(projectApplications)
-// useEffect( () =>{
-//   const requests = projectApplications.filter(
-//   (req) => req.status?.toLowerCase() === "pending"
-// );
 
 const requestedProjects = useMemo(() => {
-  return (projectApplications || []).filter(
+  return (userApplications || []).filter(
     (req) => (req.status || req.requestStatus || "").toLowerCase() === "pending"
   );
-}, [projectApplications]);
+}, [userApplications]);
 
-// setRequestedProjects(requests)
-// console.log("useeffect projectApplications");
-// },[projectApplications])
+
 useEffect(() => {
-  console.log("projectApplications changed:", projectApplications);
-  console.log("derived requestedProjects:", requestedProjects);
-}, [projectApplications, requestedProjects]);
+}, [userApplications, requestedProjects]);
 
 const allProjects = projects
 const [projectsToDisplay, setProjectsToDisplay] = useState(myProjects);
@@ -135,7 +122,6 @@ useEffect(() => {
 useEffect ( ()=>{
 },[currentProjects , selectedProject,projectStatus]);
 useEffect ( ()=>{
-console.log("useeffect projectApplications");
 },[requestedProjects]);
 // Essential Handle Functions
 // set projects to be displayed based on Tab
