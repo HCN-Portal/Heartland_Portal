@@ -411,9 +411,8 @@
   display: flex;
   justify-content: space-between;
     /* justify-content: flex-end;  */
-
   align-items: center;
-  margin-bottom: 1rem;
+  /* margin: 1rem; */
 }
 
 .create-project-btn {
@@ -510,7 +509,7 @@ text-align: center;
 
 .status-label {
   font-weight: bold;
-  padding: 8px 12px;
+  padding: 12px 12px;
   width: 100px;
   border-radius: 10px;
   text-align: center;
@@ -519,14 +518,20 @@ text-align: center;
 .status-label.joined {
   background-color: #4caf50; /* green */
   color: white;
+  padding: 5px;
 }
 
 .status-label.requested {
+  
   background-color: #ff9800; /* orange */
   color: white;
+  padding: 5px;
 }
 
 .status-label.available {
   background-color: #9e9e9e; /* gray */
   color: white;
+  padding: 5px;
 }
+/* .status-label.requested { color: #0a7f2e; }
+.status-label.joined { color: #1f4fff; } */

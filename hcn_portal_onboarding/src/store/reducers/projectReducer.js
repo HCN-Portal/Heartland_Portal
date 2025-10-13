@@ -32,7 +32,7 @@ export const getProjectById = createAsyncThunk(
   'projects/getProjectById',
   async (projectId, { rejectWithValue }) => {
     try {
-        console.log(projectId);
+        // console.log(projectId);
       const { data } = await api.get(`/projects/${projectId}`);
       return data;
     } catch (error) {
@@ -69,7 +69,7 @@ export const updateProjectByID = createAsyncThunk(
   'projects/updateById',
   async ({ projectId, editedProject }, { rejectWithValue }) => {
     try {
-      console.log(editedProject,"in reducer")
+      // console.log(editedProject,"in reducer")
       const { data } = await api.put(`/projects/${projectId}`, editedProject);
       return {
         project: data, // updated project object
@@ -88,7 +88,7 @@ export const addEmployeesToProject = createAsyncThunk(
   'projects/addEmployeesToProject',
   async ({ projectId, requestBody }, { rejectWithValue }) => {
     try {
-      console.log(requestBody,"in reducer req body")
+      // console.log(requestBody,"in reducer req body")
       const { data } = await api.post(`/projects/${projectId}/employees`, requestBody);
       return data;
     } catch (error) {
@@ -104,7 +104,7 @@ export const addManagersToProject = createAsyncThunk(
   'projects/addManagersToProject',
   async ({ projectId, requestBody }, { rejectWithValue }) => {
     try {
-      console.log(requestBody,"in reducer req body manager")
+      // console.log(requestBody,"in reducer req body manager")
       const { data } = await api.post(`/projects/${projectId}/managers`, requestBody);
       return data;
     } catch (error) {
@@ -119,7 +119,7 @@ export const removeManagersFromProject = createAsyncThunk(
   'projects/removeManagersFromProject',
   async ({ projectId, managerId }, { rejectWithValue }) => {
     try {
-      console.log(managerId,"in reducer req remove manager")
+      // console.log(managerId,"in reducer req remove manager")
       const { data } = await api.delete(`/projects/${projectId}/managers/${managerId}`);
       return data;
     } catch (error) {
@@ -135,7 +135,7 @@ export const removeEmployeesFromProject = createAsyncThunk(
   'projects/removeEmployeesFromProject',
   async ({ projectId, employeeId }, { rejectWithValue }) => {
     try {
-      console.log(employeeId,"in reducer req remove employee")
+      // console.log(employeeId,"in reducer req remove employee")
       const { data } = await api.delete(`/projects/${projectId}/employees/${employeeId}`);
       return data;
     } catch (error) {
@@ -150,7 +150,7 @@ export const createProject = createAsyncThunk(
   'projects/',
   async ({ projectToAdd }, { rejectWithValue }) => {
     try {
-      console.log(projectToAdd,"in reducer create project")
+      // console.log(projectToAdd,"in reducer create project")
       const { data } = await api.post(`/projects/`, projectToAdd);
       return data;
     } catch (error) {
@@ -185,6 +185,48 @@ export const getProjectApplicationsById = createAsyncThunk(
   }
 );
 
+
+export const getProjectApplicationsByUserId = createAsyncThunk(
+  'projects/getProjectApplicationsByUserId',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/projects/applications/user/${userId}`);
+      return data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || `Failed to load project Requests for ${userId}`;
+      console.error(errorMessage);
+      return rejectWithValue({ error: errorMessage });
+    }
+  });
+
+export const applyToJoinProject = createAsyncThunk(
+  'projects/applyToJoinProject',
+  async ({ projectId, requestBody }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/apply-employee`, requestBody);
+      return data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || `Failed to request for project  ${projectId}`;
+      console.error(errorMessage);
+      return rejectWithValue({ error: errorMessage });
+    }
+  });
+
+
+
+  export const applyToManageProject = createAsyncThunk(
+  'projects/applyToManageProject',
+  async ({ projectId, requestBody }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/projects/${projectId}/apply-manager`, requestBody);
+      return data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || `Failed to request for project  ${projectId}`;
+      console.error(errorMessage);
+      return rejectWithValue({ error: errorMessage });
+    }
+  });
+
 export const approveProjectApplication = createAsyncThunk(
   'projects/approveProjectApplication',
   async ({ projectId, applicationId }, { rejectWithValue }) => {
@@ -217,6 +259,8 @@ const initialState = {
   loadingl: false,
   error: null,
   selectedProjectl: null,
+  currentProjectApplications:[],
+  userApplications: [],
 };
 
 // SLICE
@@ -226,11 +270,13 @@ const projectReducer = createSlice({
   reducers: {
     clearProjects: (state) => {
       state.projects = [];
+      // state.currentProjectApplications=[];
       state.error = null;
       state.loadingl = false;
     },
     clearSelectedProject: (state) => {
       state.selectedProjectl = null;
+      state.currentProjectApplications = []
     },
   },
   extraReducers: (builder) => {
@@ -430,7 +476,8 @@ const projectReducer = createSlice({
           state.loading = false;
           // action.payload.requests expected
           if (state.selectedProjectl) {
-            state.selectedProjectl.applications = action.payload.requests || [];
+            // state.selectedProjectl.applications = action.payload.requests || [];
+             state.currentProjectApplications = action.payload.requests || []
           }
         })
         .addCase(getProjectApplicationsById.rejected, (state, action) => {
@@ -438,44 +485,139 @@ const projectReducer = createSlice({
           state.error = action.payload?.error || 'Failed to fetch project applications';
         })
 
+     
+
+// User applications
+        .addCase(getProjectApplicationsByUserId.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(getProjectApplicationsByUserId.fulfilled, (state, action) => {
+          state.loading = false;
+          // action.payload.requests expected
+          state.userApplications = action.payload.requests;
+        })
+        .addCase(getProjectApplicationsByUserId.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload?.error || 'Failed to fetch project applications';
+        })
+
+
+  // Apply for a Project - Employee
+      .addCase(applyToJoinProject.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(applyToJoinProject.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        const createdApplication = action.payload.request;
+        if (!createdApplication) return;
+        state.userApplications.unshift(createdApplication)
+      })
+      .addCase(applyToJoinProject.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || 'Something went wrong';
+      })
+  // Apply for a Project - Manager
+      .addCase(applyToManageProject.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(applyToManageProject.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        const createdApplication = action.payload.application;
+        if (!createdApplication) return;
+        state.userApplications.unshift(createdApplication)
+      })
+      .addCase(applyToManageProject.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || 'Something went wrong';
+      })
+
+// Approve Project Request
         .addCase(approveProjectApplication.pending, (state) => {
           state.loading = true;
           state.error = null;
         })
-        .addCase(approveProjectApplication.fulfilled, (state, action) => {
-          state.loading = false;
-          state.successMessage = action.payload.message;
-          const { project } = action.payload;
-          if (project && state.selectedProjectl && project.id === state.selectedProjectl._id) {
-            // update managers/teamMembers depending on response
+
+      .addCase(approveProjectApplication.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || "Application approved successfully";
+
+        const { application, project } = action.payload || {};
+        if (!application || !project) return;
+
+        const appId = application._id || application.id;
+
+        //  Update current project’s applications- list the Applications tab
+        state.currentProjectApplications = state.currentProjectApplications.map((app) =>
+          app._id === appId || app.id === appId
+            ? { ...app, status: "approved" }
+            : app
+        );
+
+        // Update user’s applications list
+        // state.userApplications = state.userApplications.map((app) =>
+        //   app._id === appId || app.id === appId
+        //     ? { ...app, status: "approved" }
+        //     : app
+        // );
+       
+        //  Update selected project with new managers/employees(detail view)
+        if (project && state.selectedProjectl && project.id === state.selectedProjectl._id) {
             if (project.teamMembers) state.selectedProjectl.teamMembers = project.teamMembers;
             if (project.managers) state.selectedProjectl.managers = project.managers;
           }
-          // remove application from list if present
-          if (state.selectedProjectl && state.selectedProjectl.applications) {
-            const applicationId = action.payload.application?.id;
-            if (applicationId) {
-              state.selectedProjectl.applications = state.selectedProjectl.applications.filter(a => a._id !== applicationId && a.id !== applicationId);
-            }
-          }
-        })
+        // Update managers (since backend already did it)
+        if (project.managers && Array.isArray(project.managers)) {
+          const existingIds = new Set(state.managers.map(m => m._id || m.id));
+          const newManagers = project.managers.filter(m => !existingIds.has(m._id || m.id));
+          state.managers = [...state.managers, ...newManagers];
+        }
+        // Update employees List
+        if (project.teamMembers && Array.isArray(project.teamMembers)) {
+          const existingMemberIds = new Set(state.employees.map(t => t._id || t.id));
+          const newMembers = project.teamMembers.filter(t => !existingMemberIds.has(t._id || t.id));
+          state.employees = [...state.employees, ...newMembers];
+        }
+      })
         .addCase(approveProjectApplication.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload?.error || 'Failed to approve application';
         })
-
+// Decline application Request
         .addCase(declineProjectApplication.pending, (state) => {
           state.loading = true;
           state.error = null;
         })
-        .addCase(declineProjectApplication.fulfilled, (state, action) => {
-          state.loading = false;
-          state.successMessage = action.payload.message;
-          const applicationId = action.payload.application?.id;
-          if (state.selectedProjectl && applicationId && state.selectedProjectl.applications) {
-            state.selectedProjectl.applications = state.selectedProjectl.applications.filter(a => a._id !== applicationId && a.id !== applicationId);
-          }
-        })
+      .addCase(declineProjectApplication.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        const applicationId = action.payload.application?.id;
+        if (!applicationId) return;
+        // Update current Project Applications with new status
+        if (state.currentProjectApplications) {
+          state.currentProjectApplications = state.currentProjectApplications.map(app =>
+            app._id === applicationId || app.id === applicationId
+              ? { ...app, status: "declined" }
+              : app
+          );
+        }
+        // Also update projectApplications (if user’s list is present)
+        if (applicationId && state.userApplications) {
+          state.userApplications = state.userApplications.map(app =>
+            app.id === applicationId || app._id === applicationId
+              ? { ...app, status: action.payload.application.status }
+              : app
+          );
+        }
+      })
+
+
         .addCase(declineProjectApplication.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload?.error || 'Failed to decline application';
@@ -502,9 +644,6 @@ const projectReducer = createSlice({
          state.loading = false;
         state.error = action.payload?.error || 'Something went wrong';
       })
-
-
-
       ;
   },
 });

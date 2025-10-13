@@ -646,17 +646,25 @@ exports.applyToJoinProject = async (req, res) => {
         });
 
         await newRequest.save();
+        const addedRequest = await ProjectApplication.findById(newRequest._id)
+            .populate('employeeId', 'firstName lastName email role')
+            .populate('projectId', 'title client managers');
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: 'Application to join project submitted successfully',
-            request: {
-                id: newRequest._id,
-                projectId: newRequest.projectId,
-                status: newRequest.status,
-                requestDate: newRequest.requestDate,
-                role: newRequest.role
-            }
+            request: addedRequest,    
         });
+        // res.status(201).json({ 
+        //     message: 'Application to join project submitted successfully',
+        //     request : addedRequest
+        //     // request: {
+        //     //     id: newRequest._id,
+        //     //     projectId: newRequest.projectId,
+        //     //     status: newRequest.status,
+        //     //     requestDate: newRequest.requestDate,
+        //     //     role: newRequest.role
+        //     // }
+        // });
     } catch (error) {
         console.error('Error applying to join project:', error);
         res.status(500).json({ 

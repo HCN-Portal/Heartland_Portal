@@ -22,7 +22,6 @@ router.post('/:projectId/applications/:applicationId/approve', authMiddleware, i
 router.post('/:projectId/applications/:applicationId/decline', authMiddleware, isAdmin, projectController.declineProjectApplication); // Decline a project application
 router.get('/applications/user/:userId', authMiddleware, isEmployee, projectController.getProjectApplicationsByUserId); // Get requests by user ID
 
-
 //router.get('/', projectController.getAllProjectTitles); // Get all project titles
 //router.post('/', projectController.createProject); // Create a new project
 //router.get('/applications', projectController.getProjectApplications); // Get all requests for a project

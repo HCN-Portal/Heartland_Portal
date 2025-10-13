@@ -22,6 +22,7 @@ import {
   removeEmployeesFromProject,
   createProject,
   getProjectApplicationsById,
+  getProjectApplicationsByUserId,
   approveProjectApplication,
   declineProjectApplication,
 } from "../../store/reducers/projectReducer";
@@ -30,6 +31,7 @@ import {
   get_user_by_id,
   setSelectedUser,
 } from "../../store/reducers/userReducer";
+// import {getProjectApplicationsByUserId,getProjectApplicationsById , applyToJoinProject , approveProjectApplication, declineProjectApplication} from '../../store/reducers/projectApplicationReducer';
 
 const Projects = () => {
   // Search functionality
@@ -107,14 +109,19 @@ const LANGUAGE_OPTIONS = [
   });
 
   const dispatch = useDispatch();
-  const { projects, selectedProjectl, employees, managers } =
-    useSelector((state) => state.projects);
+  const { projects, selectedProjectl, employees, managers , userApplications, currentProjectApplications} = useSelector((state) => state.projects);
+  // const { projectApplications, currentProjectApplications } = useSelector((state) => state.projectApplications);
+  
 
   useEffect(() => {
     dispatch(getAllProjectTitles());
     dispatch(getManagers());
     dispatch(getEmployees());
   }, [dispatch]);
+
+
+useEffect(()=>{
+},[currentProjectApplications])
 
   // Ensure projects is always an array
   const safeProjects = Array.isArray(projects) ? projects : [];
@@ -203,7 +210,6 @@ const LANGUAGE_OPTIONS = [
     return value || "N/A";
   };
   useEffect(() => {
-    console.log(selectedProjectl);
   }, [selectedProjectl]);
 
   const [selectedMOption, setSelectedMOption] = useState(null);
@@ -229,7 +235,6 @@ const LANGUAGE_OPTIONS = [
   // Handlers
 
   const formatDateForInput = (dateString) => {
-    console.log(dateString)
     if (!dateString) return "";
 
     if (dateString.includes("/")) {
@@ -249,6 +254,7 @@ const LANGUAGE_OPTIONS = [
 
   const handleEachProject = (projectId) => {
     dispatch(getProjectById(projectId));
+    dispatch(getProjectApplicationsById(projectId))
   };
 
   const handleEdit = (editedProject) => {
@@ -285,7 +291,6 @@ const LANGUAGE_OPTIONS = [
     // remove manager logic - support different id shapes returned by API
     const managerId = m?.managerId || m?._id || m?.id;
     const projectId = selectedProjectl?._id;
-    console.log('handleRemoveManager called', { m, managerId, projectId });
     if (!managerId || !projectId) {
       console.warn('Cannot remove manager - missing managerId or projectId', { m, selectedProjectl });
       return;
@@ -363,8 +368,6 @@ const LANGUAGE_OPTIONS = [
   // };
 
   const handleViewProfile = (e) => {
-    console.log('handleViewProfile called with', e);
-
     // Build a local user object from whatever fields are available so modal appears immediately
     const maybeNested = e && typeof e === 'object' && (e.employeeId || e.managerId) ? (e.employeeId && typeof e.employeeId === 'object' ? e.employeeId : (e.managerId && typeof e.managerId === 'object' ? e.managerId : null)) : null;
     const source = maybeNested || e;
@@ -388,23 +391,12 @@ const LANGUAGE_OPTIONS = [
     }
   };
 
-  // Fetch project applications when Applications tab is selected
-  useEffect(() => {
-    // Clear any open profile modal when switching tabs
-    dispatch(clearSelectedUser());
 
-    if (activeTab === 'Applications' && selectedProjectl && selectedProjectl._id) {
-      dispatch(getProjectApplicationsById(selectedProjectl._id));
-    }
-  }, [activeTab, selectedProjectl, dispatch]);
 
   const handleApproveApplication = async (applicationId) => {
     if (!selectedProjectl || !selectedProjectl._id) return;
     try {
       await dispatch(approveProjectApplication({ projectId: selectedProjectl._id, applicationId }));
-      // refresh applications and project details
-      dispatch(getProjectApplicationsById(selectedProjectl._id));
-      dispatch(getProjectById(selectedProjectl._id));
     } catch (err) {
       console.error('Approve failed', err);
     }
@@ -414,8 +406,6 @@ const LANGUAGE_OPTIONS = [
     if (!selectedProjectl || !selectedProjectl._id) return;
     try {
       await dispatch(declineProjectApplication({ projectId: selectedProjectl._id, applicationId }));
-      // refresh applications
-      dispatch(getProjectApplicationsById(selectedProjectl._id));
     } catch (err) {
       console.error('Decline failed', err);
     }
@@ -424,10 +414,6 @@ const LANGUAGE_OPTIONS = [
   const handleAddEmployee = () => {
     // guard clause: make sure both pieces are filled in
     if (!selectedOption || !position) return;
-
-    // console.log("Selected option:", selectedOption);
-    // console.log("Position:", position);
-
     // build the new employee record
     const newEmployees = {
       employeeId: selectedOption.id,
@@ -447,7 +433,6 @@ const LANGUAGE_OPTIONS = [
   const handleRemoveEmployee = async (e) => {
     const employeeId = e?.employeeId || e?._id || e?.id;
     const projectId = selectedProjectl?._id;
-    console.log('handleRemoveEmployee called', { e, employeeId, projectId });
     if (!employeeId || !projectId) {
       console.warn('Cannot remove employee - missing employeeId or projectId', { e, selectedProjectl });
       return;
@@ -455,7 +440,6 @@ const LANGUAGE_OPTIONS = [
     try {
       const result = await dispatch(removeEmployeesFromProject({ projectId, employeeId })).unwrap();
       console.log('remove employee result', result);
-      // refresh project details to reflect removal
       dispatch(getProjectById(projectId));
     } catch (err) {
       console.error('remove employee failed', err);
@@ -661,7 +645,7 @@ const LANGUAGE_OPTIONS = [
                       });
                       // Validation passed
                       handleEdit(editedProject);
-                      console.log("Edited project after:", editedProject);
+                      // console.log("Edited project after:", editedProject);
                       setOverviewErrors({});
                       setIsEditingOverview(false);
                     } catch (err) {
@@ -770,7 +754,7 @@ const LANGUAGE_OPTIONS = [
                       {i + 1}. {e.name}
                     </td>
                     <td>{e.email}</td>
-                    <td>tbd</td>
+                    <td>{e.dateAdded.split("T")[0]}</td>
                     <td>
                       <button
                         className="view-btn"
@@ -824,11 +808,11 @@ const LANGUAGE_OPTIONS = [
         <div className="project-modal fade-in">
           <h3 className="section-title">Pending Applications</h3>
 
-          {(selectedProjectl?.applications && selectedProjectl.applications.filter(a => a.status === 'pending').length > 0) ? (
-            selectedProjectl.applications.filter(a => a.status === 'pending').map((app, i) => (
+          {currentProjectApplications?currentProjectApplications.filter((application)=> application.status=='pending').map((app, i) => (
               <div key={app._id || app.id || i} className="application-card">
                 <div className="application-info">
-                  <p className="applicant-label">{(app.employeeId && (app.employeeId.firstName || app.employeeId.firstName)) ? `${app.employeeId.firstName || ''} ${app.employeeId.lastName || ''}` : (app.name || app.firstName || 'Unknown')}</p>
+                  <p className="applicant-label">
+                    {(app.employeeId && (app.employeeId.firstName || app.employeeId.firstName)) ? `${app.employeeId.firstName || ''} ${app.employeeId.lastName || ''}` : (app.name || app.firstName || 'Unknown')}</p>
                   <p className="applicant-sub">Role: {app.role || app.position || 'N/A'}</p>
                 </div>
                 <div className="application-actions">
@@ -843,10 +827,8 @@ const LANGUAGE_OPTIONS = [
                   </button>
                 </div>
               </div>
-            ))
-          ) : (
-            <p>No pending applications for this project.</p>
-          )}
+            )) : (<p>No pending applications for this project.</p>)
+            }
         </div>
       )}
 
