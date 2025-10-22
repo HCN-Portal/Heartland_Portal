@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./Projects.css";
 import NavigationBar from "../UI/NavigationBar/NavigationBar";
+import Sidebar from "../Sidebar/Sidebar";
 import Select from "react-select";
 import axios from "axios";
 import api from '../../api/api';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+
 
 
 const Projects = () => {
@@ -1063,54 +1065,9 @@ const Projects = () => {
     <div>
       <NavigationBar isLoggedIn="true" />
       <div className="admin-dashboard">
-        <button
-          className="toggle-sidebar-btn"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-        {sidebarOpen ? (
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <button
-                className="toggle-sidebar-btn-inside"
-                onClick={() => setSidebarOpen(false)}
-              >
-                &#9776;
-              </button>
-              <h2 className="sidebar-title">Heartland Community Network</h2>
-            </div>
-            <nav className="sidebar-nav">
-              <ul>
-                <li>
-                  <a href="/admin/home">Home / Dashboard</a>
-                </li>
-                <li>
-                  <a href="/admin/pending">Pending Applications</a>
-                </li>
-                <li>
-                  <a href="/admin/employees">Active Employees</a>
-                </li>
-                <li>
-                  <a href="/admin/projects" style={{ fontWeight: "900" }}>
-                    Projects
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </aside>
-        ) : (
-          <div className="collapsed-sidebar">
-            <div className="collapsed-top">
-              <button
-                className="toggle-sidebar-btn-collapsed"
-                onClick={() => setSidebarOpen(true)}
-              >
-                &#9776;
-              </button>
-            </div>
-          </div>
-        )}
-
+        
         <main className="pending-main">
           {!selectedProject ? (
             <>

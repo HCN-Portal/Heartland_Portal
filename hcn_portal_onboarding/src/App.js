@@ -23,6 +23,8 @@ import EmployeeClockify from './Components/EmployeeClockify/ClockifyPage';
 import EmployeeHelp from './Components/EmployeeHelp/HelpPage';
 import ProjectsEmployee from './Components/ProjectsEmployee/ProjectsEmployee';
 
+import ProjectsManager from './Components/ProjectsManager/ProjectsManager';
+
 
 
 function App() {
@@ -43,6 +45,8 @@ function App() {
           <Route path="/admin/pending" element={<PendingApplications />} />
           <Route path="/admin/employees" element={<CurrentEmployees />} />
           <Route path="/admin/projects" element={<Projects />} />
+          {/* Just for test as unable to login to Employee Dashboard */}
+          <Route path='/admin/managerprojects' element={<ProjectsManager />} />
         </Route>
 
         {/* Employee Protected Routes */}
@@ -53,6 +57,7 @@ function App() {
           <Route path="/employee/clockify" element={<EmployeeClockify />} />
           <Route path="/employee/help" element={<EmployeeHelp />} />
           <Route path="/employee/projects" element={<ProjectsEmployee />} />
+          <Route path="/employee/managerprojects" element={<ProjectsManager />} />
         </Route>
       </Routes>
     </Router>

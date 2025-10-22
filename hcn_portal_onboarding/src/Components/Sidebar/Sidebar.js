@@ -18,6 +18,7 @@ const Sidebar = ({ sidebarOpen, toggleSidebar, activePath }) => {
     { to: '/employee/clockify', label: 'Clockify' },
     { to: '/employee/projects', label: 'Projects'},
     { to: '/employee/help', label: 'Help' },
+    { to: '/employee/managerprojects', label: 'Manager Projects'},
   ];
 
   const adminLinks = [

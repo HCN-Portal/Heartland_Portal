@@ -21,7 +21,7 @@ const LoginPage = () => {
   // Field-level error states
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
+  console.log(userInfo)
   // Handle form submission
   const handleLogin = (e) => {
     e.preventDefault();

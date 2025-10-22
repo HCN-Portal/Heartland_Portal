@@ -12,7 +12,7 @@ const EmployeeDashboard = () => {
   
   // Get user info from auth state and user state
   const { userInfo } = useSelector(state => state.auth);
-  const { selectedUser, loading } = useSelector(state => state.user);
+  const { selectedUser, loading } = useSelector(state => state.users);
   
   // Fetch user details when component mounts or when userInfo changes
   useEffect(() => {
