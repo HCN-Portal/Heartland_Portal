@@ -25,8 +25,8 @@ const NavigationBar = ({ isLoggedIn }) => {
         <nav>
           <ul className="nav-links">
             <li><a href="#support">Support</a></li>
-            <li><a href="#mission">Mission</a></li>
             <li><Link to="/services">Services</Link></li>
+            <li><Link to="/mission">Mission</Link></li>
             <li>
               {isLoggedIn ? (
                 <button onClick={handleLogout} className="nav-button">Logout</button>
