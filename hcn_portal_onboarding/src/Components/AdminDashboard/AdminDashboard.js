@@ -15,7 +15,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     dispatch(get_dashboard_stats());
-    dispatch(get_all_employees());
+    // dispatch(get_all_employees());
   }, [dispatch]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 

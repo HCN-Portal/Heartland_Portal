@@ -129,7 +129,7 @@ export const appReducer = createSlice({
         })
         .addCase(get_all_employees.fulfilled, (state, { payload }) => {
             state.employees = payload.employees;
-            state.activeEmployees = payload.count;
+            // state.activeEmployees = payload.count;
 
             state.loading = false;
         });

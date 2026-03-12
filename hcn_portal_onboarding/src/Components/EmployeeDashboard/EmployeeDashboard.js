@@ -20,6 +20,7 @@ const EmployeeDashboard = () => {
       // Check if we have userInfo from localStorage (after reload)
       const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const userId = userInfo?.userId || storedUserInfo?.userId;
+      console.log("fetching", userId,userInfo)
       
       if (userId && !selectedUser) {
         try {

@@ -28,7 +28,8 @@ module.exports.isAdmin = (req, res, next) => {
 
 module.exports.isAuthUser = (req, res, next) => {
     // Allow access if user is requesting their own info or is an admin
-    if (req.userId === req.params.id || req.role === 'admin') {
+    // Temporarily allow the manager role to access employee profiles for testing purposes, but this should be reviewed for security implications in the future.
+    if (req.userId === req.params.id || req.role === 'admin' || req.role === 'manager') {
         console.log("Access granted:", req.role === 'admin' ? "Admin access" : "Own account access");
         return next();
     }

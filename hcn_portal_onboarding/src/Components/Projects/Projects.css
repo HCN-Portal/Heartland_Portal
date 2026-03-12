@@ -533,5 +533,24 @@ text-align: center;
   color: white;
   padding: 5px;
 }
+
+
+.pending-btn {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: red;
+  color: white;
+  padding: 3px 6px;
+  font-size: 11px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+
 /* .status-label.requested { color: #0a7f2e; }
 .status-label.joined { color: #1f4fff; } */
