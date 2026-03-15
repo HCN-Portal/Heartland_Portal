@@ -67,7 +67,8 @@ const LoginPage = () => {
       } else {
         if (userInfo.role === 'admin') {
           navigate('/admin/home');
-        } else if (userInfo.role === 'employee') {
+        } else if (userInfo.role === 'employee' || userInfo.role ==='manager') {
+          console.log("correct place")
           navigate('/employee/home');
         }
       }

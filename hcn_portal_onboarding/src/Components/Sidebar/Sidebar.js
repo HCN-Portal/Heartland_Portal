@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import './Sidebar.css';
 
 
+
 const Sidebar = ({ sidebarOpen, toggleSidebar, activePath }) => {
   const location = useLocation();
   // const { userInfo } = useSelector((state) => state.auth);
@@ -27,7 +28,21 @@ const Sidebar = ({ sidebarOpen, toggleSidebar, activePath }) => {
     { to: '/admin/projects', label: 'Projects' },
   ];
 
-  const links = location.pathname.startsWith('/admin') ? adminLinks : employeeLinks;
+  const managerLinks = [
+      { to: '/employee/home', label: 'Employee Home' },
+    { to: '/employee/profile', label: 'Profile' },
+    { to: '/employee/clockify', label: 'Clockify' },
+    { to: '/employee/help', label: 'Help' },
+    { to: '/employee/managerprojects', label: 'Manager Projects'},
+  ]
+
+   const { userInfo } = useSelector(state => state.auth);
+
+const links =
+  userInfo.role === 'admin' ? adminLinks :
+  userInfo.role === 'manager' ? managerLinks :
+  employeeLinks;
+  // const links = location.pathname.startsWith('/admin') ? adminLinks : employeeLinks;
 
   return sidebarOpen ? (
     <aside className="sidebar">

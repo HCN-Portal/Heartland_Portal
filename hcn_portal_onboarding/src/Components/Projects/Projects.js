@@ -1111,6 +1111,19 @@ useEffect(()=>{
                           >
                             View Project
                           </button>
+                          {project.pendingApplications >0 && (
+                           <button
+                                    className="pending-btn"
+                                    onClick={() => {
+                                    // setSelectedProject(project);
+                                    setActiveTab("Applications"); // new tab for pending requests
+                                    }}
+                                >
+                                            {/* Pending Requests */}
+                                            
+                                                <span className="badge">{project.pendingApplications}</span>
+                                           
+                                        </button> )}
                         </td>
                       </tr>
                     ))

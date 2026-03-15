@@ -33,23 +33,57 @@ exports.createProject = async (req, res) => {
 }
 
 //Add manager name and status to be returned
+// exports.getAllProjectTitles = async (req, res) => {
+//     try {
+//         // Fetch only the title and _id fields from all projects
+//         const projects = await Project.find();
+        
+//         // Return the simplified project list
+//         res.status(200).json({
+//             // count: projects.length,
+//             // projects: projects.map(project => ({
+//             //     id: project._id,
+//             //     title: project.title
+//             // }))
+//             projects:projects
+//         });
+//     } catch (error) {
+//         console.error('Error fetching project titles:', error);
+//         res.status(500).json({ message: 'Error fetching project titles', error: error.message });
+//     }
+// };
+
+
 exports.getAllProjectTitles = async (req, res) => {
     try {
-        // Fetch only the title and _id fields from all projects
+        // Fetch all projects first
         const projects = await Project.find();
-        
-        // Return the simplified project list
+
+        // For each project, count how many pending requests it has
+        const projectsWithPending = await Promise.all(
+            projects.map(async (proj) => {
+                const pendingCount = await ProjectApplication.countDocuments({
+                    projectId: proj._id,
+                    status: "pending"
+                });
+
+                return {
+                    ...proj._doc,   // include full project document
+                    pendingApplications: pendingCount
+                };
+            })
+        );
+
         res.status(200).json({
-            // count: projects.length,
-            // projects: projects.map(project => ({
-            //     id: project._id,
-            //     title: project.title
-            // }))
-            projects:projects
+            projects: projectsWithPending
         });
+
     } catch (error) {
-        console.error('Error fetching project titles:', error);
-        res.status(500).json({ message: 'Error fetching project titles', error: error.message });
+        console.error("Error fetching projects with pending count:", error);
+        res.status(500).json({
+            message: "Error fetching project titles",
+            error: error.message
+        });
     }
 };
 

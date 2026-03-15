@@ -112,7 +112,6 @@ const userReducer = createSlice({
       .addCase(get_user_by_id.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedUser = action.payload;
-        console.log('Updated selectedUser:', action.payload);
       })
       .addCase(get_user_by_id.rejected, (state, action) => {
         state.loading = false;

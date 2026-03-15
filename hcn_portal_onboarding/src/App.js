@@ -26,6 +26,7 @@ import EmployeeHelp from './Components/EmployeeHelp/HelpPage';
 import ProjectsEmployee from './Components/ProjectsEmployee/ProjectsEmployee';
 
 
+import ProjectsManager from './Components/ProjectsManager/ProjectsManager';
 
 function App() {
   return (
@@ -50,14 +51,23 @@ function App() {
         </Route>
 
         {/* Employee Protected Routes */}
-        <Route element={<PrivateRoute allowedRoles={['employee']} />}>
+        <Route element={<PrivateRoute allowedRoles={['employee','manager']} />}>
           <Route path="/employee/home" element={<EmployeeDashboard />} />
           <Route path="/employee/profile" element={<EmployeeProfile />} />
           {/* <Route path="/employee/projects" element={<EmployeeProjects />} /> */}
           <Route path="/employee/clockify" element={<EmployeeClockify />} />
           <Route path="/employee/help" element={<EmployeeHelp />} />
+          
+          {/* <Route path="/employee/managerprojects" element={<ProjectsManager />} /> */}
+        </Route>
+<Route element={<PrivateRoute allowedRoles={['employee']} />}>
           <Route path="/employee/projects" element={<ProjectsEmployee />} />
         </Route>
+
+ <Route element={<PrivateRoute allowedRoles={['manager']} />}>
+          <Route path="/employee/managerprojects" element={<ProjectsManager />} />
+        </Route>
+
       </Routes>
     </Router>
   );
